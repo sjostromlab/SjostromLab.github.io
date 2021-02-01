@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge"> 
+  <link rel="stylesheet" href="styles3.css">
+  <title>Hodgkin-Huxley Model</title>
+  <style> 
+	p {line-height: 2;}
+  </style>
+</head>
+<body>
+
+<div class="header">
+	<h1>Hodgkin-Huxley Squid Giant Axon Model</h1>
+</div>
+
+<div class="row">
+  <div class="col-3 col-s-9 col-d-6 col-h-3"> 
+  	
+  	<div class="center">
+	<input type="button" value="Reset Simulation" id="reset"> <br>
+	</div>
+
+	<p id="ptop"> 
+	<label for="last10Trace"><b>Show Last 10 Traces</b></label> <input type="checkbox" id="last10Trace" /><br>
+	<label for="lastTrace"><b>Show Last Trace</b></label> <input type="checkbox" id="lastTrace" /><br>
+	<label for="VC"><b>Voltage Clamp</b></label> <input type="checkbox" id="VC" /><br>
+	<label for="ttx"><b>Add TTX</b></label> <input type="checkbox" id="ttx" /><br>
+	<label for="tea"><b>Add TEA</b></label> <input type="checkbox" id="tea" />
+	</p>
+	
+	<p id="pbottom"> 
+	<strong> HH model settings: </strong> <br>
+	<label class="tooltip" for="tspan">Simulation Window (ms): 
+		<span class="tooltiptext">Time span of the simulation.</span> 
+	</label>
+    <input type="number" id="tspan" step="1" min="0" /> <br> 
+
+	<label id="iinputlabel" class="tooltip" for="iinput"><i>I</i> (mA): 
+		<span class="tooltiptext">Input current.</span> 
+	</label>
+    <input type="number" id="iinput" step="0.01" /> <br>
+
+    <label class="tooltip" for="duration">Duration (ms): 
+		<span class="tooltiptext">Duration of input current.</span> 
+	</label>
+    <input type="number" id="duration" step="1" min="0" /> <br>
+	
+	
+	<label id="rvlabel" class="tooltip" for="rv"><i>u</i><sub>i</sub> (mV): 
+		<span class="tooltiptext">Initial membrane potential.</span> 
+	</label>
+    <input type="number" id="rv" step="1" />
+	</p> 
+	
+	<p id="ParaPanel" class="hidden"> 
+	<label for="custompara"><b>Customize gating variables</b></label> <input type="checkbox" id="custompara" /><br>
+    <label class="tooltip" for="mi" style="color:rgb(55, 128, 191);"><i>m</i><sub>i</sub>: 
+		<span class="tooltiptext">Initial value of gating variable <i>m</i>.</span> 
+	</label>
+    <input type="number" id="mi" step="0.1" min="0" max="1" disabled="true" /> <br> 
+	<input type="range" id="mRange" step="0.1" min="0" max="1" class="slider" disabled="true"> <br>
+	
+    <label class="tooltip" for="hi" style="color:rgb(255, 165, 0);"><i>h</i><sub>i</sub>: 
+		<span class="tooltiptext">Initial value of gating variable <i>h</i>.</span> 
+	</label>
+    <input type="number" id="hi" step="0.1" min="0" max="1" disabled="true" /> <br> 
+	<input type="range" id="hRange" step="0.1" min="0" max="1" class="slider" disabled="true"> <br>
+	
+	<label class="tooltip" for="ni" style="color:rgb(124, 252, 0);"><i>n</i><sub>i</sub>: 
+		<span class="tooltiptext">Initial value of gating variable <i>n</i>.</span> 
+	</label>
+    <input type="number" id="ni" step="0.1" min="0" max="1" disabled="true" /> <br> 
+	<input type="range" id="nRange" step="0.1" min="0" max="1" class="slider" disabled="true">
+	</p>
+
+	<p id="VCPanel" class="hidden"> <strong> V-Clamp settings: </strong> <br>
+	<label class="tooltip" for="mean">Command voltage (mV): 
+		<span class="tooltiptext">The voltage at which the cell is clamped.</span> 
+	</label>
+    <input type="number" id="clampV" step="5" /><br><br> 
+
+    <label class="tooltip" for="restV">V<sub>i</sub> (mV): 
+		<span class="tooltiptext">Holding voltage before command voltage step is applied.</span> 
+	</label>
+    <input type="number" id="restV" step="1" /><br> 
+	</p> 
+
+  </div>
+  
+  <div class="col-9 col-s-12 col-d-12 col-h-9">
+  	<div class="wrapper">
+    	<div id="myDiv1" class="plots"></div>
+		<div id="myDiv2" class="plots"></div> 
+		<!-- <div id="myDiv3" class="plots"></div> -->
+		<div id="myDiv4" class="plots"></div>
+	</div>
+  </div>
+  
+</div>
+
+<div class="footer">
+	Hodgkin-Huxley Model Ver. 0.8.1
+</div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="./HH_ver_0.8.1.js"></script>
+  
+
+</body>
+</html>

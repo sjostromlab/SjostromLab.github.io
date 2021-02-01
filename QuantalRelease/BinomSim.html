@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge"> 
+  <link rel="stylesheet" href="styles2.css">
+  <title>Binomial Simulation</title>
+  <style> 
+	p {line-height: 2;}
+  </style>
+</head>
+<body>
+
+<div class="header">
+	<h1>Quantal Release Simulation</h1>
+</div>
+
+<div class="row">
+  <div class="col-3 col-s-9 col-d-6 col-h-3"> 
+  
+	<p id="ptop"> 
+	
+	<input type="button" value="Reset" id="reset">  
+	<input type="button" value="Show more" id="toggle"> <br> 
+	<label for="histogram"><b>Show as histogram</b></label> <input type="checkbox" id="histogram" />
+	</p>
+	
+	<p id="morePanel" class="hidden"> 
+	<label class="tooltip" for="mean">Mean: 
+		<span class="tooltiptext">Expected mean of the EPSC amplitude across different trials.</span> 
+	</label>
+    <input type="text" id="mean" disabled /> <br> 
+	
+	<label class="tooltip" for="sDev">sDev: 
+		<span class="tooltiptext">Standard deviation.</span> 
+	</label>
+    <input type="text" id="sDev" disabled /> <br> 
+	
+	<label class="tooltip" for="CV">CV: 
+		<span class="tooltiptext">Coefficient of variation.</span> 
+	</label>
+    <input type="text" id="CV" disabled />
+	</p>
+	
+	<p> 
+    <label class="tooltip" for="numOfSyn" style="color:red;">n: 
+		<span class="tooltiptext">Number of synapses.</span> 
+	</label>
+    <input type="number" id="numOfSyn" step="1" min="1" max="25"/> <br> 
+	<input type="range" id="nRange" step="1" min="1" max="25" class="slider"> <br>
+	
+    <label class="tooltip" for="relPro" style="color:green;">p: 
+		<span class="tooltiptext">Release probability of each synapse.</span> 
+	</label>
+    <input type="number" id="relPro" step="0.01" min="0" max="1"/> <br> 
+	<input type="range" id="pRange" step="0.01" min="0" max="1" class="slider"> <br>
+	
+	<label class="tooltip" for="quanAmp">q: 
+		<span class="tooltiptext">Quantal amplitude.</span> 
+	</label>
+    <input type="number" id="quanAmp" step="0.5" min="0.5" max="10"/> <br> 
+	<input type="range" id="qRange" step="0.5" min="0.5" max="10" class="slider">
+	</p>
+	
+	<p> 
+	<label class="tooltip" for="nMax" style="color:red;">n max: 
+		<span class="tooltiptext">Maximum number of synapses.</span> 
+	</label>
+    <input type="number" id="nMax" step="1" min="1" max="50"/> <br>
+	
+    <label class="tooltip" for="pMax" style="color:green;">p max: 
+		<span class="tooltiptext">Maximum release probability of each synapse.</span> 
+	</label>
+    <input type="number" id="pMax" step="0.01" min="0" max="1"/> <br> 
+	
+	<label class="tooltip" for="qMax">q max: 
+		<span class="tooltiptext">Maximum quantal amplitude.</span> 
+	</label>
+    <input type="number" id="qMax" step="0.5" min="0.5" max="25"/>
+	</p> 
+	
+	<p id="pbottom">
+	<label class="tooltip" for="noise">Noise: 
+		<span class="tooltiptext">Measurement noise.</span> 
+	</label>
+    <input type="number" id="noise" step="0.01" min="0" max="6"/> <br> 
+	<input type="range" id="noiseRange" step="0.01" min="0" max="6" class="slider">
+    </p> 
+		
+  </div>
+  
+  <div class="col-9 col-s-12 col-d-12 col-h-9">
+	<div class="wrapper">
+    <div id="myDiv" class="plots"></div>
+	<div id="myDiv2" class="legend">
+		<p class="grid-item">
+		n = <span id="nVal"></span><br>
+		p = <span id="pVal"></span><br>
+		q = <span id="qVal"></span><br>
+		noise = <span id="noiseVal"></span>
+		</p>
+		<p id="moreLegend" class="grid-item hidden">
+		mean = <span id="meanVal"></span><br>
+		sDev = <span id="sDevVal"></span><br>
+		CV = <span id="CVVal"></span><br>
+		Total p = <span id="pTotal"></span>
+		</p>
+	</div> 
+	<div id="myDiv3" class="plots"></div>
+	<div id="myDiv4" class="legend"></div>
+    </div>
+  </div>
+  
+</div>
+
+<div class="footer">
+	Quantal release simulation Model Ver 0.6.0
+</div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="./Binomial_simulation_ver_0.6.0.js"></script>
+  
+
+</body>
+</html>
