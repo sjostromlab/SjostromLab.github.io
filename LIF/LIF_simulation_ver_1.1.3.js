@@ -852,7 +852,33 @@ function submitpreset(event) {
 	usersynFacil.value = 0; 
 	usertauDepr.value = 0.221; 
 	usertauFacil.value = 0.169; 
-  } 	  
+  }
+  if (p == "L5_BC_synapse") { 
+	usercurrFlag.checked = false; 
+	userextTrainFlag.checked = true; 
+	usersynFlag.checked = true; 
+	usercurrMag.value = 0.1;
+	userE_leak.value = -70;
+	usertauM.value = 10; 
+	usercurrDur.value = 120; 
+	userR_input.value = 160; 
+	userAP_threshold.value = -37; 
+	userAP_max.value = 20; 
+	userAP_reset.value = -80; 
+	userwDur.value = 200; 
+	usershiftCurrX.value = 0; 
+	userfreq.value = 30; 
+	usernPulse.value = 5; 
+	usertStart.value = 30; 
+	userg_syn.value = 1; 
+	userE_syn.value = 0; 
+	usertau1.value = 1.4; 
+	usertau2.value = 3; 
+	usersynDep.value = 0.25; 
+	usersynFacil.value = 0; 
+	usertauDepr.value = 0.44; 
+	usertauFacil.value = 0.169; 
+  }
   if (p == "L5_BC_slow") { 
 	usercurrFlag.checked = false; 
 	userextTrainFlag.checked = true; 
