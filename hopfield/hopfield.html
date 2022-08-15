@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=>, initial-scale=1.0">
+    <title>Hopfield Network</title>
+    <link rel="stylesheet" href="hopfield.css" type="text/css"></link>
+</head>
+<body>
+   <h1 id="heading">Hopfield Network Simulator</h1>
+<div id="final" style="min-width:260px">
+   <div id="regen">
+      <p id="regenerate"> 
+         <strong> Generate Matrices </strong> <br>
+         <label id="inputsize" class="tooltip" for="input">Matrix Size
+            <span class="tooltiptext">a number between 3-10</span> 
+         </label>
+         <input type="number" id="matrixSize"> <br>
+      
+         <label class="tooltip" for="memnum">Number of Memory: 
+            <span class="tooltiptext">number of memories</span> 
+         </label>
+         <input type="number" id="memorynum"><br>
+         <button type="submit" id="matrixsubmit" onclick="addMatrix()">Regenerate</button>
+         <span id="errormsg"></span>
+         
+         </p> 
+
+   
+      <!--<span id="regenerate">  Generate Matrices: input numbers from 3-10</span><br>
+      <input type="number" id="matrixSize" placeholder="Matrix Size">
+      <input type="number" id="memorynum" placeholder="Number of Memory"><br>
+      <button type="submit" id="matrixsubmit" onclick="addMatrix()">Regenerate</button>
+      <span id="errormsg"></span>-->
+   </div>
+   <div id="noiseadd">
+      <p id="regenerate"> 
+      
+         <label class="tooltip" id="addnoise">Noise Level: 
+            <span class="tooltiptext">amount of noise generated to the memory</span> 
+         </label>
+         <input type="number" id="noiselevel" placeholder="Noise Level"><br>
+         <label id="animate">Generate Animation:
+            <input type="checkbox" id="animation">
+         </label>     
+         </p> 
+   </div>
+   <!--<div id="animate">
+      <span>Generate Animation</span>
+      <input type="checkbox" id="animation">
+   </div>-->
+
+   <div id="finish">
+      <button type="submit" id="matrixsubmit" onclick="hopfield()">submit</button>
+      <button type="submit" id="reset-btn" onclick="reset()">reset</button>
+   </div>
+   <div id="slide">0</div>
+   <div id="countbox">0</div>
+</div>
+<div id="matrix">
+   <tr id="row1"><div id="mem1" class = "contain"></div>
+   <div id="mem2" class = "contain"></div>
+   <div id="mem3" class = "contain"></div>
+   <div id="mem4" class = "contain"></div>
+   <div id="mem5" class = "contain"></div></tr>
+    <tr id="row2"><div id="mem6" class = "contain"></div>
+    <div id="mem7" class = "contain"></div>
+    <div id="mem8" class = "contain"></div>
+    <div id="mem9" class = "contain"></div> 
+    <div id="mem10" class = "contain"></div></tr> 
+</div>
+    <table id="allPlots">
+      <div id="startAni" style="max-height:40px">
+         <button type="submit" id="startIt" onclick="startit()">Start Animation</button>
+         <button type="submit" id="animateBtn" onclick="contAnimate()">animate</button>
+      </div>
+       <tr class="plotani" id="plot0"> 
+          <td id="firstplot"><div id='aPlot' class="plot" style="max-width:50-px"></div></td>
+          <td id="firstplot2" ><div id='LyPlot' class="plots" style="min-width:250-px; border-style:none"> </div></td>
+       </tr>
+       <tr class="plot" id="plot1">
+    </tr>
+    <tr class="plot" id="plot2">
+ </tr>
+ <tr class="plot" id="plot3">
+</tr>
+<tr class="plot"  id="plot4">
+</tr>
+<tr class="plot" id="plot5">
+</tr>
+<tr class="plot" id="plot6">
+</tr>
+<tr class="plot" id="plot7">
+</tr>
+<tr class="plot" id="plot8">
+</tr>
+<tr class="plot" id="plot9">
+</tr>
+<tr class="plot" id="plot10">
+
+   
+</tr>
+   </table>
+
+
+
+<footer class="footer">
+   Hopfield Simulations V1.2
+</footer>
+
+<script src = "hopfield.js"></script>
+<script src='https://cdn.plot.ly/plotly-2.9.0.min.js'></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script type="text/javascript" src="Project_Javascript_jQuery.js"></script>
+</body>
+</html>

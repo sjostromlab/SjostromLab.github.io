@@ -198,6 +198,9 @@ window.addEventListener("load", (event) => {
   usersynFacil.value = synFacil; 
   usertauDepr.value = tauDepr; 
   usertauFacil.value = tauFacil; 
+
+  document.getElementById("presets").value = "L5_PC";	// Defines startup preset. JSj 7 Sep 2020
+  submitpreset(event);
   
   graph(); 
   draw(); 
@@ -852,7 +855,7 @@ function submitpreset(event) {
 	usersynFacil.value = 0; 
 	usertauDepr.value = 0.221; 
 	usertauFacil.value = 0.169; 
-  }
+  } 	  
   if (p == "L5_BC_synapse") { 
 	usercurrFlag.checked = false; 
 	userextTrainFlag.checked = true; 
@@ -878,7 +881,7 @@ function submitpreset(event) {
 	usersynFacil.value = 0; 
 	usertauDepr.value = 0.44; 
 	usertauFacil.value = 0.169; 
-  }
+  } 	  
   if (p == "L5_BC_slow") { 
 	usercurrFlag.checked = false; 
 	userextTrainFlag.checked = true; 

@@ -13,7 +13,7 @@
 <body>
 
 <div class="header">
-	<h1>Hodgkin-Huxley Squid Giant Axon Model</h1>
+	<h1>Action Potential</h1>
 </div>
 
 <div class="row">
@@ -22,38 +22,58 @@
   	<div class="center">
 	<input type="button" value="Reset Simulation" id="reset"> <br>
 	</div>
+	<p id="ptoptop">
+		<label for="last10Trace"><b>Save Trace</b></label> <input type="checkbox" id="last10Trace" /><br>
+		<label for="lastTrace"><b>Show Last Trace</b></label> <input type="checkbox" id="lastTrace" /><br>
 
-	<p id="ptop"> 
-	<label for="last10Trace"><b>Show Last 10 Traces</b></label> <input type="checkbox" id="last10Trace" /><br>
-	<label for="lastTrace"><b>Show Last Trace</b></label> <input type="checkbox" id="lastTrace" /><br>
+	</p>
+
+	<p id="ptop1" class="shown"> 
 	<label for="VC"><b>Voltage Clamp</b></label> <input type="checkbox" id="VC" /><br>
-	<label for="ttx"><b>Add TTX</b></label> <input type="checkbox" id="ttx" /><br>
-	<label for="tea"><b>Add TEA</b></label> <input type="checkbox" id="tea" />
+	<label for="ref" id="refLabel"><b>Refractory Period</b></label> <input type="checkbox" id="ref" /><br>
+	<label for="dendrite" id="dendLabel"><b>Stick Dendrite</b></label> <input type="checkbox" id="dendrite" />
+	</p>
+
+	<p id="ptop2" class="hidden">
+		<label for="RC"><b>Current Clamp</b></label> <input type="checkbox" id="RC" /><br>
+		<label for="VC" id="inactivation"><b>Recovery from Inactivation</b></label> <input type="checkbox" id="VC2" /><br>
+		<label for="ttx" ><b>Add TTX</b></label> <input type="checkbox" id="ttx" /><br>
+		<label for="tea"><b>Add TEA</b></label> <input type="checkbox" id="tea" /><br>
 	</p>
 	
 	<p id="pbottom"> 
-	<strong> HH model settings: </strong> <br>
+	<strong id="text"> Current Clamp: </strong> <br>
 	<label class="tooltip" for="tspan">Simulation Window (ms): 
 		<span class="tooltiptext">Time span of the simulation.</span> 
 	</label>
     <input type="number" id="tspan" step="1" min="0" /> <br> 
-
-	<label id="iinputlabel" class="tooltip" for="iinput"><i>I</i> (mA): 
-		<span class="tooltiptext">Input current.</span> 
-	</label>
-    <input type="number" id="iinput" step="0.01" /> <br>
 
     <label class="tooltip" for="duration">Duration (ms): 
 		<span class="tooltiptext">Duration of input current.</span> 
 	</label>
     <input type="number" id="duration" step="1" min="0" /> <br>
 	
-	
-	<label id="rvlabel" class="tooltip" for="rv"><i>u</i><sub>i</sub> (mV): 
+	<label id="rvlabel" class="tooltip" for="rv">Resting Potential (mV): 
 		<span class="tooltiptext">Initial membrane potential.</span> 
 	</label>
-    <input type="number" id="rv" step="1" />
+    <input type="number" id="rv" step="1" /><br>
+
+	<label id="iinputlabel" class="tooltip" for="iinput"><i>I</i> (mA): 
+		<span class="tooltiptext">Input current.</span> 
+	</label>
+    <input type="number" id="iinput" step="0.01" /> <br>
+
+	<label id="iinput2label" class="tooltip" for="iinput2">Stim 2 (mA): 
+		<span class="tooltiptext">Input current.</span> 
+	</label>
+	<input type="number" id="iinput2" step="0.01" /><br>
+
+	<label id="durationHHlabel" class="tooltip" for="durationHH">Interval between steps 
+		<span class="tooltiptext">Time span between HH steps.</span> 
+	</label>
+	<input type="number" id="durationHH" step="1" min="0" /> 
 	</p> 
+	
 	
 	<p id="ParaPanel" class="hidden"> 
 	<label for="custompara"><b>Customize gating variables</b></label> <input type="checkbox" id="custompara" /><br>
@@ -77,17 +97,95 @@
 	</p>
 
 	<p id="VCPanel" class="hidden"> <strong> V-Clamp settings: </strong> <br>
-	<label class="tooltip" for="mean">Command voltage (mV): 
-		<span class="tooltiptext">The voltage at which the cell is clamped.</span> 
+	<label class="tooltip" for="tspan2">Simulation Window (ms): 
+		<span class="tooltiptext">Time span of the simulation.</span> 
 	</label>
-    <input type="number" id="clampV" step="5" /><br><br> 
-
+	<input type="number" id="tspan2" step="1" min="0" /> <br> 
+	<label class="tooltip" for="mean" id="cv">Command voltage (mV) 
+		<span class="tooltiptext">The voltage at which the cell is clamped</span> 
+	</label>
+    <input type="number" id="clampV" step="5" /><br>
+	<label class="tooltip" for="durationV" id="d">Duration (ms): 
+		<span class="tooltiptext">Duration of voltage clamp.</span> 
+	</label>
+    <input type="number" id="durationV" step="1" min="0" /> <br>
     <label class="tooltip" for="restV">V<sub>i</sub> (mV): 
-		<span class="tooltiptext">Holding voltage before command voltage step is applied.</span> 
+		<span class="tooltiptext">Holding potential before command voltage step is applied.</span> 
 	</label>
     <input type="number" id="restV" step="1" /><br> 
+
+	<!--<label for="type" class="hidden" id="selection">Time or Membrane</label>
+		<select name="option" id="t/m" class="hidden">
+ 		<option value="time">Time</option>
+  		<option value="membrane">Membrane</option>
+	</select><br>-->
+
+	<label class="tooltip" for="clampVtime" id="clampVlabel">Interval between S1 and S2 (ms):
+		<span class="tooltiptext">Time between voltage applications.</span> 
+	</label>
+	<input type="number" id="clampVtime" step="1" min="0" />
+
+
 	</p> 
 
+	<!--<p id="VC2Panel" class="hidden"> 
+		<strong> Recovery from Inactivation</strong> <br>
+		<label class="tooltip" for="clamptime">Time between (mS): 
+			<span class="tooltiptext">Time between voltage applications.</span> 
+		</label>
+		<input type="number" id="clampVtime" step="1" min="0" /> <br> 
+		</p> -->
+
+	<p id="DPanel" class="hidden"> 
+		<strong id="text"> Stick Dendrite Settings </strong> <br>
+		<label class="tooltip" for="seg"># of Segments
+			<span class="tooltiptext">Number of dendritic segments (0-10) </span>
+		</label>
+		<input type="number" id="seg" step="1" min="0" /> <br> 
+		
+		<label id="iinputlabel" class="tooltip" for="iinputd">Location 
+			<span class="tooltiptext">Location of current inj</span> 
+		</label>
+		<input type="number" id="iinputd" step="1" min="0"/> <br>
+		<label id="rvlabel" class="tooltip" for="gcoup">g coupling 
+			<span class="tooltiptext">Dendritic conductance (max: 2000)</span> 
+		</label>
+		<input type="number" id="gcoup" step="0.01" /><br>
+		<label id="currin" class="tooltip" for="currinj">Current injected (mA)
+			<span class="tooltiptext">current at synapse</span> 
+		</label>
+		<input type="number" id="currentinj" step="0.1" /><br>
+		<label id="dur" class="tooltip" for="dura">Duration (ms)
+			<span class="tooltiptext">Duration of injection</span> 
+		</label>
+		<input type="number" id="durationD" step="1" /><br>
+		<label id="somad" class="tooltip" for="d_soma">Soma Diameter (<i>u</i>m)
+			<span class="tooltiptext">Diameter of the soma in nm</span> 
+		</label>
+		<input type="number" id="d_soma" step="1" /><br>
+		<label id="dendd" class="tooltip" for="d_dend">Dendrite Diameter (<i>u</i>m)
+			<span class="tooltiptext">Diameter of the dendrite in nm</span> 
+		</label>
+		<input type="number" id="d_dend" step="1" /><br>
+		<label id="dendl" class="tooltip" for="l_dend">Dendrite length (<i>u</i>m)
+			<span class="tooltiptext">length of the dendrite in nm</span> 
+		</label>
+		<input type="number" id="l_dend" step="1" /><br><br>
+		<label class="tooltip" for="gNap" style="color:rgb(55, 128, 191);">gNa: 
+			<span class="tooltiptext">Ratio of Dendritic gNa relative to Soma gNa</span> 
+		</label>
+		<input type="number" id="gNap" step="0.01" min="0" max="3.2">
+		<span id="gNav"></span><br> 
+		<input type="range" id="gNapRange" step="0.01" min="0" max="1" class="slider"><br>
+
+		<label class="tooltip" for="gKp" style="color:rgb(255, 165, 0);">gK: 
+			<span class="tooltiptext">Ratio of Dendritic gK relative to Soma gK</span> 
+		</label>
+		<input type="number" id="gKp" step="0.01" min="0" max="0.36" /> 
+		<span id="gKv"></span><br> 
+		<input type="range" id="gKpRange" step="0.01" min="0" max="1" class="slider"> <br>
+		</p> 
+		
   </div>
   
   <div class="col-9 col-s-12 col-d-12 col-h-9">

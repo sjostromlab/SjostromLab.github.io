@@ -134,7 +134,7 @@ var qMin = 0.5; 	//
 
 var nMax = 25; 	//
 var p_rMax = 1; 	//
-var qMax = 10; 	//
+var qMax = 20; 	//
 
 var nStep = 1; 	//
 var p_rStep = 0.01; 	//
@@ -235,7 +235,7 @@ function resetPanel(event) {
 	q = 6; 
 	nMax = 25; 
 	p_rMax = 1; 
-	qMax = 10; 
+	qMax = 20; 
 	noise = 0; 
 	
 	theMean = n*p_r*q;
