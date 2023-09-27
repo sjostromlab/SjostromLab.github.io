@@ -700,7 +700,8 @@ if (!JSdict.prototype.remove) {
 
 function submitpreset(event) {
   var p = document.getElementById("presets").value; 
-  if (p == "NMJ") { 
+
+if (p == "NMJ") { 
 	usercurrFlag.checked = false; 
 	userextTrainFlag.checked = true; 
 	usersynFlag.checked = true; 
@@ -725,7 +726,8 @@ function submitpreset(event) {
 	usersynFacil.value = 0; 
 	usertauDepr.value = 0.7; 
 	usertauFacil.value = 0.1; 
-  } 	  
+  }
+
   if (p == "L5_PC") { 
 	usercurrFlag.checked = true; 
 	userextTrainFlag.checked = false; 
