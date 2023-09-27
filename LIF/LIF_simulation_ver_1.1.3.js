@@ -700,6 +700,32 @@ if (!JSdict.prototype.remove) {
 
 function submitpreset(event) {
   var p = document.getElementById("presets").value; 
+  if (p == "NMJ") { 
+	usercurrFlag.checked = false; 
+	userextTrainFlag.checked = true; 
+	usersynFlag.checked = true; 
+	usercurrMag.value = 0.1;
+	userE_leak.value = -90;
+	usertauM.value = 1; 
+	usercurrDur.value = 120; 
+	userR_input.value = 1; 
+	userAP_threshold.value = 140; 
+	userAP_max.value = 20; 
+	userAP_reset.value = -45; 
+	userwDur.value = 80; 
+	usershiftCurrX.value = 0; 
+	userfreq.value = 50; 
+	usernPulse.value = 1; 
+	usertStart.value = 30; 
+	userg_syn.value = 5000; 
+	userE_syn.value = 0; 
+	usertau1.value = 0.1; 
+	usertau2.value = 5.26; 
+	usersynDep.value = 0.8; 
+	usersynFacil.value = 0; 
+	usertauDepr.value = 0.7; 
+	usertauFacil.value = 0.1; 
+  } 	  
   if (p == "L5_PC") { 
 	usercurrFlag.checked = true; 
 	userextTrainFlag.checked = false; 
