@@ -1,0 +1,32 @@
+{
+  "dependencies": {
+    "@cubejs-client/core": "^0.31.0",
+    "chart.js": "^3.9.1",
+    "chartjs-plugin-zoom": "^2.0.1",
+    "esbuild": "^0.15.9",
+    "js-polynomial-regression": "^0.9.1",
+    "vue-chartjs": "^4.1.2"
+  },
+  "name": "single-channel-sim",
+  "description": "A simulator for a single channel for educational use.",
+  "version": "1.0.0",
+  "devDependencies": {
+    "parcel": "^2.6.2"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "parcel src/index.html",
+    "build": "parcel build src/index.html --public-url ./ --dist-dir ./"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/timeolord/single-channel-sim.git"
+  },
+  "author": "Allan Wei",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/timeolord/single-channel-sim/issues"
+  },
+  "homepage": "https://github.com/timeolord/single-channel-sim#readme"
+}
