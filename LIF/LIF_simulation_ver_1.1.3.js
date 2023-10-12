@@ -851,7 +851,7 @@ if (p == "NMJ") {
 	usertStart.value = 30; 
 	userg_syn.value = 1; 
 	userE_syn.value = 0; 
-	usertau1.value = 0.1; 
+	usertau1.value = 1.4; 
 	usertau2.value = 5.26; 
 	usersynDep.value = 1; 
 	usersynFacil.value = 0.5; 
