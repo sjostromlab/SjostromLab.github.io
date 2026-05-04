@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en" data-qb-installed="true">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="./styles2.css">
+  <title>Heterogenous Quantal Release Simulation</title>
+  <style>
+    p {
+      line-height: 2;
+    }
+  </style>
+  <style id="plotly.js-style-global"></style>
+  <style id="plotly.js-style-modebar-2c1ec6"></style>
+  <style id="plotly.js-style-modebar-d385ce"></style>
+  <style type="text/css">
+    .lf-progress {
+      -webkit-appearance: none;
+      -moz-apperance: none;
+      width: 100%;
+      /* margin: 0 10px; */
+      height: 4px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .lf-progress:focus {
+      outline: none;
+      border: none;
+    }
+
+    .lf-progress::-moz-range-track {
+      cursor: pointer;
+      background: none;
+      border: none;
+      outline: none;
+    }
+
+    .lf-progress::-webkit-slider-thumb {
+      -webkit-appearance: none !important;
+      height: 13px;
+      width: 13px;
+      border: 0;
+      border-radius: 50%;
+      background: #0fccce;
+      cursor: pointer;
+    }
+
+    .lf-progress::-moz-range-thumb {
+      -moz-appearance: none !important;
+      height: 13px;
+      width: 13px;
+      border: 0;
+      border-radius: 50%;
+      background: #0fccce;
+      cursor: pointer;
+    }
+
+    .lf-progress::-ms-track {
+      width: 100%;
+      height: 3px;
+      cursor: pointer;
+      background: transparent;
+      border-color: transparent;
+      color: transparent;
+    }
+
+    .lf-progress::-ms-fill-lower {
+      background: #ccc;
+      border-radius: 3px;
+    }
+
+    .lf-progress::-ms-fill-upper {
+      background: #ccc;
+      border-radius: 3px;
+    }
+
+    .lf-progress::-ms-thumb {
+      border: 0;
+      height: 15px;
+      width: 15px;
+      border-radius: 50%;
+      background: #0fccce;
+      cursor: pointer;
+    }
+
+    .lf-progress:focus::-ms-fill-lower {
+      background: #ccc;
+    }
+
+    .lf-progress:focus::-ms-fill-upper {
+      background: #ccc;
+    }
+
+    .lf-player-container :focus {
+      outline: 0;
+    }
+
+    .lf-popover {
+      position: relative;
+    }
+
+    .lf-popover-content {
+      display: inline-block;
+      position: absolute;
+      opacity: 1;
+      visibility: visible;
+      transform: translate(0, -10px);
+      box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+      transition: all 0.3s cubic-bezier(0.75, -0.02, 0.2, 0.97);
+    }
+
+    .lf-popover-content.hidden {
+      opacity: 0;
+      visibility: hidden;
+      transform: translate(0, 0px);
+    }
+
+    .lf-player-btn-container {
+      display: flex;
+      align-items: center;
+    }
+
+    .lf-player-btn {
+      cursor: pointer;
+      fill: #999;
+      width: 14px;
+    }
+
+    .lf-player-btn.active {
+      fill: #555;
+    }
+
+    .lf-popover {
+      position: relative;
+    }
+
+    .lf-popover-content {
+      display: inline-block;
+      position: absolute;
+      background-color: #ffffff;
+      opacity: 1;
+
+      transform: translate(0, -10px);
+      box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+      transition: all 0.3s cubic-bezier(0.75, -0.02, 0.2, 0.97);
+      padding: 10px;
+    }
+
+    .lf-popover-content.hidden {
+      opacity: 0;
+      visibility: hidden;
+      transform: translate(0, 0px);
+    }
+
+    .lf-arrow {
+      position: absolute;
+      z-index: -1;
+      content: '';
+      bottom: -9px;
+      border-style: solid;
+      border-width: 10px 10px 0px 10px;
+    }
+
+    .lf-left-align,
+    .lf-left-align .lfarrow {
+      left: 0;
+      right: unset;
+    }
+
+    .lf-right-align,
+    .lf-right-align .lf-arrow {
+      right: 0;
+      left: unset;
+    }
+
+    .lf-text-input {
+      border: 1px #ccc solid;
+      border-radius: 5px;
+      padding: 3px;
+      width: 60px;
+      margin: 0;
+    }
+
+    .lf-color-picker {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      height: 90px;
+    }
+
+    .lf-color-selectors {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .lf-color-component {
+      display: flex;
+      flex-direction: row;
+      font-size: 12px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lf-color-component strong {
+      width: 40px;
+    }
+
+    .lf-color-component input[type='range'] {
+      margin: 0 0 0 10px;
+    }
+
+    .lf-color-component input[type='number'] {
+      width: 50px;
+      margin: 0 0 0 10px;
+    }
+
+    .lf-color-preview {
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding-left: 5px;
+    }
+
+    .lf-preview {
+      height: 60px;
+      width: 60px;
+    }
+
+    .lf-popover-snapshot {
+      width: 150px;
+    }
+
+    .lf-popover-snapshot h5 {
+      margin: 5px 0 10px 0;
+      font-size: 0.75rem;
+    }
+
+    .lf-popover-snapshot a {
+      display: block;
+      text-decoration: none;
+    }
+
+    .lf-popover-snapshot a:before {
+      content: '⥼';
+      margin-right: 5px;
+    }
+
+    .lf-popover-snapshot .lf-note {
+      display: block;
+      margin-top: 10px;
+      color: #999;
+    }
+
+    .lf-player-controls>div {
+      margin-right: 5px;
+      margin-left: 5px;
+    }
+
+    .lf-player-controls>div:first-child {
+      margin-left: 0px;
+    }
+
+    .lf-player-controls>div:last-child {
+      margin-right: 0px;
+    }
+  </style>
+</head>
+
+<body class="vsc-initialized">
+
+  <div class="header">
+    <h1>Heterogenous Quantal Release Simulation</h1>
+  </div>
+
+  <div class="row">
+    <div class="col-3 col-s-9 col-d-6 col-h-3">
+
+      <p id="ptop">
+
+        <input type="button" value="Reset" id="reset">
+        <input type="button" value="Show more" id="toggle"> <br>
+        <label for="histogram"><b>Show as histogram</b></label> <input type="checkbox" id="histogram">
+      </p>
+
+      <p id="morePanel" class="hidden">
+        <label class="tooltip" for="mean">Mean:
+          <span class="tooltiptext">Expected mean of the EPSC amplitude across different trials.</span>
+        </label>
+        <input type="text" id="mean" disabled=""> <br>
+
+        <label class="tooltip" for="sDev">sDev:
+          <span class="tooltiptext">Standard deviation.</span>
+        </label>
+        <input type="text" id="sDev" disabled=""> <br>
+
+        <label class="tooltip" for="CV">CV:
+          <span class="tooltiptext">Coefficient of variation.</span>
+        </label>
+        <input type="text" id="CV" disabled="">
+      </p>
+
+      <p>
+        <label class="tooltip" for="numOfSyn" style="color: blue;"><b>n</b>:
+          <span class="tooltiptext">Number of synapses.</span>
+        </label>
+        <select id="numOfSyn">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+
+      </p>
+
+      <p>
+        <b>Release Probability (<span style ="color: blue;">p</span>)<br></b>
+
+        <label class="tooltip" for="relPro">p_1:
+          <span class="tooltiptext">Release probability of each synapse.</span>
+        </label>
+
+        <input type="number" id="relPro" step="0.01" min="0" max="1"> <br>
+        <input type="range" id="pRange" step="0.01" min="0" max="1" class="slider"> <br>
+
+        <label id="p2hidden" class="p2_hidden">
+          <label class="tooltip" for="relPro2"> p_2:
+            <span class="tooltiptext">Probability of release for the second synpase only when n = 2.</span>
+          </label>
+
+
+          <input type="number" id="relPro2" step="0.01" min="0" max="1"> <br>
+          <input type="range" id="p2Range" step="0.01" min="0" max="1" class="slider"> <br>
+
+        </label>
+
+        <label id="p3hidden" class="p3_hidden">
+
+          <label class="tooltip" for="relPro3">p_3:
+            <span class="tooltiptext">Probability of release for the third synpase only when n = 3.</span>
+          </label>
+
+          <input type="number" id="relPro3" step="0.01" min="0" max="1"> <br>
+          <input type="range" id="p3Range" step="0.01" min="0" max="1" class="slider"> <br>
+
+        </label>
+
+        <label for="p_linked">Use the same release probability</label>
+        <input type="checkbox" id="p_linked"> <br>
+
+      </p>
+
+      <p>
+        <b>Quantal Amplitude (<span style ="color: blue;">q</span>) <br></b>
+
+        <label class="tooltip" for="quanAmp1">q_1:
+          <span class="tooltiptext">Quantal amplitude.</span>
+        </label>
+        <input type="number" id="quanAmp1" step="0.5" min="0.5" max="20"> <br>
+        <input type="range" id="q_1Range" step="0.5" min="0.5" max="20" class="slider"><br>
+
+        <label id="q2hidden" class="q2_hidden">
+          <label class="tooltip" for="quanAmp2">q_2:
+            <span class="tooltiptext">Quantal amplitude.</span>
+          </label>
+          <input type="number" id="quanAmp2" step="0.5" min="0.5" max="20"> <br>
+          <input type="range" id="q_2Range" step="0.5" min="0.5" max="20" class="slider"><br>
+        </label>
+
+        <label id="q3hidden" class="q3_hidden">
+          <label class="tooltip" for="quanAmp3">q_3:
+            <span class="tooltiptext">Quantal amplitude.</span>
+          </label>
+          <input type="number" id="quanAmp3" step="0.5" min="0.5" max="20"> <br>
+          <input type="range" id="q_3Range" step="0.5" min="0.5" max="20" class="slider"><br>
+        </label>
+
+        <label for="q_linked">Use the same quantal amplitude</label>
+        <input type="checkbox" id="q_linked"> <br>
+
+      </p>
+
+      <p>
+
+        <label class="tooltip" for="pMax">p_1 max:
+          <span class="tooltiptext">Maximum release probability of each synapse.</span>
+        </label>
+        <input type="number" id="pMax" step="0.01" min="0" max="1"> <br>
+
+        <label id="p2hidden_max" class="p2_hidden">
+          <label class="tooltip" for="p2Max">p_2 max:
+            <span class="tooltiptext">Maximum probability of release for the second synpase only when n = 2.</span>
+          </label>
+          <input type="number" id="p2Max" step="0.01" min="0" max="1"> <br>
+        </label>
+
+        <label id="p3hidden_max" class="p3_hidden">
+          <label class="tooltip" for="p3Max">p_3 max:
+            <span class="tooltiptext">Maximum probability of release for the third synpase only when n = 3.</span>
+          </label>
+          <input type="number" id="p3Max" step="0.01" min="0" max="1"> <br>
+        </label>
+        
+
+        <label class="tooltip" for="q_1Max">q_1 max:
+          <span class="tooltiptext">Maximum quantal amplitude.</span>
+        </label>
+        <input type="number" id="q_1Max" step="0.5" min="0.5" max="25"><br>
+
+        <label id="q2hidden_max" class="q2_hidden">
+          <label class="tooltip" for="q_2Max">q_2 max:
+            <span class="tooltiptext">Maximum quantal amplitude.</span>
+          </label>
+          <input type="number" id="q_2Max" step="0.5" min="0.5" max="25"><br>
+        </label>
+
+
+        <label id="q3hidden_max" class="q3_hidden">
+          <label class="tooltip" for="q_3Max">q_3 max:
+            <span class="tooltiptext">Maximum quantal amplitude.</span>
+          </label>
+          <input type="number" id="q_3Max" step="0.5" min="0.5" max="25">
+        </label>
+      </p>
+
+      <p id="pbottom">
+        <label class="tooltip" for="noise">Noise:
+          <span class="tooltiptext">Measurement noise.</span>
+        </label>
+        <input type="number" id="noise" step="0.01" min="0" max="6"> <br>
+        <input type="range" id="noiseRange" step="0.01" min="0" max="6" class="slider">
+      </p>
+
+    </div>
+
+    <div class="col-9 col-s-12 col-d-12 col-h-9">
+      <div class="wrapper">
+        <div id="myDiv" class="plots js-plotly-plot">
+          <div class="plot-container plotly">
+            <div class="user-select-none svg-container" style="position: relative; width: 100%; height: 450px;"><svg
+                class="main-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                width="903" height="450" style="background: rgb(199, 199, 199);">
+                <defs id="defs-2c1ec6">
+                  <g class="clips">
+                    <clippath id="clip2c1ec6xyplot" class="plotclip">
+                      <rect width="743" height="270"></rect>
+                    </clippath>
+                    <clippath class="axesclip" id="clip2c1ec6x">
+                      <rect x="80" y="0" width="743" height="450"></rect>
+                    </clippath>
+                    <clippath class="axesclip" id="clip2c1ec6y">
+                      <rect x="0" y="100" width="903" height="270"></rect>
+                    </clippath>
+                    <clippath class="axesclip" id="clip2c1ec6xy">
+                      <rect x="80" y="100" width="743" height="270"></rect>
+                    </clippath>
+                  </g>
+                  <g class="gradients"></g>
+                </defs>
+                <g class="bglayer">
+                  <rect class="bg" x="80" y="100" width="743" height="270"
+                    style="fill: rgb(255, 255, 255); fill-opacity: 1; stroke-width: 0;"></rect>
+                </g>
+                <g class="draglayer cursor-crosshair">
+                  <g class="xy">
+                    <rect class="nsewdrag drag" data-subplot="xy" x="80" y="100" width="743" height="270"
+                      style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                    <rect class="nwdrag drag cursor-nw-resize" data-subplot="xy" x="60" y="80" width="20" height="20"
+                      style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                    <rect class="nedrag drag cursor-ne-resize" data-subplot="xy" x="823" y="80" width="20" height="20"
+                      style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                    <rect class="swdrag drag cursor-sw-resize" data-subplot="xy" x="60" y="370" width="20" height="20"
+                      style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                    <rect class="sedrag drag cursor-se-resize" data-subplot="xy" x="823" y="370" width="20" height="20"
+                      style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                    <rect class="ewdrag drag cursor-ew-resize" data-subplot="xy" x="154.3" y="370.5" width="594.4"
+                      height="20" style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                    <rect class="wdrag drag cursor-w-resize" data-subplot="xy" x="80" y="370.5" width="74.3" height="20"
+                      style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                    <rect class="edrag drag cursor-e-resize" data-subplot="xy" x="748.7" y="370.5" width="74.3"
+                      height="20" style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                    <rect class="nsdrag drag cursor-ns-resize" data-subplot="xy" x="59.5" y="127" width="20"
+                      height="216" style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                    <rect class="sdrag drag cursor-s-resize" data-subplot="xy" x="59.5" y="343" width="20" height="27"
+                      style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                    <rect class="ndrag drag cursor-n-resize" data-subplot="xy" x="59.5" y="100" width="20" height="27"
+                      style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                  </g>
+                </g>
+                <g class="layer-below">
+                  <g class="imagelayer"></g>
+                  <g class="shapelayer"></g>
+                </g>
+                <g class="cartesianlayer">
+                  <g class="subplot xy">
+                    <g class="layer-subplot">
+                      <g class="shapelayer"></g>
+                      <g class="imagelayer"></g>
+                    </g>
+                    <g class="gridlayer">
+                      <g class="x">
+                        <path class="xgrid crisp" transform="translate(245.11,0)" d="M0,100v270"
+                          style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path>
+                        <path class="xgrid crisp" transform="translate(348.31,0)" d="M0,100v270"
+                          style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path>
+                        <path class="xgrid crisp" transform="translate(451.5,0)" d="M0,100v270"
+                          style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path>
+                        <path class="xgrid crisp" transform="translate(554.69,0)" d="M0,100v270"
+                          style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path>
+                        <path class="xgrid crisp" transform="translate(657.89,0)" d="M0,100v270"
+                          style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path>
+                        <path class="xgrid crisp" transform="translate(761.08,0)" d="M0,100v270"
+                          style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path>
+                      </g>
+                      <g class="y">
+                        <path class="ygrid crisp" transform="translate(0,288.56)" d="M80,0h743"
+                          style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path>
+                        <path class="ygrid crisp" transform="translate(0,219.82)" d="M80,0h743"
+                          style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path>
+                        <path class="ygrid crisp" transform="translate(0,151.09)" d="M80,0h743"
+                          style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path>
+                      </g>
+                    </g>
+                    <g class="zerolinelayer">
+                      <path class="xzl zl crisp" transform="translate(141.92000000000002,0)" d="M0,100v270"
+                        style="stroke: rgb(68, 68, 68); stroke-opacity: 1; stroke-width: 1px;"></path>
+                      <path class="yzl zl crisp" transform="translate(0,357.29)" d="M80,0h743"
+                        style="stroke: rgb(68, 68, 68); stroke-opacity: 1; stroke-width: 1px;"></path>
+                    </g>
+                    <path class="xlines-below"></path>
+                    <path class="ylines-below"></path>
+                    <g class="overlines-below"></g>
+                    <g class="xaxislayer-below"></g>
+                    <g class="yaxislayer-below"></g>
+                    <g class="overaxes-below"></g>
+                    <g class="plot" transform="translate(80,100)" clip-path="url(&#39;#clip2c1ec6xyplot&#39;)">
+                      <g class="scatterlayer mlayer">
+                        <g class="trace scatter trace5ee9a4" style="stroke-miterlimit: 2;">
+                          <g class="fills">
+                            <g>
+                              <path class="js-fill"
+                                d="M743,257.29L0,257.29L0,257.29L61.91,257.29L61.92,250.25L61.92,257.29L62.67,257.29L62.68,257.29L185.74,257.29L185.74,257.29L185.75,204.5L186.51,257.29L186.51,257.29L186.52,257.29L309.58,257.29L309.58,98.93L310.34,257.29L310.34,257.29L310.35,257.29L433.41,257.29L433.42,19.75L433.42,257.29L434.17,257.29L434.18,257.29L557.24,257.29L557.24,257.29L557.25,79.13L558.01,257.29L558.01,257.29L558.02,257.29L681.08,257.29L681.08,203.84L681.84,257.29L681.84,257.29L681.85,257.29L743,257.29"
+                                style="fill: rgb(33, 118, 255); fill-opacity: 0.5; stroke-width: 0;"></path>
+                            </g>
+                          </g>
+                          <g class="errorbars"></g>
+                          <g class="lines">
+                            <path class="js-line"
+                              d="M0,257.29L61.91,257.29L61.92,250.25L61.92,257.29L62.67,257.29L62.68,257.29L185.74,257.29L185.74,257.29L185.75,204.5L186.51,257.29L186.51,257.29L186.52,257.29L309.58,257.29L309.58,98.93L310.34,257.29L310.34,257.29L310.35,257.29L433.41,257.29L433.42,19.75L433.42,257.29L434.17,257.29L434.18,257.29L557.24,257.29L557.24,257.29L557.25,79.13L558.01,257.29L558.01,257.29L558.02,257.29L681.08,257.29L681.08,203.84L681.84,257.29L681.84,257.29L681.85,257.29L743,257.29"
+                              style="vector-effect: non-scaling-stroke; fill: none; stroke: rgb(33, 118, 255); stroke-opacity: 1; stroke-width: 2px; opacity: 1;">
+                            </path>
+                          </g>
+                          <g class="points"></g>
+                          <g class="text"></g>
+                        </g>
+                        <g class="trace scatter trace5fb018" style="stroke-miterlimit: 2; opacity: 1;">
+                          <g class="fills"></g>
+                          <g class="errorbars"></g>
+                          <g class="lines"></g>
+                          <g class="points">
+                            <path class="point" transform="translate(61.92,250.25)"
+                              d="M5,0A5,5 0 1,1 0,-5A5,5 0 0,1 5,0Z"
+                              style="opacity: 1; stroke-width: 2px; fill: rgb(255, 255, 255); fill-opacity: 1; stroke: rgb(33, 118, 255); stroke-opacity: 1;">
+                            </path>
+                            <path class="point" transform="translate(185.75,204.5)"
+                              d="M5,0A5,5 0 1,1 0,-5A5,5 0 0,1 5,0Z"
+                              style="opacity: 1; stroke-width: 2px; fill: rgb(255, 255, 255); fill-opacity: 1; stroke: rgb(33, 118, 255); stroke-opacity: 1;">
+                            </path>
+                            <path class="point" transform="translate(309.58,98.93)"
+                              d="M5,0A5,5 0 1,1 0,-5A5,5 0 0,1 5,0Z"
+                              style="opacity: 1; stroke-width: 2px; fill: rgb(255, 255, 255); fill-opacity: 1; stroke: rgb(33, 118, 255); stroke-opacity: 1;">
+                            </path>
+                            <path class="point" transform="translate(433.42,19.75)"
+                              d="M5,0A5,5 0 1,1 0,-5A5,5 0 0,1 5,0Z"
+                              style="opacity: 1; stroke-width: 2px; fill: rgb(255, 255, 255); fill-opacity: 1; stroke: rgb(33, 118, 255); stroke-opacity: 1;">
+                            </path>
+                            <path class="point" transform="translate(557.25,79.13)"
+                              d="M5,0A5,5 0 1,1 0,-5A5,5 0 0,1 5,0Z"
+                              style="opacity: 1; stroke-width: 2px; fill: rgb(255, 255, 255); fill-opacity: 1; stroke: rgb(33, 118, 255); stroke-opacity: 1;">
+                            </path>
+                            <path class="point" transform="translate(681.08,203.84)"
+                              d="M5,0A5,5 0 1,1 0,-5A5,5 0 0,1 5,0Z"
+                              style="opacity: 1; stroke-width: 2px; fill: rgb(255, 255, 255); fill-opacity: 1; stroke: rgb(33, 118, 255); stroke-opacity: 1;">
+                            </path>
+                          </g>
+                          <g class="text"></g>
+                        </g>
+                      </g>
+                    </g>
+                    <g class="overplot"></g>
+                    <path class="xlines-above crisp" d="M0,0" style="fill: none;"></path>
+                    <path class="ylines-above crisp" d="M0,0" style="fill: none;"></path>
+                    <g class="overlines-above"></g>
+                    <g class="xaxislayer-above">
+                      <g class="xtick"><text text-anchor="middle" x="0" y="383" data-unformatted="0" data-math="N"
+                          transform="translate(141.92000000000002,0)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">0</text>
+                      </g>
+                      <g class="xtick"><text text-anchor="middle" x="0" y="383" data-unformatted="5" data-math="N"
+                          transform="translate(245.11,0)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">5</text>
+                      </g>
+                      <g class="xtick"><text text-anchor="middle" x="0" y="383" data-unformatted="10" data-math="N"
+                          transform="translate(348.31,0)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">10</text>
+                      </g>
+                      <g class="xtick"><text text-anchor="middle" x="0" y="383" data-unformatted="15" data-math="N"
+                          transform="translate(451.5,0)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">15</text>
+                      </g>
+                      <g class="xtick"><text text-anchor="middle" x="0" y="383" data-unformatted="20" data-math="N"
+                          transform="translate(554.69,0)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">20</text>
+                      </g>
+                      <g class="xtick"><text text-anchor="middle" x="0" y="383" data-unformatted="25" data-math="N"
+                          transform="translate(657.89,0)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">25</text>
+                      </g>
+                      <g class="xtick"><text text-anchor="middle" x="0" y="383" data-unformatted="30" data-math="N"
+                          transform="translate(761.08,0)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">30</text>
+                      </g>
+                    </g>
+                    <g class="yaxislayer-above">
+                      <g class="ytick"><text text-anchor="end" x="79" y="4.199999999999999" data-unformatted="0"
+                          data-math="N" transform="translate(0,357.29)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">0</text>
+                      </g>
+                      <g class="ytick"><text text-anchor="end" x="79" y="4.199999999999999" data-unformatted="0.1"
+                          data-math="N" transform="translate(0,288.56)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">0.1</text>
+                      </g>
+                      <g class="ytick"><text text-anchor="end" x="79" y="4.199999999999999" data-unformatted="0.2"
+                          data-math="N" transform="translate(0,219.82)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">0.2</text>
+                      </g>
+                      <g class="ytick"><text text-anchor="end" x="79" y="4.199999999999999" data-unformatted="0.3"
+                          data-math="N" transform="translate(0,151.09)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">0.3</text>
+                      </g>
+                    </g>
+                    <g class="overaxes-above"></g>
+                  </g>
+                </g>
+                <g class="polarlayer"></g>
+                <g class="ternarylayer"></g>
+                <g class="geolayer"></g>
+                <g class="funnelarealayer"></g>
+                <g class="pielayer"></g>
+                <g class="treemaplayer"></g>
+                <g class="sunburstlayer"></g>
+                <g class="glimages"></g>
+              </svg>
+              <div class="gl-container"></div><svg class="main-svg" xmlns="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink" width="903" height="450">
+                <defs id="topdefs-2c1ec6">
+                  <g class="clips"></g>
+                </defs>
+                <g class="indicatorlayer"></g>
+                <g class="layer-above">
+                  <g class="imagelayer"></g>
+                  <g class="shapelayer"></g>
+                </g>
+                <g class="infolayer">
+                  <g class="g-gtitle"><text class="gtitle" x="451.5" y="50" text-anchor="middle" dy="0em"
+                      data-unformatted="&lt;b&gt;Quantal Release&lt;/b&gt;" data-math="N"
+                      style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 17px; fill: rgb(68, 68, 68); opacity: 1; font-weight: normal; white-space: pre;">
+                      <tspan style="font-weight:bold">Quantal Release</tspan>
+                    </text></g>
+                  <g class="g-xtitle"><text class="xtitle" x="451.5" y="422" text-anchor="middle"
+                      data-unformatted="&lt;b&gt;EPSC Amplitude (pA)&lt;/b&gt;" data-math="N"
+                      style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 14px; fill: rgb(68, 68, 68); opacity: 1; font-weight: normal; white-space: pre;">
+                      <tspan style="font-weight:bold">EPSC Amplitude (pA)</tspan>
+                    </text></g>
+                  <g class="g-ytitle"><text class="ytitle" transform="rotate(-90,42,235)" x="42" y="235"
+                      text-anchor="middle" data-unformatted="&lt;b&gt;Probability&lt;/b&gt;" data-math="N"
+                      style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 14px; fill: rgb(68, 68, 68); opacity: 1; font-weight: normal; white-space: pre;">
+                      <tspan style="font-weight:bold">Probability</tspan>
+                    </text></g>
+                </g>
+                <g class="menulayer"></g>
+                <g class="zoomlayer"></g>
+              </svg>
+              <div class="modebar-container" style="position: absolute; top: 0px; right: 0px; width: 100%;">
+                <div id="modebar-2c1ec6" class="modebar modebar--hover ease-bg">
+                  <div class="modebar-group"><a rel="tooltip" class="modebar-btn" data-title="Download plot as a png"
+                      data-toggle="false" data-gravity="n"><svg viewBox="0 0 1000 1000" class="icon" height="1em"
+                        width="1em">
+                        <path
+                          d="m500 450c-83 0-150-67-150-150 0-83 67-150 150-150 83 0 150 67 150 150 0 83-67 150-150 150z m400 150h-120c-16 0-34 13-39 29l-31 93c-6 15-23 28-40 28h-340c-16 0-34-13-39-28l-31-94c-6-15-23-28-40-28h-120c-55 0-100-45-100-100v-450c0-55 45-100 100-100h800c55 0 100 45 100 100v450c0 55-45 100-100 100z m-400-550c-138 0-250 112-250 250 0 138 112 250 250 250 138 0 250-112 250-250 0-138-112-250-250-250z m365 380c-19 0-35 16-35 35 0 19 16 35 35 35 19 0 35-16 35-35 0-19-16-35-35-35z"
+                          transform="matrix(1 0 0 -1 0 850)"></path>
+                      </svg></a></div>
+                  <div class="modebar-group"><a rel="tooltip" class="modebar-btn active" data-title="Zoom"
+                      data-attr="dragmode" data-val="zoom" data-toggle="false" data-gravity="n"><svg
+                        viewBox="0 0 1000 1000" class="icon" height="1em" width="1em">
+                        <path
+                          d="m1000-25l-250 251c40 63 63 138 63 218 0 224-182 406-407 406-224 0-406-182-406-406s183-406 407-406c80 0 155 22 218 62l250-250 125 125z m-812 250l0 438 437 0 0-438-437 0z m62 375l313 0 0-312-313 0 0 312z"
+                          transform="matrix(1 0 0 -1 0 850)"></path>
+                      </svg></a><a rel="tooltip" class="modebar-btn" data-title="Pan" data-attr="dragmode"
+                      data-val="pan" data-toggle="false" data-gravity="n"><svg viewBox="0 0 1000 1000" class="icon"
+                        height="1em" width="1em">
+                        <path
+                          d="m1000 350l-187 188 0-125-250 0 0 250 125 0-188 187-187-187 125 0 0-250-250 0 0 125-188-188 186-187 0 125 252 0 0-250-125 0 187-188 188 188-125 0 0 250 250 0 0-126 187 188z"
+                          transform="matrix(1 0 0 -1 0 850)"></path>
+                      </svg></a><a rel="tooltip" class="modebar-btn" data-title="Box Select" data-attr="dragmode"
+                      data-val="select" data-toggle="false" data-gravity="n"><svg viewBox="0 0 1000 1000" class="icon"
+                        height="1em" width="1em">
+                        <path
+                          d="m0 850l0-143 143 0 0 143-143 0z m286 0l0-143 143 0 0 143-143 0z m285 0l0-143 143 0 0 143-143 0z m286 0l0-143 143 0 0 143-143 0z m-857-286l0-143 143 0 0 143-143 0z m857 0l0-143 143 0 0 143-143 0z m-857-285l0-143 143 0 0 143-143 0z m857 0l0-143 143 0 0 143-143 0z m-857-286l0-143 143 0 0 143-143 0z m286 0l0-143 143 0 0 143-143 0z m285 0l0-143 143 0 0 143-143 0z m286 0l0-143 143 0 0 143-143 0z"
+                          transform="matrix(1 0 0 -1 0 850)"></path>
+                      </svg></a><a rel="tooltip" class="modebar-btn" data-title="Lasso Select" data-attr="dragmode"
+                      data-val="lasso" data-toggle="false" data-gravity="n"><svg viewBox="0 0 1031 1000" class="icon"
+                        height="1em" width="1em">
+                        <path
+                          d="m1018 538c-36 207-290 336-568 286-277-48-473-256-436-463 10-57 36-108 76-151-13-66 11-137 68-183 34-28 75-41 114-42l-55-70 0 0c-2-1-3-2-4-3-10-14-8-34 5-45 14-11 34-8 45 4 1 1 2 3 2 5l0 0 113 140c16 11 31 24 45 40 4 3 6 7 8 11 48-3 100 0 151 9 278 48 473 255 436 462z m-624-379c-80 14-149 48-197 96 42 42 109 47 156 9 33-26 47-66 41-105z m-187-74c-19 16-33 37-39 60 50-32 109-55 174-68-42-25-95-24-135 8z m360 75c-34-7-69-9-102-8 8 62-16 128-68 170-73 59-175 54-244-5-9 20-16 40-20 61-28 159 121 317 333 354s407-60 434-217c28-159-121-318-333-355z"
+                          transform="matrix(1 0 0 -1 0 850)"></path>
+                      </svg></a></div>
+                  <div class="modebar-group"><a rel="tooltip" class="modebar-btn" data-title="Zoom in" data-attr="zoom"
+                      data-val="in" data-toggle="false" data-gravity="n"><svg viewBox="0 0 875 1000" class="icon"
+                        height="1em" width="1em">
+                        <path
+                          d="m1 787l0-875 875 0 0 875-875 0z m687-500l-187 0 0-187-125 0 0 187-188 0 0 125 188 0 0 187 125 0 0-187 187 0 0-125z"
+                          transform="matrix(1 0 0 -1 0 850)"></path>
+                      </svg></a><a rel="tooltip" class="modebar-btn" data-title="Zoom out" data-attr="zoom"
+                      data-val="out" data-toggle="false" data-gravity="n"><svg viewBox="0 0 875 1000" class="icon"
+                        height="1em" width="1em">
+                        <path d="m0 788l0-876 875 0 0 876-875 0z m688-500l-500 0 0 125 500 0 0-125z"
+                          transform="matrix(1 0 0 -1 0 850)"></path>
+                      </svg></a><a rel="tooltip" class="modebar-btn" data-title="Autoscale" data-attr="zoom"
+                      data-val="auto" data-toggle="false" data-gravity="n"><svg viewBox="0 0 1000 1000" class="icon"
+                        height="1em" width="1em">
+                        <path
+                          d="m250 850l-187 0-63 0 0-62 0-188 63 0 0 188 187 0 0 62z m688 0l-188 0 0-62 188 0 0-188 62 0 0 188 0 62-62 0z m-875-938l0 188-63 0 0-188 0-62 63 0 187 0 0 62-187 0z m875 188l0-188-188 0 0-62 188 0 62 0 0 62 0 188-62 0z m-125 188l-1 0-93-94-156 156 156 156 92-93 2 0 0 250-250 0 0-2 93-92-156-156-156 156 94 92 0 2-250 0 0-250 0 0 93 93 157-156-157-156-93 94 0 0 0-250 250 0 0 0-94 93 156 157 156-157-93-93 0 0 250 0 0 250z"
+                          transform="matrix(1 0 0 -1 0 850)"></path>
+                      </svg></a><a rel="tooltip" class="modebar-btn" data-title="Reset axes" data-attr="zoom"
+                      data-val="reset" data-toggle="false" data-gravity="n"><svg viewBox="0 0 928.6 1000" class="icon"
+                        height="1em" width="1em">
+                        <path
+                          d="m786 296v-267q0-15-11-26t-25-10h-214v214h-143v-214h-214q-15 0-25 10t-11 26v267q0 1 0 2t0 2l321 264 321-264q1-1 1-4z m124 39l-34-41q-5-5-12-6h-2q-7 0-12 3l-386 322-386-322q-7-4-13-4-7 2-12 7l-35 41q-4 5-3 13t6 12l401 334q18 15 42 15t43-15l136-114v109q0 8 5 13t13 5h107q8 0 13-5t5-13v-227l122-102q5-5 6-12t-4-13z"
+                          transform="matrix(1 0 0 -1 0 850)"></path>
+                      </svg></a></div>
+                  <div class="modebar-group"><a rel="tooltip" class="modebar-btn" data-title="Toggle Spike Lines"
+                      data-attr="_cartesianSpikesEnabled" data-val="on" data-toggle="false" data-gravity="n"><svg
+                        viewBox="0 0 1000 1000" class="icon" height="1em" width="1em">
+                        <path
+                          d="M512 409c0-57-46-104-103-104-57 0-104 47-104 104 0 57 47 103 104 103 57 0 103-46 103-103z m-327-39l92 0 0 92-92 0z m-185 0l92 0 0 92-92 0z m370-186l92 0 0 93-92 0z m0-184l92 0 0 92-92 0z"
+                          transform="matrix(1.5 0 0 -1.5 0 850)"></path>
+                      </svg></a><a rel="tooltip" class="modebar-btn" data-title="Show closest data on hover"
+                      data-attr="hovermode" data-val="closest" data-toggle="false" data-gravity="ne"><svg
+                        viewBox="0 0 1500 1000" class="icon" height="1em" width="1em">
+                        <path d="m375 725l0 0-375-375 375-374 0-1 1125 0 0 750-1125 0z"
+                          transform="matrix(1 0 0 -1 0 850)"></path>
+                      </svg></a><a rel="tooltip" class="modebar-btn active" data-title="Compare data on hover"
+                      data-attr="hovermode" data-val="x" data-toggle="false" data-gravity="ne"><svg
+                        viewBox="0 0 1125 1000" class="icon" height="1em" width="1em">
+                        <path
+                          d="m187 786l0 2-187-188 188-187 0 0 937 0 0 373-938 0z m0-499l0 1-187-188 188-188 0 0 937 0 0 376-938-1z"
+                          transform="matrix(1 0 0 -1 0 850)"></path>
+                      </svg></a></div>
+                  <div class="modebar-group"><a href="https://plotly.com/" target="_blank"
+                      data-title="Produced with Plotly" class="modebar-btn plotlyjsicon modebar-btn--logo"><svg
+                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 132" height="1em" width="1em">
+                        <defs>
+                          <style>
+                            .cls-1 {
+                              fill: #3f4f75;
+                            }
+
+                            .cls-2 {
+                              fill: #80cfbe;
+                            }
+
+                            .cls-3 {
+                              fill: #fff;
+                            }
+                          </style>
+                        </defs>
+                        <title>plotly-logomark</title>
+                        <g id="symbol">
+                          <rect class="cls-1" width="132" height="132" rx="6" ry="6"></rect>
+                          <circle class="cls-2" cx="78" cy="54" r="6"></circle>
+                          <circle class="cls-2" cx="102" cy="30" r="6"></circle>
+                          <circle class="cls-2" cx="78" cy="30" r="6"></circle>
+                          <circle class="cls-2" cx="54" cy="30" r="6"></circle>
+                          <circle class="cls-2" cx="30" cy="30" r="6"></circle>
+                          <circle class="cls-2" cx="30" cy="54" r="6"></circle>
+                          <path class="cls-3" d="M30,72a6,6,0,0,0-6,6v24a6,6,0,0,0,12,0V78A6,6,0,0,0,30,72Z"></path>
+                          <path class="cls-3" d="M78,72a6,6,0,0,0-6,6v24a6,6,0,0,0,12,0V78A6,6,0,0,0,78,72Z"></path>
+                          <path class="cls-3" d="M54,48a6,6,0,0,0-6,6v48a6,6,0,0,0,12,0V54A6,6,0,0,0,54,48Z"></path>
+                          <path class="cls-3" d="M102,48a6,6,0,0,0-6,6v48a6,6,0,0,0,12,0V54A6,6,0,0,0,102,48Z"></path>
+                        </g>
+                      </svg></a></div>
+                </div>
+              </div><svg class="main-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                width="903" height="450">
+                <g class="hoverlayer"></g>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div id="myDiv2" class="legend">
+          <p class="grid-item">
+            n = <span id="nVal">5</span><br>
+
+            p_1 = <span id="pVal">0.6</span><br>
+            <label id="p2hidden_grid" class="p2_hidden">p_2 = <span id="p2Val">0</span><br></label>
+            <label id="p3hidden_grid" class="p3_hidden">p_3 = <span id="p3Val">0</span><br></label>
+
+            q_1 = <span id="q_1Val">6</span><br>
+            <label id="q2hidden_grid" class="q2_hidden">q_2 = <span id="q_2Val">6</span><br></label>
+            <label id="q3hidden_grid" class="q3_hidden">q_3 = <span id="q_3Val">6</span><br></label>
+
+            noise = <span id="noiseVal">0</span>
+          </p>
+          <p id="moreLegend" class="grid-item hidden">
+            mean = <span id="meanVal">18.00</span><br>
+            sDev = <span id="sDevVal">6.573</span><br>
+            CV = <span id="CVVal">0.365</span><br>
+            Total p = <span id="pTotal">1</span>
+          </p>
+        </div>
+        <div id="myDiv3" class="plots js-plotly-plot">
+          <div class="plot-container plotly">
+            <div class="user-select-none svg-container" style="position: relative; width: 100%; height: 450px;"><svg
+                class="main-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                width="903" height="450" style="background: rgb(199, 199, 199);">
+                <defs id="defs-d385ce">
+                  <g class="clips">
+                    <clippath id="clipd385cexyplot" class="plotclip">
+                      <rect width="743" height="270"></rect>
+                    </clippath>
+                    <clippath class="axesclip" id="clipd385cex">
+                      <rect x="80" y="0" width="743" height="450"></rect>
+                    </clippath>
+                    <clippath class="axesclip" id="clipd385cey">
+                      <rect x="0" y="100" width="903" height="270"></rect>
+                    </clippath>
+                    <clippath class="axesclip" id="clipd385cexy">
+                      <rect x="80" y="100" width="743" height="270"></rect>
+                    </clippath>
+                  </g>
+                  <g class="gradients"></g>
+                </defs>
+                <g class="bglayer">
+                  <rect class="bg" x="80" y="100" width="743" height="270"
+                    style="fill: rgb(255, 255, 255); fill-opacity: 1; stroke-width: 0;"></rect>
+                </g>
+                <g class="draglayer cursor-crosshair">
+                  <g class="xy">
+                    <rect class="nsewdrag drag" data-subplot="xy" x="80" y="100" width="743" height="270"
+                      style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                    <rect class="nwdrag drag cursor-nw-resize" data-subplot="xy" x="60" y="80" width="20" height="20"
+                      style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                    <rect class="nedrag drag cursor-ne-resize" data-subplot="xy" x="823" y="80" width="20" height="20"
+                      style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                    <rect class="swdrag drag cursor-sw-resize" data-subplot="xy" x="60" y="370" width="20" height="20"
+                      style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                    <rect class="sedrag drag cursor-se-resize" data-subplot="xy" x="823" y="370" width="20" height="20"
+                      style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                    <rect class="ewdrag drag cursor-ew-resize" data-subplot="xy" x="154.3" y="370.5" width="594.4"
+                      height="20" style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                    <rect class="wdrag drag cursor-w-resize" data-subplot="xy" x="80" y="370.5" width="74.3" height="20"
+                      style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                    <rect class="edrag drag cursor-e-resize" data-subplot="xy" x="748.7" y="370.5" width="74.3"
+                      height="20" style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                    <rect class="nsdrag drag cursor-ns-resize" data-subplot="xy" x="59.5" y="127" width="20"
+                      height="216" style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                    <rect class="sdrag drag cursor-s-resize" data-subplot="xy" x="59.5" y="343" width="20" height="27"
+                      style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                    <rect class="ndrag drag cursor-n-resize" data-subplot="xy" x="59.5" y="100" width="20" height="27"
+                      style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect>
+                  </g>
+                </g>
+                <g class="layer-below">
+                  <g class="imagelayer"></g>
+                  <g class="shapelayer"></g>
+                </g>
+                <g class="cartesianlayer">
+                  <g class="subplot xy">
+                    <g class="layer-subplot">
+                      <g class="shapelayer"></g>
+                      <g class="imagelayer"></g>
+                    </g>
+                    <g class="gridlayer">
+                      <g class="x">
+                        <path class="xgrid crisp" transform="translate(245.11,0)" d="M0,100v270"
+                          style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path>
+                        <path class="xgrid crisp" transform="translate(348.31,0)" d="M0,100v270"
+                          style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path>
+                        <path class="xgrid crisp" transform="translate(451.5,0)" d="M0,100v270"
+                          style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path>
+                        <path class="xgrid crisp" transform="translate(554.69,0)" d="M0,100v270"
+                          style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path>
+                        <path class="xgrid crisp" transform="translate(657.89,0)" d="M0,100v270"
+                          style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path>
+                        <path class="xgrid crisp" transform="translate(761.08,0)" d="M0,100v270"
+                          style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path>
+                      </g>
+                      <g class="y">
+                        <path class="ygrid crisp" transform="translate(0,318.7)" d="M80,0h743"
+                          style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path>
+                        <path class="ygrid crisp" transform="translate(0,267.4)" d="M80,0h743"
+                          style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path>
+                        <path class="ygrid crisp" transform="translate(0,216.1)" d="M80,0h743"
+                          style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path>
+                        <path class="ygrid crisp" transform="translate(0,164.8)" d="M80,0h743"
+                          style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path>
+                        <path class="ygrid crisp" transform="translate(0,113.5)" d="M80,0h743"
+                          style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path>
+                      </g>
+                    </g>
+                    <g class="zerolinelayer">
+                      <path class="xzl zl crisp" transform="translate(141.92000000000002,0)" d="M0,100v270"
+                        style="stroke: rgb(68, 68, 68); stroke-opacity: 1; stroke-width: 1px;"></path>
+                      <path class="yzl zl crisp" transform="translate(0,370)" d="M80,0h743"
+                        style="stroke: rgb(68, 68, 68); stroke-opacity: 1; stroke-width: 1px;"></path>
+                    </g>
+                    <path class="xlines-below"></path>
+                    <path class="ylines-below"></path>
+                    <g class="overlines-below"></g>
+                    <g class="xaxislayer-below"></g>
+                    <g class="yaxislayer-below"></g>
+                    <g class="overaxes-below"></g>
+                    <g class="plot" transform="translate(80,100)" clip-path="url(&#39;#clipd385cexyplot&#39;)">
+                      <g class="scatterlayer mlayer">
+                        <g class="trace scatter tracecc9402" style="stroke-miterlimit: 2;">
+                          <g class="fills">
+                            <g>
+                              <path class="js-fill"
+                                d="M743,270L0,270L0,270L61.91,270L61.92,267.37L185.74,267.37L185.74,267.37L185.75,247.67L309.58,247.67L309.58,188.58L433.41,188.58L433.42,99.93L557.24,99.93L557.24,99.93L557.25,33.45L681.08,33.45L681.08,13.5L743,13.5"
+                                style="fill: rgb(33, 118, 255); fill-opacity: 0.5; stroke-width: 0;"></path>
+                            </g>
+                          </g>
+                          <g class="errorbars"></g>
+                          <g class="lines">
+                            <path class="js-line"
+                              d="M0,270L61.91,270L61.92,267.37L185.74,267.37L185.74,267.37L185.75,247.67L309.58,247.67L309.58,188.58L433.41,188.58L433.42,99.93L557.24,99.93L557.24,99.93L557.25,33.45L681.08,33.45L681.08,13.5L743,13.5"
+                              style="vector-effect: non-scaling-stroke; fill: none; stroke: rgb(33, 118, 255); stroke-opacity: 1; stroke-width: 2px; opacity: 1;">
+                            </path>
+                          </g>
+                          <g class="points"></g>
+                          <g class="text"></g>
+                        </g>
+                      </g>
+                    </g>
+                    <g class="overplot"></g>
+                    <path class="xlines-above crisp" d="M0,0" style="fill: none;"></path>
+                    <path class="ylines-above crisp" d="M0,0" style="fill: none;"></path>
+                    <g class="overlines-above"></g>
+                    <g class="xaxislayer-above">
+                      <g class="xtick"><text text-anchor="middle" x="0" y="383" data-unformatted="0" data-math="N"
+                          transform="translate(141.92000000000002,0)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">0</text>
+                      </g>
+                      <g class="xtick"><text text-anchor="middle" x="0" y="383" data-unformatted="5" data-math="N"
+                          transform="translate(245.11,0)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">5</text>
+                      </g>
+                      <g class="xtick"><text text-anchor="middle" x="0" y="383" data-unformatted="10" data-math="N"
+                          transform="translate(348.31,0)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">10</text>
+                      </g>
+                      <g class="xtick"><text text-anchor="middle" x="0" y="383" data-unformatted="15" data-math="N"
+                          transform="translate(451.5,0)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">15</text>
+                      </g>
+                      <g class="xtick"><text text-anchor="middle" x="0" y="383" data-unformatted="20" data-math="N"
+                          transform="translate(554.69,0)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">20</text>
+                      </g>
+                      <g class="xtick"><text text-anchor="middle" x="0" y="383" data-unformatted="25" data-math="N"
+                          transform="translate(657.89,0)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">25</text>
+                      </g>
+                      <g class="xtick"><text text-anchor="middle" x="0" y="383" data-unformatted="30" data-math="N"
+                          transform="translate(761.08,0)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">30</text>
+                      </g>
+                    </g>
+                    <g class="yaxislayer-above">
+                      <g class="ytick"><text text-anchor="end" x="79" y="4.199999999999999" data-unformatted="0"
+                          data-math="N" transform="translate(0,370)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">0</text>
+                      </g>
+                      <g class="ytick"><text text-anchor="end" x="79" y="4.199999999999999" data-unformatted="20"
+                          data-math="N" transform="translate(0,318.7)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">20</text>
+                      </g>
+                      <g class="ytick"><text text-anchor="end" x="79" y="4.199999999999999" data-unformatted="40"
+                          data-math="N" transform="translate(0,267.4)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">40</text>
+                      </g>
+                      <g class="ytick"><text text-anchor="end" x="79" y="4.199999999999999" data-unformatted="60"
+                          data-math="N" transform="translate(0,216.1)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">60</text>
+                      </g>
+                      <g class="ytick"><text text-anchor="end" x="79" y="4.199999999999999" data-unformatted="80"
+                          data-math="N" transform="translate(0,164.8)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">80</text>
+                      </g>
+                      <g class="ytick"><text text-anchor="end" x="79" y="4.199999999999999" data-unformatted="100"
+                          data-math="N" transform="translate(0,113.5)"
+                          style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">100</text>
+                      </g>
+                    </g>
+                    <g class="overaxes-above"></g>
+                  </g>
+                </g>
+                <g class="polarlayer"></g>
+                <g class="ternarylayer"></g>
+                <g class="geolayer"></g>
+                <g class="funnelarealayer"></g>
+                <g class="pielayer"></g>
+                <g class="treemaplayer"></g>
+                <g class="sunburstlayer"></g>
+                <g class="glimages"></g>
+              </svg>
+              <div class="gl-container"></div><svg class="main-svg" xmlns="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink" width="903" height="450">
+                <defs id="topdefs-d385ce">
+                  <g class="clips"></g>
+                </defs>
+                <g class="indicatorlayer"></g>
+                <g class="layer-above">
+                  <g class="imagelayer"></g>
+                  <g class="shapelayer"></g>
+                </g>
+                <g class="infolayer">
+                  <g class="g-gtitle"><text class="gtitle" x="451.5" y="50" text-anchor="middle" dy="0em"
+                      data-unformatted="&lt;b&gt;Cumulative Plot&lt;/b&gt;" data-math="N"
+                      style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 17px; fill: rgb(68, 68, 68); opacity: 1; font-weight: normal; white-space: pre;">
+                      <tspan style="font-weight:bold">Cumulative Plot</tspan>
+                    </text></g>
+                  <g class="g-xtitle"><text class="xtitle" x="451.5" y="422" text-anchor="middle"
+                      data-unformatted="&lt;b&gt;EPSC Amplitude (pA)&lt;/b&gt;" data-math="N"
+                      style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 14px; fill: rgb(68, 68, 68); opacity: 1; font-weight: normal; white-space: pre;">
+                      <tspan style="font-weight:bold">EPSC Amplitude (pA)</tspan>
+                    </text></g>
+                  <g class="g-ytitle"><text class="ytitle" transform="rotate(-90,42,235)" x="42" y="235"
+                      text-anchor="middle" data-unformatted="&lt;b&gt;Counts (%)&lt;/b&gt;" data-math="N"
+                      style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 14px; fill: rgb(68, 68, 68); opacity: 1; font-weight: normal; white-space: pre;">
+                      <tspan style="font-weight:bold">Counts (%)</tspan>
+                    </text></g>
+                </g>
+                <g class="menulayer"></g>
+                <g class="zoomlayer"></g>
+              </svg>
+              <div class="modebar-container" style="position: absolute; top: 0px; right: 0px; width: 100%;">
+                <div id="modebar-d385ce" class="modebar modebar--hover ease-bg">
+                  <div class="modebar-group"><a rel="tooltip" class="modebar-btn" data-title="Download plot as a png"
+                      data-toggle="false" data-gravity="n"><svg viewBox="0 0 1000 1000" class="icon" height="1em"
+                        width="1em">
+                        <path
+                          d="m500 450c-83 0-150-67-150-150 0-83 67-150 150-150 83 0 150 67 150 150 0 83-67 150-150 150z m400 150h-120c-16 0-34 13-39 29l-31 93c-6 15-23 28-40 28h-340c-16 0-34-13-39-28l-31-94c-6-15-23-28-40-28h-120c-55 0-100-45-100-100v-450c0-55 45-100 100-100h800c55 0 100 45 100 100v450c0 55-45 100-100 100z m-400-550c-138 0-250 112-250 250 0 138 112 250 250 250 138 0 250-112 250-250 0-138-112-250-250-250z m365 380c-19 0-35 16-35 35 0 19 16 35 35 35 19 0 35-16 35-35 0-19-16-35-35-35z"
+                          transform="matrix(1 0 0 -1 0 850)"></path>
+                      </svg></a></div>
+                  <div class="modebar-group"><a rel="tooltip" class="modebar-btn active" data-title="Zoom"
+                      data-attr="dragmode" data-val="zoom" data-toggle="false" data-gravity="n"><svg
+                        viewBox="0 0 1000 1000" class="icon" height="1em" width="1em">
+                        <path
+                          d="m1000-25l-250 251c40 63 63 138 63 218 0 224-182 406-407 406-224 0-406-182-406-406s183-406 407-406c80 0 155 22 218 62l250-250 125 125z m-812 250l0 438 437 0 0-438-437 0z m62 375l313 0 0-312-313 0 0 312z"
+                          transform="matrix(1 0 0 -1 0 850)"></path>
+                      </svg></a><a rel="tooltip" class="modebar-btn" data-title="Pan" data-attr="dragmode"
+                      data-val="pan" data-toggle="false" data-gravity="n"><svg viewBox="0 0 1000 1000" class="icon"
+                        height="1em" width="1em">
+                        <path
+                          d="m1000 350l-187 188 0-125-250 0 0 250 125 0-188 187-187-187 125 0 0-250-250 0 0 125-188-188 186-187 0 125 252 0 0-250-125 0 187-188 188 188-125 0 0 250 250 0 0-126 187 188z"
+                          transform="matrix(1 0 0 -1 0 850)"></path>
+                      </svg></a></div>
+                  <div class="modebar-group"><a rel="tooltip" class="modebar-btn" data-title="Zoom in" data-attr="zoom"
+                      data-val="in" data-toggle="false" data-gravity="n"><svg viewBox="0 0 875 1000" class="icon"
+                        height="1em" width="1em">
+                        <path
+                          d="m1 787l0-875 875 0 0 875-875 0z m687-500l-187 0 0-187-125 0 0 187-188 0 0 125 188 0 0 187 125 0 0-187 187 0 0-125z"
+                          transform="matrix(1 0 0 -1 0 850)"></path>
+                      </svg></a><a rel="tooltip" class="modebar-btn" data-title="Zoom out" data-attr="zoom"
+                      data-val="out" data-toggle="false" data-gravity="n"><svg viewBox="0 0 875 1000" class="icon"
+                        height="1em" width="1em">
+                        <path d="m0 788l0-876 875 0 0 876-875 0z m688-500l-500 0 0 125 500 0 0-125z"
+                          transform="matrix(1 0 0 -1 0 850)"></path>
+                      </svg></a><a rel="tooltip" class="modebar-btn" data-title="Autoscale" data-attr="zoom"
+                      data-val="auto" data-toggle="false" data-gravity="n"><svg viewBox="0 0 1000 1000" class="icon"
+                        height="1em" width="1em">
+                        <path
+                          d="m250 850l-187 0-63 0 0-62 0-188 63 0 0 188 187 0 0 62z m688 0l-188 0 0-62 188 0 0-188 62 0 0 188 0 62-62 0z m-875-938l0 188-63 0 0-188 0-62 63 0 187 0 0 62-187 0z m875 188l0-188-188 0 0-62 188 0 62 0 0 62 0 188-62 0z m-125 188l-1 0-93-94-156 156 156 156 92-93 2 0 0 250-250 0 0-2 93-92-156-156-156 156 94 92 0 2-250 0 0-250 0 0 93 93 157-156-157-156-93 94 0 0 0-250 250 0 0 0-94 93 156 157 156-157-93-93 0 0 250 0 0 250z"
+                          transform="matrix(1 0 0 -1 0 850)"></path>
+                      </svg></a><a rel="tooltip" class="modebar-btn" data-title="Reset axes" data-attr="zoom"
+                      data-val="reset" data-toggle="false" data-gravity="n"><svg viewBox="0 0 928.6 1000" class="icon"
+                        height="1em" width="1em">
+                        <path
+                          d="m786 296v-267q0-15-11-26t-25-10h-214v214h-143v-214h-214q-15 0-25 10t-11 26v267q0 1 0 2t0 2l321 264 321-264q1-1 1-4z m124 39l-34-41q-5-5-12-6h-2q-7 0-12 3l-386 322-386-322q-7-4-13-4-7 2-12 7l-35 41q-4 5-3 13t6 12l401 334q18 15 42 15t43-15l136-114v109q0 8 5 13t13 5h107q8 0 13-5t5-13v-227l122-102q5-5 6-12t-4-13z"
+                          transform="matrix(1 0 0 -1 0 850)"></path>
+                      </svg></a></div>
+                  <div class="modebar-group"><a rel="tooltip" class="modebar-btn" data-title="Toggle Spike Lines"
+                      data-attr="_cartesianSpikesEnabled" data-val="on" data-toggle="false" data-gravity="n"><svg
+                        viewBox="0 0 1000 1000" class="icon" height="1em" width="1em">
+                        <path
+                          d="M512 409c0-57-46-104-103-104-57 0-104 47-104 104 0 57 47 103 104 103 57 0 103-46 103-103z m-327-39l92 0 0 92-92 0z m-185 0l92 0 0 92-92 0z m370-186l92 0 0 93-92 0z m0-184l92 0 0 92-92 0z"
+                          transform="matrix(1.5 0 0 -1.5 0 850)"></path>
+                      </svg></a><a rel="tooltip" class="modebar-btn" data-title="Show closest data on hover"
+                      data-attr="hovermode" data-val="closest" data-toggle="false" data-gravity="ne"><svg
+                        viewBox="0 0 1500 1000" class="icon" height="1em" width="1em">
+                        <path d="m375 725l0 0-375-375 375-374 0-1 1125 0 0 750-1125 0z"
+                          transform="matrix(1 0 0 -1 0 850)"></path>
+                      </svg></a><a rel="tooltip" class="modebar-btn active" data-title="Compare data on hover"
+                      data-attr="hovermode" data-val="x" data-toggle="false" data-gravity="ne"><svg
+                        viewBox="0 0 1125 1000" class="icon" height="1em" width="1em">
+                        <path
+                          d="m187 786l0 2-187-188 188-187 0 0 937 0 0 373-938 0z m0-499l0 1-187-188 188-188 0 0 937 0 0 376-938-1z"
+                          transform="matrix(1 0 0 -1 0 850)"></path>
+                      </svg></a></div>
+                  <div class="modebar-group"><a href="https://plotly.com/" target="_blank"
+                      data-title="Produced with Plotly" class="modebar-btn plotlyjsicon modebar-btn--logo"><svg
+                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 132" height="1em" width="1em">
+                        <defs>
+                          <style>
+                            .cls-1 {
+                              fill: #3f4f75;
+                            }
+
+                            .cls-2 {
+                              fill: #80cfbe;
+                            }
+
+                            .cls-3 {
+                              fill: #fff;
+                            }
+                          </style>
+                        </defs>
+                        <title>plotly-logomark</title>
+                        <g id="symbol">
+                          <rect class="cls-1" width="132" height="132" rx="6" ry="6"></rect>
+                          <circle class="cls-2" cx="78" cy="54" r="6"></circle>
+                          <circle class="cls-2" cx="102" cy="30" r="6"></circle>
+                          <circle class="cls-2" cx="78" cy="30" r="6"></circle>
+                          <circle class="cls-2" cx="54" cy="30" r="6"></circle>
+                          <circle class="cls-2" cx="30" cy="30" r="6"></circle>
+                          <circle class="cls-2" cx="30" cy="54" r="6"></circle>
+                          <path class="cls-3" d="M30,72a6,6,0,0,0-6,6v24a6,6,0,0,0,12,0V78A6,6,0,0,0,30,72Z"></path>
+                          <path class="cls-3" d="M78,72a6,6,0,0,0-6,6v24a6,6,0,0,0,12,0V78A6,6,0,0,0,78,72Z"></path>
+                          <path class="cls-3" d="M54,48a6,6,0,0,0-6,6v48a6,6,0,0,0,12,0V54A6,6,0,0,0,54,48Z"></path>
+                          <path class="cls-3" d="M102,48a6,6,0,0,0-6,6v48a6,6,0,0,0,12,0V54A6,6,0,0,0,102,48Z"></path>
+                        </g>
+                      </svg></a></div>
+                </div>
+              </div><svg class="main-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                width="903" height="450">
+                <g class="hoverlayer"></g>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div id="myDiv4" class="legend"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Heterogenous Quantal release simulation Model Ver 0.1.0
+  </div>
+
+  <script src="./plotly-latest.min.js"></script>
+  <script src="./Heterogeneous_simulation.js"></script>
+
+
+
+  <svg id="js-plotly-tester" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+    style="position: absolute; left: -10000px; top: -10000px; width: 9000px; height: 9000px; z-index: 1;">
+    <path class="js-reference-point" d="M0,0H1V1H0Z" style="stroke-width: 0; fill: black;"></path>
+  </svg>
+</body>
+
+</html>
