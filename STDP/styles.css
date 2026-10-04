@@ -102,6 +102,7 @@ button:disabled {
 /* Tab container - holds the figure tab buttons */
 .tab-container {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     gap: 10px;
     margin-top: 10px;
@@ -109,6 +110,8 @@ button:disabled {
 
 /* Tab button styling */
 .tab-button {
+    font-size: 115%;
+    width: 100%;
     padding: 6px 12px;
     background-color: #4DB6AC;
     border: none;
@@ -204,6 +207,7 @@ button:disabled {
 
 /* Simulation button styling */
 .sim-button {
+    font-size: 115%;
     display: block;
     width: 100%;
     margin-bottom: 6px;

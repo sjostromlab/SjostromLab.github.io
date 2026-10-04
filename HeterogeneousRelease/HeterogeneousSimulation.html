@@ -289,6 +289,12 @@
         <label for="histogram"><b>Show as histogram</b></label> <input type="checkbox" id="histogram">
       </p>
 
+      <p>
+        <label for="axisFontSize"><b>Text size</b></label>:
+        <output id="axisFontSizeValue" for="axisFontSize">22 px</output><br>
+        <input type="range" id="axisFontSize" min="14" max="36" step="1" value="22" class="slider">
+      </p>
+
       <p id="morePanel" class="hidden">
         <label class="tooltip" for="mean">Mean:
           <span class="tooltiptext">Expected mean of the EPSC amplitude across different trials.</span>
@@ -307,7 +313,7 @@
       </p>
 
       <p>
-        <label class="tooltip" for="numOfSyn" style="color: blue;"><b>n</b>:
+        <label class="tooltip parameter-label" for="numOfSyn" style="color: blue;"><b>n</b>:
           <span class="tooltiptext">Number of synapses.</span>
         </label>
         <select id="numOfSyn">
@@ -321,7 +327,7 @@
       <p>
         <b>Release Probability (<span style ="color: blue;">p</span>)<br></b>
 
-        <label class="tooltip" for="relPro">p_1:
+        <label class="tooltip parameter-label" for="relPro">p_1:
           <span class="tooltiptext">Release probability of each synapse.</span>
         </label>
 
@@ -329,7 +335,7 @@
         <input type="range" id="pRange" step="0.01" min="0" max="1" class="slider"> <br>
 
         <label id="p2hidden" class="p2_hidden">
-          <label class="tooltip" for="relPro2"> p_2:
+          <label class="tooltip parameter-label" for="relPro2"> p_2:
             <span class="tooltiptext">Probability of release for the second synpase only when n = 2.</span>
           </label>
 
@@ -341,7 +347,7 @@
 
         <label id="p3hidden" class="p3_hidden">
 
-          <label class="tooltip" for="relPro3">p_3:
+          <label class="tooltip parameter-label" for="relPro3">p_3:
             <span class="tooltiptext">Probability of release for the third synpase only when n = 3.</span>
           </label>
 
@@ -358,14 +364,14 @@
       <p>
         <b>Quantal Amplitude (<span style ="color: blue;">q</span>) <br></b>
 
-        <label class="tooltip" for="quanAmp1">q_1:
+        <label class="tooltip parameter-label" for="quanAmp1">q_1:
           <span class="tooltiptext">Quantal amplitude.</span>
         </label>
         <input type="number" id="quanAmp1" step="0.5" min="0.5" max="20"> <br>
         <input type="range" id="q_1Range" step="0.5" min="0.5" max="20" class="slider"><br>
 
         <label id="q2hidden" class="q2_hidden">
-          <label class="tooltip" for="quanAmp2">q_2:
+          <label class="tooltip parameter-label" for="quanAmp2">q_2:
             <span class="tooltiptext">Quantal amplitude.</span>
           </label>
           <input type="number" id="quanAmp2" step="0.5" min="0.5" max="20"> <br>
@@ -373,7 +379,7 @@
         </label>
 
         <label id="q3hidden" class="q3_hidden">
-          <label class="tooltip" for="quanAmp3">q_3:
+          <label class="tooltip parameter-label" for="quanAmp3">q_3:
             <span class="tooltiptext">Quantal amplitude.</span>
           </label>
           <input type="number" id="quanAmp3" step="0.5" min="0.5" max="20"> <br>
@@ -387,33 +393,33 @@
 
       <p>
 
-        <label class="tooltip" for="pMax">p_1 max:
+        <label class="tooltip parameter-label" for="pMax">p_1 max:
           <span class="tooltiptext">Maximum release probability of each synapse.</span>
         </label>
         <input type="number" id="pMax" step="0.01" min="0" max="1"> <br>
 
         <label id="p2hidden_max" class="p2_hidden">
-          <label class="tooltip" for="p2Max">p_2 max:
+          <label class="tooltip parameter-label" for="p2Max">p_2 max:
             <span class="tooltiptext">Maximum probability of release for the second synpase only when n = 2.</span>
           </label>
           <input type="number" id="p2Max" step="0.01" min="0" max="1"> <br>
         </label>
 
         <label id="p3hidden_max" class="p3_hidden">
-          <label class="tooltip" for="p3Max">p_3 max:
+          <label class="tooltip parameter-label" for="p3Max">p_3 max:
             <span class="tooltiptext">Maximum probability of release for the third synpase only when n = 3.</span>
           </label>
           <input type="number" id="p3Max" step="0.01" min="0" max="1"> <br>
         </label>
         
 
-        <label class="tooltip" for="q_1Max">q_1 max:
+        <label class="tooltip parameter-label" for="q_1Max">q_1 max:
           <span class="tooltiptext">Maximum quantal amplitude.</span>
         </label>
         <input type="number" id="q_1Max" step="0.5" min="0.5" max="25"><br>
 
         <label id="q2hidden_max" class="q2_hidden">
-          <label class="tooltip" for="q_2Max">q_2 max:
+          <label class="tooltip parameter-label" for="q_2Max">q_2 max:
             <span class="tooltiptext">Maximum quantal amplitude.</span>
           </label>
           <input type="number" id="q_2Max" step="0.5" min="0.5" max="25"><br>
@@ -421,7 +427,7 @@
 
 
         <label id="q3hidden_max" class="q3_hidden">
-          <label class="tooltip" for="q_3Max">q_3 max:
+          <label class="tooltip parameter-label" for="q_3Max">q_3 max:
             <span class="tooltiptext">Maximum quantal amplitude.</span>
           </label>
           <input type="number" id="q_3Max" step="0.5" min="0.5" max="25">
@@ -429,7 +435,7 @@
       </p>
 
       <p id="pbottom">
-        <label class="tooltip" for="noise">Noise:
+        <label class="tooltip parameter-label" for="noise">Noise:
           <span class="tooltiptext">Measurement noise.</span>
         </label>
         <input type="number" id="noise" step="0.01" min="0" max="6"> <br>

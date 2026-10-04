@@ -240,3 +240,7 @@ input[type=checkbox]
   visibility: visible;
   opacity: 1;
 }
+/* Compact value/slider pairs wrap together on narrow screens. */
+.compact-value-slider { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; vertical-align: middle; }
+.compact-value-slider input[type=text], .compact-value-slider input[type=text]:focus { width: 64px; }
+.compact-value-slider input[type=range] { width: 76px; min-width: 48px; margin: 0 4px 0 0; accent-color: #9933cc; }

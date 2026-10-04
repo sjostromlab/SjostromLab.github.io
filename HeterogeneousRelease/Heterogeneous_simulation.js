@@ -1,4 +1,35 @@
-var config = { responsive: true };
+// Bypass the legacy Plotly Safari download path using a PNG Blob.
+function downloadPlotPNG(plot) {
+  var filenames = {myDiv: 'HeterogeneousRelease_distribution', myDiv3: 'HeterogeneousRelease_cumulative'};
+  return Plotly.toImage(plot, {
+    format: 'png', width: plot._fullLayout.width, height: plot._fullLayout.height, scale: 2
+  }).then(function(dataURL) {
+    var binary = atob(dataURL.split(',')[1]);
+    var bytes = new Uint8Array(binary.length);
+    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    var url = URL.createObjectURL(new Blob([bytes], {type: 'image/png'}));
+    var link = document.createElement('a');
+    link.href = url;
+    link.download = (filenames[plot.id] || 'HeterogeneousRelease_plot') + '.png';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(function() { URL.revokeObjectURL(url); }, 60000);
+  }).catch(function(error) {
+    console.error('PNG export failed:', error);
+    window.alert('The PNG could not be generated. Please try again.');
+  });
+}
+
+var config = {
+  responsive: true,
+  modeBarButtonsToRemove: ['toImage'],
+  modeBarButtonsToAdd: [{
+    name: 'Download plot as a png',
+    icon: Plotly.Icons.camera,
+    click: downloadPlotPNG
+  }]
+};
 
 var layout = {
 	title: '<b>Quantal Release</b>',
@@ -58,6 +89,48 @@ var layout4 = {
 	showlegend: false,
 	bargap: 0.05
 };
+
+// Keep plot text, parameter labels, and summary statistics in step with the text-size slider.
+function setAxisLabelSize(size) {
+  document.querySelectorAll('.parameter-label, #myDiv2').forEach(function(label) {
+    label.style.fontSize = size + 'px';
+  });
+  [layout, layout2, layout3, layout4].forEach(function(plotLayout) {
+    var heading = plotLayout.title;
+    plotLayout.title = {
+      text: typeof heading === 'string' ? heading : heading.text,
+      font: {size: size}
+    };
+    ['xaxis', 'yaxis'].forEach(function(axis) {
+      var title = plotLayout[axis].title;
+      plotLayout[axis].title = {
+        text: typeof title === 'string' ? title : title.text,
+        font: {size: size}
+      };
+      plotLayout[axis].tickfont = {size: size};
+      plotLayout[axis].automargin = true;
+    });
+  });
+}
+
+setAxisLabelSize(22);
+
+document.getElementById('axisFontSize').addEventListener('input', function(event) {
+  var size = Number(event.target.value);
+  setAxisLabelSize(size);
+  document.getElementById('axisFontSizeValue').textContent = size + ' px';
+  ['myDiv', 'myDiv3'].forEach(function(id) {
+    Plotly.relayout(id, {
+      'title.font.size': size,
+      'xaxis.title.font.size': size,
+      'yaxis.title.font.size': size,
+      'xaxis.tickfont.size': size,
+      'yaxis.tickfont.size': size,
+      'xaxis.automargin': true,
+      'yaxis.automargin': true
+    });
+  });
+});
 
 var expon = 5;
 

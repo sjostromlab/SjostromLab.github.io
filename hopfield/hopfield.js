@@ -1,5 +1,38 @@
-const { min, derivative, dotDivide, all, identity, ConditionalNodeDependencies, row } = require("mathjs");
-const { selectPoints } = require("plotly.js/lib/bar");
+// Bypass the legacy Plotly Safari download path using a PNG Blob.
+function downloadPlotPNG(plot) {
+
+  return Plotly.toImage(plot, {
+    format: 'png', width: plot._fullLayout.width, height: plot._fullLayout.height, scale: 2
+  }).then(function(dataURL) {
+    var binary = atob(dataURL.split(',')[1]);
+    var bytes = new Uint8Array(binary.length);
+    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    var url = URL.createObjectURL(new Blob([bytes], {type: 'image/png'}));
+    var link = document.createElement('a');
+    link.href = url;
+    link.download = ('Hopfield_' + plot.id) + '.png';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(function() { URL.revokeObjectURL(url); }, 60000);
+  }).catch(function(error) {
+    console.error('PNG export failed:', error);
+    window.alert('The PNG could not be generated. Please try again.');
+  });
+}
+
+function hopfieldPlotConfig() {
+return {
+  responsive: true,
+  modeBarButtonsToRemove: ['toImage'],
+  modeBarButtonsToAdd: [{
+    name: 'Download plot as a png',
+    icon: Plotly.Icons.camera,
+    click: downloadPlotPNG
+  }]
+};
+}
+
 var matrice=[];
 
 
@@ -374,7 +407,7 @@ function hopfield(){
         height: 500,
         title:"Lyapunouv function"
     };
-    Plotly.newPlot('Lyplot'+k, data, layout);
+    Plotly.newPlot('Lyplot'+k, data, layout, hopfieldPlotConfig());
 
     }
     document.getElementById("slide").innerText = 0;
@@ -698,7 +731,7 @@ for(var p=0; p<matrixSize; p++){
             responsive:true,
         };
     
-        Plotly.newPlot('LyPlot', data1, layout1);
+        Plotly.newPlot('LyPlot', data1, layout1, hopfieldPlotConfig());
 }
 
 function contAnimate(){

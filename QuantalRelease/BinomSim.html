@@ -26,6 +26,12 @@
 	<label for="histogram"><b>Show as histogram</b></label> <input type="checkbox" id="histogram" />
 	</p>
 	
+    <p>
+      <label for="axisFontSize"><b>Text size</b></label>:
+      <output id="axisFontSizeValue" for="axisFontSize">22 px</output><br>
+      <input type="range" id="axisFontSize" min="14" max="36" step="1" value="22" class="slider">
+    </p>
+
 	<p id="morePanel" class="hidden"> 
 	<label class="tooltip" for="mean">Mean: 
 		<span class="tooltiptext">Expected mean of the EPSC amplitude across different trials.</span> 
@@ -44,19 +50,19 @@
 	</p>
 	
 	<p> 
-    <label class="tooltip" for="numOfSyn" style="color:red;">n: 
+    <label class="tooltip parameter-label" for="numOfSyn" style="color:red;">n: 
 		<span class="tooltiptext">Number of synapses.</span> 
 	</label>
     <input type="number" id="numOfSyn" step="1" min="1" max="25"/> <br> 
 	<input type="range" id="nRange" step="1" min="1" max="25" class="slider"> <br>
 	
-    <label class="tooltip" for="relPro" style="color:green;">p: 
+    <label class="tooltip parameter-label" for="relPro" style="color:green;">p: 
 		<span class="tooltiptext">Release probability of each synapse.</span> 
 	</label>
     <input type="number" id="relPro" step="0.01" min="0" max="1"/> <br> 
 	<input type="range" id="pRange" step="0.01" min="0" max="1" class="slider"> <br>
 	
-	<label class="tooltip" for="quanAmp">q: 
+	<label class="tooltip parameter-label" for="quanAmp">q: 
 		<span class="tooltiptext">Quantal amplitude.</span> 
 	</label>
     <input type="number" id="quanAmp" step="0.5" min="0.5" max="20"/> <br> 
@@ -64,24 +70,24 @@
 	</p>
 	
 	<p> 
-	<label class="tooltip" for="nMax" style="color:red;">n max: 
+	<label class="tooltip parameter-label" for="nMax" style="color:red;">n max: 
 		<span class="tooltiptext">Maximum number of synapses.</span> 
 	</label>
     <input type="number" id="nMax" step="1" min="1" max="50"/> <br>
 	
-    <label class="tooltip" for="pMax" style="color:green;">p max: 
+    <label class="tooltip parameter-label" for="pMax" style="color:green;">p max: 
 		<span class="tooltiptext">Maximum release probability of each synapse.</span> 
 	</label>
     <input type="number" id="pMax" step="0.01" min="0" max="1"/> <br> 
 	
-	<label class="tooltip" for="qMax">q max: 
+	<label class="tooltip parameter-label" for="qMax">q max: 
 		<span class="tooltiptext">Maximum quantal amplitude.</span> 
 	</label>
     <input type="number" id="qMax" step="0.5" min="0.5" max="25"/>
 	</p> 
 	
 	<p id="pbottom">
-	<label class="tooltip" for="noise">Noise: 
+	<label class="tooltip parameter-label" for="noise">Noise: 
 		<span class="tooltiptext">Measurement noise.</span> 
 	</label>
     <input type="number" id="noise" step="0.01" min="0" max="6"/> <br> 
@@ -119,7 +125,7 @@
 </div>
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<script src="./Binomial_simulation_ver_0.6.0.js"></script>
+<script src="./Binomial_simulation.js"></script>
   
 
 </body>

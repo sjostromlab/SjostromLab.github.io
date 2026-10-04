@@ -292,3 +292,9 @@ input[type=checkbox]
   background: #33b5e5; /* Green background */
   cursor: pointer; /* Cursor on hover */
 }
+/* Parameter labels stay consistently sized, independent of graph text. */
+.hh-controls label, .hh-controls strong, .hh-controls output { font-size: 18px; }
+.hh-controls label b, .hh-controls label i { font-size: inherit; }
+.hh-controls .tooltiptext { font-size: 16px; }
+
+.hh-controls input[type=button] { font-size: 18px; }

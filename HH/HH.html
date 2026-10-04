@@ -17,10 +17,16 @@
 </div>
 
 <div class="row">
-  <div class="col-3 col-s-9 col-d-6 col-h-3"> 
+  <div class="col-3 col-s-9 col-d-6 col-h-3 hh-controls"> 
   	
+    <p>
+      <label for="axisFontSize"><b>Graph text size</b></label>:
+      <output id="axisFontSizeValue" for="axisFontSize">22 px</output><br>
+      <input type="range" id="axisFontSize" min="14" max="36" step="1" value="22" class="slider">
+    </p>
   	<div class="center">
-	<input type="button" value="Reset Simulation" id="reset"> <br>
+	<input type="button" value="Reset Simulation" id="reset">
+    <input type="button" value="Download" id="downloadTraces" title="Download all currently plotted traces as comma-delimited text"> <br>
 	</div>
 	<p id="ptoptop">
 		<label for="last10Trace"><b>Save Trace</b></label> <input type="checkbox" id="last10Trace" /><br>
@@ -204,7 +210,7 @@
 </div>
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<script src="./HH_ver_0.8.1.js"></script>
+<script src="./HH.js"></script>
   
 
 </body>
