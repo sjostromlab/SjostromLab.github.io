@@ -1,0 +1,178 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 8px;
+  color: #343434;
+  background: white;
+  font-family: Arial, sans-serif;
+}
+header,
+footer {
+  background: #a86812;
+  color: white;
+  text-align: center;
+  border-radius: 5px;
+  padding: 12px;
+}
+h1 {
+  margin: 0;
+  font-size: 28px;
+}
+footer {
+  font-size: 13px;
+  margin-top: 12px;
+}
+main {
+  display: grid;
+  grid-template-columns: 310px minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+section,
+details {
+  background: #eee;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+h2 {
+  font-size: 18px;
+  margin: 0 0 10px;
+}
+label {
+  display: block;
+  margin: 8px 0;
+  font-size: 16px;
+}
+input[type="number"] {
+  width: 100%;
+  padding: 6px;
+  font: inherit;
+  border: 1px solid #999;
+  border-radius: 4px;
+}
+input[type="range"] {
+  width: 100%;
+  accent-color: #a86812;
+}
+button {
+  background: #a86812;
+  color: white;
+  border: 0;
+  border-radius: 4px;
+  padding: 9px;
+  margin: 5px 0;
+  font-size: 16px;
+  cursor: pointer;
+}
+button:hover {
+  background: #81500d;
+}
+.buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+button:focus-visible,
+input:focus-visible,
+summary:focus-visible {
+  outline: 3px solid #277bb8;
+  outline-offset: 2px;
+}
+.hint,
+details p {
+  font-size: 14px;
+  line-height: 1.5;
+}
+summary {
+  cursor: pointer;
+  font-weight: bold;
+}
+article {
+  min-width: 0;
+}
+.plot {
+  width: 100%;
+  height: 600px;
+  background: #c7c7c7;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14px;
+}
+th,
+td {
+  padding: 8px;
+  text-align: right;
+  border-bottom: 1px solid #ccc;
+}
+th:first-child,
+td:first-child {
+  text-align: left;
+}
+#results {
+  overflow: auto;
+}
+#status {
+  color: #8b3000;
+  font-size: 14px;
+}
+[hidden] {
+  display: none !important;
+}
+@media (max-width: 850px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+  .plot {
+    height: 600px;
+  }
+}
+
+.graphs {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 12px;
+}
+.graphs > .plot {
+  min-width: 0;
+}
+@media (min-width: 1101px) {
+  aside {
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+}
+@media (max-width: 1100px) {
+  .graphs {
+    grid-template-columns: 1fr;
+  }
+}
+
+#results {
+  font-size: 18px;
+}
+#results table {
+  font-size: 18px;
+}
+#results h2 {
+  font-size: 20px;
+}
+
+#results,
+#results table {
+  font-size: var(--calculation-size, 22px);
+}
+#results h2 {
+  font-size: calc(var(--calculation-size, 22px) + 2px);
+}
+#results > h2:first-child {
+  font-size: calc(var(--calculation-size, 22px) + 6px);
+}

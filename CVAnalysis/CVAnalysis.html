@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CV Analysis Simulation</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header><h1>CV Analysis Simulation</h1></header>
+    <main>
+      <aside>
+        <section>
+          <label for="fontSize">Graph text size <output id="fontValue">22 px</output></label
+          ><input id="fontSize" type="range" min="14" max="36" value="22" />
+          <div class="buttons">
+            <button id="reset">Reset</button><button id="newSeed">New seed</button>
+          </div>
+          <label><input id="reuseSeed" type="checkbox" checked /> Reuse random seed</label>
+          <input id="seed" type="hidden" value="311" />
+        </section>
+        <section
+          title="Shared by A and B. All responses in each period enter the analysis (minimum 3). One response every 10 seconds, with a 5-minute induction gap."
+        >
+          <label for="baselineCount">Baseline responses</label
+          ><input id="baselineCount" type="number" min="3" max="100" step="1" value="60" /><input
+            id="baselineCountRange"
+            aria-label="Baseline responses"
+            type="range"
+            min="3"
+            max="100"
+            step="1"
+            value="60"
+          /><label for="postCount">Post-induction responses</label
+          ><input id="postCount" type="number" min="3" max="400" step="1" value="200" /><input
+            id="postCountRange"
+            aria-label="Post-induction responses"
+            type="range"
+            min="3"
+            max="400"
+            step="1"
+            value="200"
+          />
+        </section>
+        <section><div id="controlsA"></div></section>
+        <section>
+          <label><input id="compare" type="checkbox" /> Add comparison (B)</label>
+          <div id="comparison" hidden><div id="controlsB"></div></div>
+        </section>
+        <section>
+          <h2>Display</h2>
+          <label
+            title="Shows the expected CV-analysis point calculated directly from the entered means and SDevs. The observed point is calculated from the randomly generated responses, so it varies between experiments because of sampling variability."
+            ><input id="theory" type="checkbox" /> Show theoretical point</label
+          ><label
+            title="Shows sample counts, means, SDevs, and CVs calculated from the simulated responses, plus the normalized coordinates used for the observed CV-analysis point."
+            ><input id="calculations" type="checkbox" /> Show calculations</label
+          >
+        </section>
+        <details>
+          <summary>How to use this simulation</summary>
+          <p>
+            Adjust means and standard deviations to explore LTP, LTD, and variability. New seed
+            reruns the simulation with fresh random responses. Uncheck Reuse random seed to generate
+            fresh random responses whenever you adjust a response parameter or response count. Reset
+            restores the original experiment.
+          </p>
+          <p>
+            Responses are Gaussian samples, as in the exam-generation code. Negative responses can
+            occur and are retained. This is a teaching model of response statistics, not a
+            simulation of individual release sites.
+          </p>
+          <p>
+            The normalized coordinates are mean(after)/mean(before) and [CV(before)/CV(after)]². CV
+            = SDev/mean. Theoretical markers use the entered parameters; observed markers use sample
+            statistics.
+          </p>
+          <p>
+            The horizontal and diagonal reference lines help explore CV analysis. A location alone
+            does not uniquely identify a mechanism; interpretation depends on release-model
+            assumptions.
+          </p>
+        </details>
+        <button id="download">Download traces</button>
+        <p id="status" role="status"></p>
+      </aside>
+      <article>
+        <div class="graphs">
+          <div id="timePlot" class="plot"></div>
+          <div id="cvPlot" class="plot"></div>
+        </div>
+        <section id="results" hidden></section>
+      </article>
+    </main>
+    <footer>Version 0.9</footer>
+    <script src="plotly-latest.min.js"></script>
+    <script src="CVAnalysis.js"></script>
+  </body>
+</html>
