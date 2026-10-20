@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PHGY 311 Interactive Simulations</title>
+  <title>Interactive Neuroscience Simulations</title>
   <style>
     :root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; color: #20313c; background: #f4f6f8; }
     * { box-sizing: border-box; }
@@ -13,7 +13,7 @@
     .eyebrow { margin: 0 0 10px; color: #596b78; font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
     h1 { margin: 0; font-size: clamp(28px, 4vw, 40px); letter-spacing: -.035em; line-height: 1.15; }
     .intro { margin: 12px 0 0; color: #526471; font-size: 18px; line-height: 1.5; }
-    .simulations { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(4, auto); grid-auto-flow: column; gap: 16px; }
+    .simulations { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(5, auto); grid-auto-flow: column; gap: 16px; }
     .card { display: flex; align-items: flex-start; gap: 16px; padding: 22px 22px 22px 20px; border: 1px solid #dce3e8; border-left: 12px solid var(--accent); border-radius: 12px; background: white; color: inherit; text-decoration: none; box-shadow: 0 2px 5px #20313c05; transition: transform .15s, box-shadow .15s, border-color .15s; }
     .card:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 6px 18px #20313c12; }
     .card h2 { margin: 0 0 7px; font-size: 21px; font-weight: 650; line-height: 1.25; }
@@ -34,50 +34,57 @@
 <body>
   <div class="page">
     <header>
-      <p class="eyebrow">Jesper Sjöström · McGill University</p>
-      <h1>Interactive neuroscience simulations</h1>
+      <p class="eyebrow">Sjöström Lab · McGill University</p>
+      <h1>Interactive Neuroscience Simulations</h1>
       <p class="intro">Explore channels, synapses, neurons, and learning.</p>
     </header>
     <main>
       <nav class="simulations" aria-label="Choose a simulation">
-        <a class="card" target="_blank" rel="noopener" href="SingleChannel/index.html" style="--accent: #e46982">
+        <a class="card" target="singleChannelSimulation" rel="opener" href="SingleChannel/index.html" style="--accent: #e46982">
           <div><h2>Single-Channel Activity</h2><p>Explore random channel openings and the currents they produce.</p></div><span class="arrow" aria-hidden="true">↗</span>
         </a>
-        <a class="card" target="_blank" rel="noopener" href="QuantalRelease/BinomSim.html" style="--accent: #9933cc">
-          <div><h2>Quantal Release</h2><p>See how release-site number, release probability, and quantal amplitude shape responses.</p></div><span class="arrow" aria-hidden="true">↗</span>
+        <a class="card" target="ivCurvesSimulation" rel="opener" href="IVCurves/IVCurves.html" style="--accent: #167b87">
+          <div><h2>Channel Currents &amp; I–V Curves</h2><p>Compare population currents and current–voltage relationships across channel types.</p></div><span class="arrow" aria-hidden="true">↗</span>
         </a>
-        <a class="card" target="_blank" rel="noopener" href="HeterogeneousRelease/HeterogeneousSimulation.html" style="--accent: #2176ff">
-          <div><h2>Heterogeneous Release</h2><p>Compare synaptic responses from release sites with different properties.</p></div><span class="arrow" aria-hidden="true">↗</span>
+        <a class="card" target="quantalReleaseSimulation" rel="opener" href="QuantalRelease/BinomSim.html" style="--accent: #9933cc">
+          <div><h2>Quantal Release</h2><p>Explore a binomial model of how release-site number, release probability, and quantal amplitude shape responses.</p></div><span class="arrow" aria-hidden="true">↗</span>
         </a>
-        <a class="card" target="_blank" rel="noopener" href="CVAnalysis/CVAnalysis.html" style="--accent: #a86812">
-          <div><h2>CV Analysis</h2><p>Explore plasticity, response variability, and the importance of sample size.</p></div><span class="arrow" aria-hidden="true">↗</span>
+        <a class="card" target="heterogeneousReleaseSimulation" rel="opener" href="HeterogeneousRelease/HeterogeneousSimulation.html" style="--accent: #2176ff">
+          <div><h2>Heterogeneous Release</h2><p>Explore what happens when binomial assumptions do not hold: release sites have different probabilities or quantal amplitudes.</p></div><span class="arrow" aria-hidden="true">↗</span>
         </a>
-        <a class="card" target="_blank" rel="noopener" href="LIF/LIFSim.html" style="--accent: #4caf50">
+        <a class="card" target="cvAnalysisSimulation" rel="opener" href="CVAnalysis/CVAnalysis.html" style="--accent: #a86812">
+          <div><h2>CV Analysis</h2><p>Use changes in response mean and variability to explore the locus of synaptic plasticity and the importance of sample size.</p></div><span class="arrow" aria-hidden="true">↗</span>
+        </a>
+        <a class="card" target="lifSimulation" rel="opener" href="LIF/LIFSim.html" style="--accent: #4caf50">
           <div><h2>Integrate-and-Fire</h2><p>Investigate temporal integration, spiking, and short-term synaptic plasticity.</p></div><span class="arrow" aria-hidden="true">↗</span>
         </a>
-        <a class="card" target="_blank" rel="noopener" href="HH/HH.html" style="--accent: #33b5e5">
+        <a class="card" target="hhSimulation" rel="opener" href="HH/HH.html" style="--accent: #33b5e5">
           <div><h2>Hodgkin–Huxley</h2><p>Examine action potentials and ionic currents with current and voltage clamp.</p></div><span class="arrow" aria-hidden="true">↗</span>
         </a>
-        <a class="card" target="_blank" rel="noopener" href="STDP/STDPSim.html" style="--accent: #26a69a">
+        <a class="card" target="stdpSimulation" rel="opener" href="STDP/STDPSim.html" style="--accent: #26a69a">
           <div><h2>STDP</h2><p>Discover how spike timing changes synaptic strength and input selectivity.</p></div><span class="arrow" aria-hidden="true">↗</span>
         </a>
-        <a class="card" target="_blank" rel="noopener" href="hopfield/hopfield.html" style="--accent: #fa5e5e">
+        <a class="card" target="hopfieldSimulation" rel="opener" href="hopfield/hopfield.html" style="--accent: #fa5e5e">
           <div><h2>Hopfield Memory</h2><p>Retrieve stored patterns from noisy cues in a content-addressable network.</p></div><span class="arrow" aria-hidden="true">↗</span>
         </a>
       </nav>
       <details id="help">
-        <summary>How to use the simulations</summary>
+        <summary>How to use these simulations</summary>
         <p>Choose a simulation to open it in a new tab, then adjust its controls to explore how the model behaves. This menu stays open in its original tab, so you can return here to choose another simulation.</p>
         <p>Selected simulations offer adjustable graph text and data downloads. Use a graph’s camera button to save a PNG image for notes or teaching materials.</p>
       </details>
     </main>
     <footer>
-      <p>Teaching tools for PHGY 311</p>
+      <p><strong>Neuroscience teaching tools</strong></p>
       <nav aria-label="Further information">
-        <a href="http://plasticity.muhc.mcgill.ca/index.html">Sjöström Lab</a>
-        <a href="https://github.com/sjostromlab/SjostromLab.github.io">GitHub source</a>
+        <a href="http://plasticity.muhc.mcgill.ca/index.html" target="_new">Sjöström Lab</a>
+        <a href="https://github.com/sjostromlab/SjostromLab.github.io" target="_new">GitHub source</a>
       </nav>
     </footer>
   </div>
+  <script>
+    // A stable name lets simulation footers return to this tab instead of opening duplicates.
+    window.name = "neuroscienceTeachingToolsMenu";
+  </script>
 </body>
 </html>
