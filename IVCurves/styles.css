@@ -1,0 +1,242 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 12px;
+  font-family: Arial, sans-serif;
+  color: #283b40;
+  background: #f5f7f7;
+}
+header,
+footer {
+  background: #276c70;
+  color: white;
+  padding: 16px;
+  border-radius: 7px;
+  text-align: center;
+}
+h1 {
+  margin: 0;
+  font-size: 28px;
+}
+header p {
+  margin: 8px 0 0;
+}
+footer {
+  margin-top: 14px;
+  font-size: 13px;
+}
+footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 24px;
+  padding: 12px 18px;
+  font-size: 14px;
+}
+footer p { margin: 0; line-height: 1.5; }
+footer nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 22px; }
+footer a { color: inherit; text-underline-offset: 3px; }
+footer a:focus-visible { outline: 2px solid white; outline-offset: 4px; }
+main {
+  display: grid;
+  grid-template-columns: 285px minmax(0, 1fr);
+  gap: 14px;
+  margin-top: 14px;
+}
+section,
+details {
+  background: white;
+  border: 1px solid #d4dede;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+h2 {
+  font-size: 17px;
+  margin: 0 0 10px;
+}
+label {
+  display: block;
+  font-size: 15px;
+  margin: 8px 0;
+}
+input[type="number"],
+select {
+  width: 100%;
+  font: inherit;
+  padding: 6px;
+  border: 1px solid #9aa;
+  border-radius: 4px;
+}
+input[type="range"] {
+  width: 100%;
+  accent-color: #276c70;
+}
+button {
+  padding: 9px;
+  margin: 6px 4px 0 0;
+  background: #276c70;
+  color: white;
+  border: 0;
+  border-radius: 4px;
+  font-size: 15px;
+  cursor: pointer;
+}
+.hint,
+details p {
+  font-size: 13px;
+  line-height: 1.5;
+}
+summary {
+  cursor: pointer;
+  font-weight: bold;
+}
+article {
+  min-width: 0;
+}
+.graphs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.plot {
+  min-width: 0;
+  height: 500px;
+  border: 1px solid #d4dede;
+  border-radius: 6px;
+  overflow: hidden;
+  background: white;
+}
+.protocol {
+  height: 235px;
+  margin-bottom: 12px;
+}
+#status {
+  color: #9b3821;
+}
+[hidden] {
+  display: none !important;
+}
+:focus-visible {
+  outline: 3px solid #a65d0c;
+  outline-offset: 2px;
+}
+@media (min-width: 1101px) {
+  aside {
+    max-height: calc(100vh - 135px);
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+}
+@media (max-width: 1100px) {
+  .graphs {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 700px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+  h1 {
+    font-size: 24px;
+  }
+}
+@media (max-width: 480px) { footer { justify-content: center; } }
+
+/* Pair related protocol controls to keep the panel compact. */
+#protocolControls,
+.control-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 10px;
+}
+#protocolControls > div,
+.control-pair > div {
+  min-width: 0;
+}
+
+/* Keep each channel's conductance and reversal controls together. */
+#controlsA,
+#controlsB {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 10px;
+}
+#controlsA > div,
+#controlsB > div {
+  min-width: 0;
+}
+
+#agonistControls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 10px;
+}
+#agonistControls > div {
+  min-width: 0;
+}
+
+.channel-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.channel-heading h2 {
+  flex: 0 0 auto;
+  margin: 0;
+}
+.channel-heading select {
+  flex: 1;
+  width: 0;
+  min-width: 0;
+}
+
+#achControls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 10px;
+}
+#achControls > div {
+  min-width: 0;
+}
+
+.references {
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.references li {
+  margin-bottom: 10px;
+}
+
+/* Keep paired controls aligned without subscripts changing label height. */
+#protocolControls label,
+#controlsA label,
+#controlsB label {
+  line-height: 20px;
+  min-height: 20px;
+}
+#protocolControls label sub,
+#controlsA label sub,
+#controlsB label sub {
+  position: relative;
+  bottom: -0.25em;
+  vertical-align: baseline;
+  line-height: 0;
+}
+#hold,
+#measure {
+  height: 34px;
+}
+
+#gabaControls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 10px;
+}
+#gabaControls > div {
+  min-width: 0;
+}

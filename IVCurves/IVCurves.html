@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Channel Currents &amp; I–V Curves</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Channel Currents &amp; I–V Curves</h1>
+      <p>Deterministic population currents · Ideal voltage clamp</p>
+    </header>
+    <main>
+      <aside>
+        <section>
+          <label for="font">Graph text size <output id="fontValue">18 px</output></label
+          ><input id="font" type="range" min="12" max="30" value="18" /><button id="reset">
+            Reset</button
+          ><button id="download">Download data</button>
+        </section>
+        <section>
+          <h2
+            title="Each sweep starts with HH gates and HCN1 populations at holding-voltage equilibrium and receptors closed. Test steps are independent; 2 ms before and 5 ms after each step are displayed."
+          >
+            Voltage protocol
+          </h2>
+          <div id="hcnProtocol" hidden>
+            <p class="hint">
+              Try V<sub>hold</sub> = −35 mV, Start = −120 mV, End = −40 mV, and a 1000 ms step. This
+              shared protocol applies to A and B.
+            </p>
+            <button id="useHcnProtocol">Use HCN protocol</button>
+          </div>
+          <div id="protocolControls">
+            <div id="measurementControl">
+              <label for="measure">Measured</label>
+              <select
+                id="measure"
+                title="Peak: largest absolute current during the voltage step, retaining its sign. End: current at the end of the voltage step, not the end of the agonist pulse."
+              >
+                <option value="peak">Peak</option>
+                <option value="end">End</option>
+              </select>
+            </div>
+          </div>
+        </section>
+        <section>
+          <div class="channel-heading">
+            <h2 id="headingA">Channel A</h2>
+            <select id="channelA" aria-labelledby="headingA">
+              <option value="AMPA" selected>AMPAR</option>
+              <option value="NMDA">NMDAR</option>
+              <option value="CPAMPA">CP-AMPAR</option>
+              <option value="nAChR">nAChR</option>
+              <option value="GABA">GABAₐ</option>
+              <option value="Kir">Kir2.1</option>
+              <option value="HCN">HCN1</option>
+              <option value="Na">HH Na⁺</option>
+              <option value="K">HH K⁺</option>
+            </select>
+          </div>
+          <div id="controlsA"></div>
+          <div id="mgControlsA" hidden></div>
+          <div id="paControlsA" hidden></div>
+          <p id="kirHintA" class="hint" hidden>Try Start = −120 mV to see inward K⁺ current.</p>
+        </section>
+        <section>
+          <label><input id="compare" type="checkbox" checked /> Overlay channel B</label>
+          <div id="panelB">
+            <div class="channel-heading">
+              <h2 id="headingB">Channel B</h2>
+              <select id="channelB" aria-labelledby="headingB">
+                <option value="AMPA">AMPAR</option>
+                <option value="NMDA" selected>NMDAR</option>
+                <option value="CPAMPA">CP-AMPAR</option>
+                <option value="nAChR">nAChR</option>
+                <option value="GABA">GABAₐ</option>
+                <option value="Kir">Kir2.1</option>
+                <option value="HCN">HCN1</option>
+                <option value="Na">HH Na⁺</option>
+                <option value="K">HH K⁺</option>
+              </select>
+            </div>
+            <div id="controlsB"></div>
+            <div id="mgControlsB" hidden></div>
+            <div id="paControlsB" hidden></div>
+            <p id="kirHintB" class="hint" hidden>Try Start = −120 mV to see inward K⁺ current.</p>
+          </div>
+        </section>
+        <section id="agonistPanel" hidden>
+          <h2
+            title="The same square glutamate pulse starts at voltage-step onset for all receptor sweeps. It must fit within the voltage step. HH currents are unaffected by glutamate."
+          >
+            Glutamate pulse
+          </h2>
+          <div id="agonistControls"></div>
+        </section>
+        <section id="achPanel" hidden>
+          <h2
+            title="Acetylcholine activates nAChRs only. Its independent square pulse starts at voltage-step onset; glutamate receptors are unaffected."
+          >
+            Acetylcholine pulse
+          </h2>
+          <div id="achControls"></div>
+        </section>
+        <section id="gabaPanel" hidden>
+          <h2
+            title="GABA activates GABAₐ receptors only. The square pulse starts at voltage-step onset and must fit within the voltage step."
+          >
+            GABA pulse
+          </h2>
+          <div id="gabaControls"></div>
+        </section>
+        <p id="status" role="status"></p>
+      </aside>
+      <article>
+        <div id="voltagePlot" class="plot protocol"></div>
+        <div class="graphs">
+          <div id="currentPlot" class="plot"></div>
+          <div id="ivPlot" class="plot"></div>
+        </div>
+        <p class="hint">
+          Click a current trace or I–V point to select a sweep. All plots share the channel colours;
+          the voltage protocol is shared by A and B. Hover over controls and channel headings for
+          explanations and model references; hover over graphs for numerical values.
+        </p>
+        <details>
+          <summary>How to use this simulation</summary>
+          <p>
+            Choose channels and a voltage-step family. Click an I–V point to highlight its current
+            trace. A is teal and B is orange; stronger traces mark the selected voltage.
+          </p>
+          <p>
+            Currents are densities (µA/cm²); conductances are densities (mS/cm²). Positive current
+            is outward. These are isolated channel currents, not their sum. No leak or capacitive
+            current is included, and holding current is not subtracted.
+          </p>
+          <p>
+            Changing a channel restores its default conductance and reversal potential. All other
+            parameter edits update automatically. The voltage increment may leave the final step
+            below the specified upper limit.
+          </p>
+          <p>
+            Receptor populations begin closed; their corresponding agonist pulses begin at
+            voltage-step onset. Conductance defaults outside HH are illustrative amplitude scales,
+            not measured channel densities. The fixed kinetic rates are not temperature-matched
+            across models. Desensitisation is omitted.
+          </p>
+          <p>
+            <strong>AMPAR:</strong> Ca²⁺-impermeable AMPARs use a reduced two-state model, ds/dt =
+            α[Glu](1 − s) − βs, with α = 1.1 /mM/ms and β = 0.19 /ms. Current is ohmic at a fixed
+            open fraction. Longer pulses recruit more receptors; End can be nearly zero after a
+            brief pulse.
+          </p>
+          <p>
+            <strong>NMDAR:</strong> The same framework uses α = 0.072 /mM/ms and β = 0.0066 /ms,
+            with instantaneous external Mg²⁺ block and sufficient co-agonist assumed. Try a 100 ms
+            step to see slower decay; setting Mg²⁺ to zero makes its I–V curve linear.
+          </p>
+          <p>
+            <strong>CP-AMPAR:</strong> AMPAR kinetics are multiplied by the equilibrium
+            polyamine-block factor 1/[1 + (PA/20 µM)exp(V/15 mV)]. The 20 µM and 15 mV parameters
+            were chosen for teaching, not fitted to experimental data. The cited paper supports the
+            block mechanism, not these numerical choices. This curve illustrates rectification but
+            does not predict its precise strength in a particular receptor subtype. Outside −100 to
+            +50 mV the curve is an extrapolation; high-voltage relief and use dependence are
+            omitted. Zero polyamine reproduces AMPAR at matching settings. Current is total cation
+            current, not Ca²⁺ influx.
+          </p>
+          <p>
+            <strong>nAChR:</strong> Muscle-type C ↔ AC ↔ A₂C ↔ O populations follow a reduced
+            adaptation of Land et al. (1981), with their own ACh pulse. Kinetics are fixed across
+            voltages; diffusion, acetylcholinesterase and ACh block are omitted. This is not a
+            generic neuronal nAChR model.
+          </p>
+          <p>
+            <strong>GABAₐ:</strong> A separate GABA pulse drives the two-state model with α = 5
+            /mM/ms and β = 0.18 /ms (Destexhe et al., 1998). Its linear I–V curve crosses the
+            effective E<sub>GABA</sub> (default −70 mV), set using E<sub>rev</sub>. Chloride and
+            bicarbonate fluxes are not separated. Move the reversal potential to explore current
+            direction; this voltage-clamp model does not demonstrate shunting inhibition or
+            determine whether GABA increases or decreases firing.
+          </p>
+          <p>
+            <strong>Kir2.1:</strong> Uses the published two-mode steady-state spermine-block fit of
+            Ishihara &amp; Ehara (2004), with parameters confirmed by Ishihara &amp; Yan (2007).
+            High- and low-affinity fractions are 0.9 and 0.1; their dissociation constants are 0.7
+            exp(−u/4.8) and 40 exp(−u/9.1) µM, where u = V − E<sub>K</sub> in mV. Spermine is fixed
+            at 5 µM. These block parameters come from experimental fits.
+          </p>
+          <p>
+            <strong>Kir2.1 limits:</strong> The original fit used mouse channels in inside-out
+            HEK293T patches at 24–26 °C with symmetric high K⁺ and no Mg²⁺ block. We shift its
+            voltage dependence with E<sub>K</sub>, following the parallel shifts reported in 2007;
+            this does not reproduce all effects of changing ion concentrations. Block is applied
+            instantaneously at equilibrium, so Peak and End match: these traces do not predict
+            block/unblock transients or the approach to steady state during short pulses. Try Start
+            = −120 mV to see inward current below E<sub>K</sub> (default −90 mV).
+          </p>
+          <p>
+            <strong>HCN1:</strong> The ten-state population model uses Altomare et al. (2001), Table
+            2 parameters. Hyperpolarisation activates the channel; holding-voltage equilibrium sets
+            its initial state. Use HCN protocol applies a 1000 ms step family from −35 mV. Step
+            durations up to 5000 ms are available. Peak can select current through channels already
+            open before the step; End reports the final sampled current, which need not have reached
+            equilibrium.
+          </p>
+          <p>
+            <strong>HCN1 limits:</strong> These are room-temperature mouse HCN1 kinetics from an
+            expression system, not all native Iₕ. cAMP modulation is not varied. Current uses a
+            linear mixed-cation driving force with adjustable E<sub>rev</sub> (−30 mV teaching
+            default); Na⁺/K⁺ concentrations are not calculated. Tail display is only 5 ms, so slow
+            deactivation is truncated. This voltage-clamp model does not generate voltage sag or
+            pacemaking.
+          </p>
+          <p>
+            For long sweeps, samples remain 0.01 ms apart through the first 200 ms and up to 1 ms
+            apart afterwards. Downloads contain the actual, nonuniform sample times. Zoom in on
+            early times when comparing slow HCN1 with fast HH currents.
+          </p>
+          <p>
+            <strong>HH Na⁺ and HH K⁺:</strong> Classical squid-axon kinetics at 6.3 °C: I<sub
+              >Na</sub
+            >
+            = g<sub>Na</sub>m³h(V − E<sub>Na</sub>) and I<sub>K</sub> = g<sub>K</sub>n⁴(V −
+            E<sub>K</sub>). Each sweep starts with gates at holding-voltage equilibrium. These are
+            not generic mammalian channels. Reversal potentials are adjustable; ion concentrations
+            are not calculated.
+          </p>
+          <h3>References</h3>
+          <ul class="references">
+            <li>
+              <strong>Receptor kinetic framework:</strong>
+              <a href="https://doi.org/10.1162/neco.1994.6.1.14" target="_blank" rel="noopener"
+                >Destexhe, Mainen &amp; Sejnowski (1994). Neural Computation 6:14–18.</a
+              >
+            </li>
+            <li>
+              <strong>AMPAR, NMDAR and GABAₐ rate parameters:</strong>
+              <a
+                href="https://papers.cnl.salk.edu/PDFs/Kinetic%20Models%20of%20Synaptic%20Transmission%201998-3229.pdf"
+                target="_blank"
+                rel="noopener"
+                >Destexhe, Mainen &amp; Sejnowski (1998). Kinetic Models of Synaptic Transmission.
+                In Methods in Neuronal Modeling, 2nd ed.</a
+              >
+            </li>
+            <li>
+              <strong>NMDAR Mg²⁺ block:</strong>
+              <a href="https://pubmed.ncbi.nlm.nih.gov/1697902/" target="_blank" rel="noopener"
+                >Jahr &amp; Stevens (1990). J Neurosci 10:3178–3182.</a
+              >
+            </li>
+            <li>
+              <strong>CP-AMPAR polyamine block:</strong>
+              <a href="https://pubmed.ncbi.nlm.nih.gov/9390995/" target="_blank" rel="noopener"
+                >Washburn et al. (1997). J Neurosci 17:9393–9406.</a
+              >
+            </li>
+            <li>
+              <strong>Muscle nAChR kinetics:</strong>
+              <a href="https://doi.org/10.1073/pnas.78.11.7200" target="_blank" rel="noopener"
+                >Land, Salpeter &amp; Salpeter (1981). PNAS 78:7200–7204.</a
+              >
+            </li>
+            <li>
+              <strong>Kir2.1 steady-state fit:</strong>
+              <a href="https://doi.org/10.1113/jphysiol.2003.055434" target="_blank" rel="noopener"
+                >Ishihara &amp; Ehara (2004). Two modes of polyamine block regulating the cardiac
+                inward rectifier K⁺ current I<sub>K1</sub> as revealed by a study of the Kir2.1
+                channel expressed in a human cell line. J Physiol 556:61–78.</a
+              >
+            </li>
+            <li>
+              <strong>Kir2.1 parameters and reversal-potential dependence:</strong>
+              <a href="https://doi.org/10.1113/jphysiol.2007.136028" target="_blank" rel="noopener"
+                >Ishihara &amp; Yan (2007). Low-affinity spermine block mediating outward currents
+                through Kir2.1 and Kir2.2 inward rectifier potassium channels. J Physiol
+                583:891–908.</a
+              >
+            </li>
+            <li>
+              <strong>HCN1 kinetics:</strong>
+              <a href="https://doi.org/10.1085/jgp.117.6.519" target="_blank" rel="noopener"
+                >Altomare et al. (2001). Integrated allosteric model of voltage gating of HCN
+                channels. J Gen Physiol 117:519–532.</a
+              >
+            </li>
+            <li>
+              <strong>HCN subtype context:</strong>
+              <a
+                href="https://doi.org/10.1523/JNEUROSCI.20-14-05264.2000"
+                target="_blank"
+                rel="noopener"
+                >Santoro et al. (2000). Molecular and functional heterogeneity of
+                hyperpolarization-activated pacemaker channels in the mouse CNS. J Neurosci
+                20:5264–5275.</a
+              >
+            </li>
+            <li>
+              <strong>Na⁺ and K⁺ kinetics:</strong>
+              <a
+                href="https://doi.org/10.1113/jphysiol.1952.sp004764"
+                target="_blank"
+                rel="noopener"
+                >Hodgkin &amp; Huxley (1952). J Physiol 117:500–544.</a
+              >
+            </li>
+          </ul>
+        </details>
+      </article>
+    </main>
+    <footer>
+      <p><strong>Neuroscience teaching tools</strong></p>
+      <nav aria-label="Further information">
+        <a href="../index.html" target="neuroscienceTeachingToolsMenu">Main menu</a>
+        <a href="http://plasticity.muhc.mcgill.ca/index.html">Sjöström Lab</a>
+        <a href="https://github.com/sjostromlab/SjostromLab.github.io">GitHub source</a>
+      </nav>
+    </footer>
+    <script src="plotly-latest.min.js"></script>
+    <script src="model.js"></script>
+    <script src="IVCurves.js"></script>
+    <script>
+    // Return to the originating menu tab when it is still open; otherwise the named link opens one.
+    document.querySelector('a[target="neuroscienceTeachingToolsMenu"]').addEventListener("click", function (event) {
+      try {
+        if (window.opener && !window.opener.closed && window.opener.name === "neuroscienceTeachingToolsMenu") {
+          event.preventDefault();
+          if (window.opener.location.href !== this.href) window.opener.location.href = this.href;
+          window.opener.focus();
+        }
+      } catch (error) {
+        // A cross-origin opener cannot be reused safely; allow the named link to handle it.
+      }
+    });
+  </script>
+</body>
+</html>
