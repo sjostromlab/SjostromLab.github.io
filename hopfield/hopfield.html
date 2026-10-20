@@ -3,108 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=>, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hopfield Network</title>
-    <link rel="stylesheet" href="hopfield.css" type="text/css"></link>
+    <link rel="stylesheet" href="hopfield.css?v=stacked-results-1" type="text/css">
 </head>
 <body>
    <h1 id="heading">Hopfield Network Simulator</h1>
-<div id="final" style="min-width:260px">
-   <div id="regen">
-      <p id="regenerate"> 
-         <strong> Generate Matrices </strong> <br>
-         <label id="inputsize" class="tooltip" for="input">Matrix Size
-            <span class="tooltiptext">a number between 3-10</span> 
+<aside id="final">
+   <section id="regen" class="control-card">
+      <h2>1. Create memories</h2>
+      <p class="step-instruction">Choose the matrix size and number of memories. The editable grids update automatically.</p>
+      <div class="field-row">
+         <label id="inputsize" class="tooltip" for="matrixSize">Matrix size, n×n
+            <span class="tooltiptext">Choose a size from 3 to 10.</span>
          </label>
-         <input type="number" id="matrixSize"> <br>
-      
-         <label class="tooltip" for="memnum">Number of Memory: 
-            <span class="tooltiptext">number of memories</span> 
+         <input type="number" id="matrixSize" min="3" max="10" value="10">
+      </div>
+      <div class="field-row">
+         <label class="tooltip" for="memorynum">Number of memories
+            <span class="tooltiptext">Three memories are suggested for the first run.</span>
          </label>
-         <input type="number" id="memorynum"><br>
-         <button type="submit" id="matrixsubmit" onclick="addMatrix()">Regenerate</button>
-         <span id="errormsg"></span>
-         </p> 
+         <input type="number" id="memorynum" min="3" max="10" value="3">
+      </div>
+      <button type="button" id="restartSimulation" onclick="reset()">Restart simulation</button>
+      <p id="errormsg" role="alert"></p>
+   </section>
 
-   
-   </div>
-   <div id="noiseadd">
-      <p id="regenerate"> 
-         <label class="tooltip" id="addnoise">Noise Level: 
-            <span class="tooltiptext">amount of noise generated to the memory</span> 
+   <section id="noiseadd" class="control-card">
+      <h2>2. Add noise</h2>
+      <p class="step-instruction">Start with 20% random noise, then edit each noisy cue by clicking or dragging its squares.</p>
+      <div class="field-row">
+         <label class="tooltip" id="addnoise" for="noiselevel">Noise level (%)
+            <span class="tooltiptext">The percentage of squares randomly flipped in each memory.</span>
          </label>
-         <input type="number" id="noiselevel" placeholder="Noise Level"><br>
-         <label id="animate">Generate Animation:
-            <input type="checkbox" id="animation">
-         </label>     
-         </p> 
-   </div>
-   <!--<div id="animate">
-      <span>Generate Animation</span>
-      <input type="checkbox" id="animation">
-   </div>-->
+         <input type="number" id="noiselevel" min="0" max="100" value="20">
+      </div>
+      <button type="button" id="generateNoise" onclick="generateEditableNoise()">Generate noisy cues</button>
+      <label id="animate" class="checkbox-row" for="animation">
+         <input type="checkbox" id="animation" checked>
+         Generate animation
+      </label>
+      <div id="finish" class="button-row">
+         <button type="button" id="runRecall" onclick="hopfield()" disabled>Run recall</button>
+         <button type="button" id="newUpdateOrder" onclick="rerunWithNewUpdateOrder()">New update order</button>
+      </div>
+   </section>
 
-   <div id="finish">
-      <button type="submit" id="matrixsubmit" onclick="hopfield()">submit</button>
-      <button type="submit" id="reset-btn" onclick="reset()">reset</button>
-   </div>
-   <div id="slide">0</div>
-   <div id="countbox">0</div>
-</div>
+   <details id="howTo">
+      <summary>How to use this simulation</summary>
+      <p>Choose the matrix size and number of memories; the grids update automatically. Click or drag across their squares to draw binary patterns. <strong>Restart simulation</strong> restores the defaults. The network stores all patterns in one shared set of connections.</p>
+      <p>Noise randomly flips the selected percentage of squares to create a starting cue. You can then click or drag across any noisy cue to change it before recall. The label reports its actual difference from the stored memory; regenerating the cues draws fresh random noise and discards those edits.</p>
+      <p>During animated recall, inspect the edited noisy cue, start the animation, and watch asynchronous neuron updates move the network toward a stable pattern. Click again to reveal the next noisy cue.</p>
+      <p>The final-state table reports the Hamming distance—the number of different cells—from every stored memory and its inverse. <strong>Previous memory</strong> and <strong>Next memory</strong> move directly among completed results without playing their animations. <strong>New update order</strong> reruns the same edited cues with a fresh random sequence while keeping the currently selected memory.</p>
+      <p>The energy is the network’s Lyapunov function. It should fall or remain level during asynchronous updates as the network approaches a stable attractor. With excessive noise, too many memories, or very similar memories, recall can fail or settle into a spurious pattern.</p>
+      <p>Model: a binary Hopfield network with standard 1/N-normalized Hebbian weights and asynchronous updates. Regenerating cues draws fresh noise; each recall uses a fresh update order. Reference: <a href="https://doi.org/10.1073/pnas.79.8.2554">Hopfield, PNAS (1982)</a>. John J. Hopfield later shared the <a href="https://www.nobelprize.org/prizes/physics/2024/hopfield/facts/">2024 Nobel Prize in Physics</a> for foundational work enabling machine learning with artificial neural networks.</p>
+   </details>
+
+   <div id="slide" hidden>0</div>
+   <div id="countbox" hidden>0</div>
+</aside>
 <div id="matrix">
-   <tr id="row1"><div id="mem1" class = "contain"></div>
+   <div id="row1" class="memory-row"><div id="mem1" class = "contain"></div>
    <div id="mem2" class = "contain"></div>
    <div id="mem3" class = "contain"></div>
    <div id="mem4" class = "contain"></div>
-   <div id="mem5" class = "contain"></div></tr>
-    <tr id="row2"><div id="mem6" class = "contain"></div>
+   <div id="mem5" class = "contain"></div></div>
+    <div id="row2" class="memory-row"><div id="mem6" class = "contain"></div>
     <div id="mem7" class = "contain"></div>
     <div id="mem8" class = "contain"></div>
     <div id="mem9" class = "contain"></div> 
-    <div id="mem10" class = "contain"></div></tr> 
-</div>
-    <table id="allPlots">
-      <div id="startAni" style="max-height:40px">
-         <button type="submit" id="startIt" onclick="startit()">Start Animation</button>
-         <button type="submit" id="animateBtn" onclick="contAnimate()">animate</button>
+    <div id="mem10" class = "contain"></div></div>
+   <section id="noiseEditor" aria-labelledby="noiseEditorTitle">
+      <div class="noise-editor-heading">
+         <div>
+            <h2 id="noiseEditorTitle">Edit noisy cues</h2>
+            <p>Click or drag squares to choose the exact inputs used for recall.</p>
+         </div>
       </div>
-       <tr class="plotani" id="plot0"> 
-          <td id="firstplot"><div id='aPlot' class="plot" style="max-width:50-px"></div></td>
-          <td id="firstplot2" ><div id='LyPlot' class="plots" style="min-width:250-px; border-style:none"> </div></td>
-       </tr>
-       <tr class="plot" id="plot1">
-    </tr>
-    <tr class="plot" id="plot2">
- </tr>
- <tr class="plot" id="plot3">
-</tr>
-<tr class="plot"  id="plot4">
-</tr>
-<tr class="plot" id="plot5">
-</tr>
-<tr class="plot" id="plot6">
-</tr>
-<tr class="plot" id="plot7">
-</tr>
-<tr class="plot" id="plot8">
-</tr>
-<tr class="plot" id="plot9">
-</tr>
-<tr class="plot" id="plot10">
-
-   
-</tr>
-   </table>
+      <div id="noiseCueGrid"></div>
+   </section>
+</div>
+<main id="resultsColumn">
+<section id="summaryPanel" aria-labelledby="summaryTitle">
+   <h2 id="summaryTitle">Recall summary — memory 1</h2>
+   <div class="summary-grid">
+      <div class="summary-card">
+         <h3>Stored memory</h3>
+         <div id="summaryStored" class="mini-matrix"></div>
+      </div>
+      <div class="summary-card">
+         <h3>Noisy input</h3>
+         <div id="summaryNoisy" class="mini-matrix"></div>
+      </div>
+      <div class="summary-card">
+         <h3>Recalled memory</h3>
+         <div id="summaryRecalled" class="mini-matrix"></div>
+      </div>
+      <div class="summary-card summary-energy-card">
+         <h3>Lyapunov energy</h3>
+         <div id="summaryEnergy"></div>
+      </div>
+   </div>
+   <div id="similarityPanel">
+      <h3>Final-state comparison</h3>
+      <p id="recallOutcome"></p>
+      <table>
+         <thead>
+            <tr>
+               <th scope="col">Stored state</th>
+               <th scope="col">Different cells</th>
+               <th scope="col">Inverse difference</th>
+            </tr>
+         </thead>
+         <tbody id="similarityBody"></tbody>
+      </table>
+   </div>
+</section>
+    <div id="allPlots">
+      <div id="startAni">
+         <div>
+            <strong>3. Recall each memory</strong>
+            <p id="animationStatus" role="status" aria-live="polite"></p>
+         </div>
+         <div class="memory-navigation" aria-label="Recall navigation">
+            <button type="button" id="previousMemory" onclick="showAdjacentMemory(-1)">Previous memory</button>
+            <button type="button" id="startIt" onclick="startit()">Start animation</button>
+            <button type="button" id="nextMemory" onclick="showAdjacentMemory(1)">Next memory</button>
+         </div>
+      </div>
+       <div class="plotani" id="plot0">
+          <div id="firstplot">
+             <h3>Noisy cue / current state</h3>
+             <div id="aPlot" class="plot"></div>
+          </div>
+          <div id="firstplot2"><div id="LyPlot" class="plots"></div></div>
+       </div>
+       <div class="plot" id="plot1"></div>
+       <div class="plot" id="plot2"></div>
+       <div class="plot" id="plot3"></div>
+       <div class="plot" id="plot4"></div>
+       <div class="plot" id="plot5"></div>
+       <div class="plot" id="plot6"></div>
+       <div class="plot" id="plot7"></div>
+       <div class="plot" id="plot8"></div>
+       <div class="plot" id="plot9"></div>
+       <div class="plot" id="plot10"></div>
+   </div>
+</main>
 
 
 
 <footer class="footer">
-   Hopfield Simulations V1.2
+    <p><strong>Neuroscience teaching tools</strong></p>
+    <nav aria-label="Further information">
+        <a href="../index.html" target="neuroscienceTeachingToolsMenu">Main menu</a>
+        <a href="http://plasticity.muhc.mcgill.ca/index.html">Sjöström Lab</a>
+        <a href="https://github.com/sjostromlab/SjostromLab.github.io">GitHub source</a>
+    </nav>
 </footer>
 
-<script src = "hopfield.js?v=png-download-1"></script>
-<script src='https://cdn.plot.ly/plotly-2.9.0.min.js'></script>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-<script type="text/javascript" src="Project_Javascript_jQuery.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.9.0.min.js"></script>
+<script src="hopfield.js?v=compact-controls-1"></script>
+  <script>
+    // Return to the originating menu tab when it is still open; otherwise the named link opens one.
+    document.querySelector('a[target="neuroscienceTeachingToolsMenu"]').addEventListener("click", function (event) {
+      try {
+        if (window.opener && !window.opener.closed && window.opener.name === "neuroscienceTeachingToolsMenu") {
+          event.preventDefault();
+          if (window.opener.location.href !== this.href) window.opener.location.href = this.href;
+          window.opener.focus();
+        }
+      } catch (error) {
+        // A cross-origin opener cannot be reused safely; allow the named link to handle it.
+      }
+    });
+  </script>
 </body>
 </html>

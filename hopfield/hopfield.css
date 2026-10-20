@@ -1,7 +1,15 @@
+* {
+    box-sizing: border-box;
+}
+
 body{
-    display:grid;
-    grid-template-columns: 1fr 3fr;
-    grid-template-rows:  1fr, 5fr, 5fr, 1fr;
+    display: grid;
+    grid-template-columns: 320px minmax(0, 1fr);
+    gap: 12px;
+    margin: 8px;
+    background: #f7f9fa;
+    color: #26383e;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 #heading{
@@ -25,86 +33,279 @@ body{
 	 -moz-transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out; /* Animation for FireFox */
 }
 
-/*button{
-    background-color: rgb(128, 158, 255);
-    transition: 0.4s;
-    border-radius:15px
-}*/
+button {
+    background-color: #147fbf;
+    color: #ffffff;
+    border: 0;
+    border-radius: 5px;
+    padding: 8px 12px;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
 
 button:hover{
-    background-color: rgba(128, 158, 255, 0.5);
-}
-input[type=button], input[type=reset], input[type=submit] {
-    background-color: #496974;
-    border: none; 
-	border-radius: 4px; 
-    color: rgba(112, 114, 254, 0.7);
-    padding: 6px 6px;
-    text-decoration: none;
-    margin: 0px 5px;
-    cursor: pointer;  
+    background-color: #0d69a2;
 }
 
-input[type=button] {
-  width: 90%; 
-  height: 30px; 
+button:focus-visible,
+input:focus-visible,
+summary:focus-visible,
+a:focus-visible {
+    outline: 3px solid #f0a23a;
+    outline-offset: 2px;
 }
 
 #final{
-    /*grid-column:1/2;
-    grid-row:2/span 8;*/
-    min-width:120px;
-    max-width: 300px
-    /*display:grid;
-    grid-template-columns: repeat(10, 1fr);*/
+    grid-column: 1;
+    min-width: 0;
+    width: 100%;
 }
 
-#final > #regen{
-    grid-column:1/2;
-    grid-row: 2/3;
-    background-color:rgb(204, 203, 203);
-    border-radius:10px;
-
+.control-card,
+#howTo {
+    background-color: #eeeeee;
+    border: 1px solid #cbd5d9;
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 12px;
 }
 
-#final > #finish{
-    display:none;
-    margin-top:10px;
+#regen {
+    padding-bottom: 8px;
 }
 
-#final> #noiseadd{
-    grid-column:1/2;
-    grid-row:3/4;
-    background-color:rgb(204, 203, 203);
-    padding-top: 5px;
-    padding-bottom: 5px;
-    margin-top:10px;
-    margin-bottom:10px;
-    border-radius:10px;
-    display:none;
+.control-card h2 {
+    margin: 0 0 6px;
+    font-size: 19px;
 }
 
-#final > #animate{
-    display:none;
+.step-instruction,
+#howTo p {
+    margin: 0 0 12px;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.field-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 88px;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.field-row label {
+    line-height: 1.3;
+}
+
+.checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0;
+}
+
+.checkbox-row input {
+    width: 18px;
+    height: 18px;
+}
+
+.button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+#finish {
+    row-gap: 10px;
+}
+
+#finish button {
+    margin: 0;
+}
+
+#noiseadd,
+#finish {
+    display: none;
+}
+
+#runRecall:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+#newUpdateOrder {
+    display: none;
+    flex-basis: 100%;
+}
+
+#errormsg {
+    min-height: 1.2em;
+    margin: 8px 0 0;
+    color: #a51d1d;
+    font-size: 14px;
+}
+
+#errormsg:empty {
+    display: none;
+}
+
+#howTo summary {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#howTo p:first-of-type {
+    margin-top: 12px;
+}
+
+#howTo a {
+    color: #0b6398;
 }
 
 #startAni{
-    display:none;
-    padding-right:110px;
-    padding-bottom:40px;
-    grid-column:1/3;
-    justify-content:center;
+    display: none;
+    grid-column: 1 / 3;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 14px;
+    background: #eef7fc;
+    border: 1px solid #b8d9ec;
+    border-radius: 8px;
+}
+
+#startAni strong {
+    font-size: 18px;
+}
+
+#animationStatus {
+    margin: 2px 0 0;
+    line-height: 1.3;
+}
+
+.memory-navigation {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.memory-navigation button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+.memory-navigation button {
+    padding: 6px 10px;
 }
 
 #matrix{
-    height: 500px;
-    width: 1100px;
-    visibility:hidden;
-    grid-row:2/4;
-    grid-column:2/3;
-    display:flex;
-    flex-direction:row;
+    min-height: 220px;
+    width: 100%;
+    visibility: hidden;
+    grid-column: 2;
+    display: flex;
+    align-content: flex-start;
     flex-wrap: wrap;
+    gap: 12px;
+    padding: 8px;
+}
+
+#summaryPanel {
+    display: none;
+    grid-column: 1;
+    align-self: start;
+    min-width: 0;
+    padding: 12px;
+    background: #eef7fc;
+    border: 1px solid #b8d9ec;
+    border-radius: 8px;
+}
+
+#summaryPanel h2 {
+    margin: 0 0 10px;
+    font-size: 19px;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(145px, 1fr));
+    gap: 10px;
+}
+
+.summary-card {
+    min-width: 0;
+    padding: 8px;
+    background: #ffffff;
+    border: 1px solid #d4dde1;
+    border-radius: 6px;
+}
+
+.summary-card h3 {
+    margin: 0 0 7px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.mini-matrix {
+    display: grid;
+    width: min(100%, 145px);
+    aspect-ratio: 1;
+    margin: 0 auto;
+    border: 1px solid #26383e;
+}
+
+.mini-cell {
+    border: 0.5px solid #aeb9be;
+}
+
+#summaryEnergy {
+    width: 100%;
+    height: 145px;
+}
+
+#similarityPanel {
+    margin-top: 10px;
+    padding: 9px 10px;
+    background: #ffffff;
+    border: 1px solid #d4dde1;
+    border-radius: 6px;
+}
+
+#similarityPanel h3 {
+    margin: 0 0 3px;
+    font-size: 15px;
+}
+
+#recallOutcome {
+    margin: 0 0 7px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#similarityPanel table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+#similarityPanel th,
+#similarityPanel td {
+    padding: 4px 8px;
+    border-top: 1px solid #dce4e8;
+    text-align: left;
+}
+
+#similarityPanel th:nth-child(n+2),
+#similarityPanel td:nth-child(n+2) {
+    text-align: right;
+}
+
+#similarityPanel tbody tr.closest-state {
+    background: #e8f5fb;
+    font-weight: 700;
 }
 
 #plot{
@@ -139,11 +340,80 @@ input[type=button] {
 }
 
 .contain{
-    width:20%;
-    height:50%;
-    width:200px;
-    height:200px;
-    padding:0px;
+    width: 200px;
+    height: 220px;
+    padding: 0;
+}
+
+.memory-row {
+    display: contents;
+}
+
+.memory-grid-row,
+.plot-grid-row {
+    display: flex;
+}
+
+.memory-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 15px;
+}
+
+#noiseEditor {
+    display: none;
+    flex: 1 0 100%;
+    width: 100%;
+    margin-top: 8px;
+    padding: 12px;
+    background: #eef7fc;
+    border: 1px solid #b8d9ec;
+    border-radius: 8px;
+}
+
+.noise-editor-heading h2 {
+    margin: 0 0 3px;
+    font-size: 19px;
+}
+
+.noise-editor-heading p {
+    margin: 0 0 10px;
+    font-size: 14px;
+}
+
+#noiseCueGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.noise-cue-card {
+    width: 190px;
+    padding: 9px;
+    background: #ffffff;
+    border: 1px solid #d4dde1;
+    border-radius: 6px;
+}
+
+.noise-cue-label {
+    display: block;
+    min-height: 34px;
+    margin-bottom: 6px;
+    font-size: 14px;
+    line-height: 1.25;
+}
+
+.noise-cue-matrix {
+    display: grid;
+    width: 150px;
+    height: 150px;
+    border: 1px solid #26383e;
+    user-select: none;
+}
+
+.noise-cue-cell {
+    border: 0.5px solid #aeb9be;
+    touch-action: none;
 }
 .break {
     flex-basis: 100%;
@@ -151,40 +421,66 @@ input[type=button] {
   }
 
 
-#slide{
-    color:white;
-}
-
-#countbox{
-    color:white;
-}
-
-#animateBtn {
-    display:none;
-}
-
 .footer{
     background-color: rgb(17, 157, 255);
     color: #ffffff;
     grid-column: 1/3;
-    padding: 10px; 
+    box-sizing: border-box;
+    min-width: 0;
+    width: calc(100vw - 16px);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 24px;
+    padding: 12px 18px;
     margin-top: 3px;
-    text-align: center;
-    font-size: 12px;
+    font-size: 14px;
     border-radius: 4px; 
     box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-    position:fixed;
-    bottom: 0;
-    width: 100%;
+}
 
+.footer p {
+    margin: 0;
+    line-height: 1.5;
+}
 
+.footer nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 22px;
+}
+
+.footer a {
+    color: inherit;
+    text-underline-offset: 3px;
+}
+
+.footer a:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 4px;
+}
+
+@media (max-width: 480px) {
+    .footer {
+        justify-content: center;
+    }
 }
 
 
 #allPlots{
-    display:grid;
-    grid-column:1/3;
-    
+    display: none;
+    grid-column: 1;
+    gap: 12px;
+}
+
+#resultsColumn {
+    grid-column: 2;
+    min-width: 0;
+    display: grid;
+    align-content: start;
+    gap: 12px;
 }
 
 .plot{
@@ -208,10 +504,16 @@ input[type=button] {
 }
 
 #aPlot {
-    width:50%;
-    display:flex;
-    padding-left:150px;
-    padding-top:60px;
+    width: 100%;
+    display: flex !important;
+    justify-content: center;
+    padding: 24px;
+}
+
+#LyPlot {
+    width: 100%;
+    min-height: 430px;
+    border: 0;
 }
 .plot > #LyPlot { 
     min-height:546px;
@@ -224,13 +526,19 @@ input[type=button] {
 }*/
 
 #firstplot {
-    width:35%
+    flex: 1 1 420px;
+}
+
+#firstplot h3 {
+    margin: 12px 0 0;
+    text-align: center;
+    font-size: 18px;
 }
 #firstplot2{
-    min-height:546px;
-    min-width:546px;
-   /* padding-left:260px;*/
-   border : none !important;
+    flex: 1 1 520px;
+    min-width: 0;
+    display: block !important;
+    border: none !important;
 }
 
 .tooltip {
@@ -278,9 +586,9 @@ input[type=button] {
   input[type=number]{
 	-webkit-appearance: none;  /* Override default CSS styles */
     appearance: none;
-     width: 100px; /* When specifying this, you can use both px and % */
-	 margin: 1px 3px; /* Margins outside the box, top-bottom and lef-right */
-	 padding: 4px 6px; /* Paddings inside the box, top-bottom and lef-right */ 
+     width: 100%;
+	 margin: 0;
+	 padding: 7px 8px;
 	 border: 1px solid #ccc;
 	 border-radius: 4px; /* rounded corners */ 
 	 -webkit-transition: border 0.3s ease-in-out, width 0.3s ease-in-out; /* Animation for Safari and Chrome */
@@ -290,8 +598,37 @@ input[type=button] {
   }
 
   .plotani{
-    justify-content:center;
+    display: none;
+    grid-column: 1 / 3;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 12px;
 
   }
+
+@media (max-width: 800px) {
+    body {
+        grid-template-columns: 1fr;
+    }
+
+    #heading,
+    #final,
+    #matrix,
+    #resultsColumn,
+    #summaryPanel,
+    #allPlots,
+    .footer {
+        grid-column: 1;
+    }
+
+    #matrix {
+        justify-content: center;
+    }
+
+    .summary-grid {
+        grid-template-columns: repeat(2, minmax(130px, 1fr));
+    }
+}
 
   
