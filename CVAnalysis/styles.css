@@ -1,98 +1,251 @@
 * {
   box-sizing: border-box;
 }
+
 body {
   margin: 8px;
   color: #343434;
   background: white;
   font-family: Arial, sans-serif;
 }
-header,
-footer {
+
+header, footer {
   background: #a86812;
   color: white;
   text-align: center;
   border-radius: 5px;
   padding: 12px;
 }
+
 h1 {
   margin: 0;
   font-size: 28px;
 }
+
 footer {
-  font-size: 13px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 24px;
   margin-top: 12px;
+  padding: 12px 18px;
+  font-size: 14px;
 }
+
+footer p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 22px;
+}
+
+footer a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+
 main {
   display: grid;
-  grid-template-columns: 310px minmax(0, 1fr);
+  grid-template-columns: 340px minmax(0, 1fr);
   gap: 12px;
   margin-top: 12px;
 }
-section,
-details {
+
+section, details {
   background: #eee;
   border: 1px solid #ccc;
   border-radius: 5px;
-  padding: 12px;
-  margin-bottom: 10px;
+  padding: 6px;
+  margin-bottom: 6px;
 }
+
 h2 {
   font-size: 18px;
-  margin: 0 0 10px;
+  margin: 0 0 5px;
 }
+
 label {
   display: block;
-  margin: 8px 0;
-  font-size: 16px;
+  margin: 3px 0;
+  font-size: 15px;
 }
-input[type="number"] {
+
+select, input[type="number"] {
   width: 100%;
-  padding: 6px;
+  padding: 3px 5px;
+  color: inherit;
+  background: white;
   font: inherit;
   border: 1px solid #999;
   border-radius: 4px;
 }
+
 input[type="range"] {
   width: 100%;
+  height: 18px;
+  margin: 0;
   accent-color: #a86812;
 }
+
 button {
   background: #a86812;
   color: white;
   border: 0;
   border-radius: 4px;
-  padding: 9px;
-  margin: 5px 0;
+  padding: 6px 8px;
+  margin: 2px 0;
   font-size: 16px;
   cursor: pointer;
 }
+
 button:hover {
   background: #81500d;
 }
+
 .buttons {
   display: flex;
+  align-items: center;
   gap: 8px;
   flex-wrap: wrap;
 }
-button:focus-visible,
-input:focus-visible,
-summary:focus-visible {
+
+.seed-check {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin: 0;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.mode-panel {
+  padding: 5px 7px;
+}
+
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible, footer a:focus-visible {
   outline: 3px solid #277bb8;
   outline-offset: 2px;
 }
-.hint,
-details p {
+
+.hint, details p {
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.42;
 }
+
+.hint {
+  margin: 7px 0 0;
+}
+
 summary {
   cursor: pointer;
   font-weight: bold;
 }
+
+details h3 {
+  margin: 10px 0 4px;
+  font-size: 14px;
+}
+
+.references {
+  margin: 4px 0 2px;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.references li + li {
+  margin-top: 7px;
+}
+
+.references a {
+  color: #704308;
+  text-underline-offset: 2px;
+}
+
+.count-grid, .period-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.compact-control label, .parameter-control label {
+  min-height: 0;
+  margin: 0 0 2px;
+  line-height: 1.1;
+  font-size: 13px;
+}
+
+.compact-control input[type="range"], .parameter-control input[type="range"] {
+  height: 13px;
+}
+
+.period-card {
+  min-width: 0;
+  padding: 4px 6px;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 4px;
+}
+
+.period-card h2 {
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+.parameter-control + .parameter-control {
+  margin-top: 0;
+}
+
+.experiment-panel {
+  padding-left: 7px;
+  border-left: 5px solid #a86812;
+}
+
+.experiment-b {
+  border-left-color: #2869b0;
+}
+
+.noise-heading {
+  margin: 0 0 2px;
+  font-size: 14px;
+}
+
+.noise-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.noise-value input[type="range"] {
+  height: 13px;
+}
+
+.correction-check {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.18;
+}
+
 article {
   min-width: 0;
 }
+
+.graphs {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.graphs > .plot {
+  min-width: 0;
+}
+
 .plot {
   width: 100%;
   height: 600px;
@@ -101,78 +254,79 @@ article {
   margin-bottom: 10px;
   overflow: hidden;
 }
+
 table {
   border-collapse: collapse;
   width: 100%;
   font-size: 14px;
 }
-th,
-td {
+
+th, td {
   padding: 8px;
   text-align: right;
   border-bottom: 1px solid #ccc;
 }
-th:first-child,
-td:first-child {
+
+th:first-child, td:first-child {
   text-align: left;
 }
+
 #results {
   overflow: auto;
+  font-size: var(--calculation-size, 22px);
 }
+
+#results table {
+  font-size: var(--calculation-size, 22px);
+}
+
+#results h2 {
+  font-size: calc(var(--calculation-size, 22px) + 2px);
+}
+
+#results > h2:first-child {
+  font-size: calc(var(--calculation-size, 22px) + 6px);
+}
+
 #status {
   color: #8b3000;
   font-size: 14px;
 }
+
 [hidden] {
   display: none !important;
 }
-@media (max-width: 850px) {
-  main {
-    grid-template-columns: 1fr;
-  }
-  .plot {
-    height: 600px;
-  }
-}
 
-.graphs {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: 12px;
-}
-.graphs > .plot {
-  min-width: 0;
-}
 @media (min-width: 1101px) {
   aside {
     max-height: calc(100vh - 110px);
     overflow-y: auto;
     padding-right: 4px;
   }
+
 }
+
 @media (max-width: 1100px) {
   .graphs {
     grid-template-columns: 1fr;
   }
+
 }
 
-#results {
-  font-size: 18px;
-}
-#results table {
-  font-size: 18px;
-}
-#results h2 {
-  font-size: 20px;
+@media (max-width: 850px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+
+  .plot {
+    height: 600px;
+  }
+
 }
 
-#results,
-#results table {
-  font-size: var(--calculation-size, 22px);
-}
-#results h2 {
-  font-size: calc(var(--calculation-size, 22px) + 2px);
-}
-#results > h2:first-child {
-  font-size: calc(var(--calculation-size, 22px) + 6px);
+@media (max-width: 480px) {
+  footer {
+    justify-content: center;
+  }
+
 }

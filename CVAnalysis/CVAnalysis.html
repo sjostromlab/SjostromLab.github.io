@@ -4,86 +4,126 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CV Analysis Simulation</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="styles.css?v=binomial-mode-5" />
   </head>
   <body>
     <header><h1>CV Analysis Simulation</h1></header>
     <main>
       <aside>
-        <section>
-          <label for="fontSize">Graph text size <output id="fontValue">22 px</output></label
-          ><input id="fontSize" type="range" min="14" max="36" value="22" />
+        <section class="top-controls">
+          <label for="fontSize">Graph text size <output id="fontValue">22 px</output></label>
+          <input id="fontSize" type="range" min="14" max="36" value="22" />
           <div class="buttons">
-            <button id="reset">Reset</button><button id="newSeed">New seed</button>
+            <button id="reset">Reset</button>
+            <button id="newSeed">New seed</button>
+            <label class="seed-check"><input id="reuseSeed" type="checkbox" checked /> Reuse seed</label>
           </div>
-          <label><input id="reuseSeed" type="checkbox" checked /> Reuse random seed</label>
           <input id="seed" type="hidden" value="311" />
         </section>
-        <section
-          title="Shared by A and B. All responses in each period enter the analysis (minimum 3). One response every 10 seconds, with a 5-minute induction gap."
-        >
-          <label for="baselineCount">Baseline responses</label
-          ><input id="baselineCount" type="number" min="3" max="100" step="1" value="60" /><input
-            id="baselineCountRange"
-            aria-label="Baseline responses"
-            type="range"
-            min="3"
-            max="100"
-            step="1"
-            value="60"
-          /><label for="postCount">Post-induction responses</label
-          ><input id="postCount" type="number" min="3" max="400" step="1" value="200" /><input
-            id="postCountRange"
-            aria-label="Post-induction responses"
-            type="range"
-            min="3"
-            max="400"
-            step="1"
-            value="200"
-          />
+
+        <section class="mode-panel">
+          <select id="inputMode" aria-label="Input model">
+            <option value="gaussian">Mode 1: mean &amp; SDev</option>
+            <option value="binomial">Mode 2: Binomial n, p, &amp; q</option>
+          </select>
         </section>
-        <section><div id="controlsA"></div></section>
-        <section>
+
+        <section id="noiseSection" hidden>
+          <label class="noise-heading" for="noise">Background noise SDev (mV)</label>
+          <div class="noise-controls">
+            <div class="noise-value">
+              <input id="noise" type="number" min="0" max="20" step="0.01" value="0" />
+              <input id="noiseRange" aria-label="Background noise SDev" type="range" min="0" max="3" step="0.01" value="0" />
+            </div>
+            <label class="correction-check" title="Subtracts the known background-noise variance from each sample variance before calculating CV. The displayed responses still contain noise.">
+              <input id="correctNoise" type="checkbox" checked /> Correct CV for background noise
+            </label>
+          </div>
+        </section>
+
+        <section class="experiment-panel experiment-a"><div id="controlsA"></div></section>
+        <section id="comparisonPanel" class="experiment-panel experiment-b">
           <label><input id="compare" type="checkbox" /> Add comparison (B)</label>
-          <div id="comparison" hidden><div id="controlsB"></div></div>
+          <div id="comparison" hidden>
+            <div id="controlsB"></div>
+          </div>
         </section>
+
+        <section title="Shared by A and B. All responses in each period enter the analysis (minimum 3). One response every 10 seconds, with a 5-minute induction gap.">
+          <div class="count-grid">
+            <div class="compact-control">
+              <label for="baselineCount">Baseline responses</label>
+              <input id="baselineCount" type="number" min="3" max="100" step="1" value="60" />
+              <input id="baselineCountRange" aria-label="Baseline responses" type="range" min="3" max="100" step="1" value="60" />
+            </div>
+            <div class="compact-control">
+              <label for="postCount">Post-ind. responses</label>
+              <input id="postCount" type="number" min="3" max="400" step="1" value="200" />
+              <input id="postCountRange" aria-label="Post-induction responses" type="range" min="3" max="400" step="1" value="200" />
+            </div>
+          </div>
+        </section>
+
         <section>
           <h2>Display</h2>
-          <label
-            title="Shows the expected CV-analysis point calculated directly from the entered means and SDevs. The observed point is calculated from the randomly generated responses, so it varies between experiments because of sampling variability."
-            ><input id="theory" type="checkbox" /> Show theoretical point</label
-          ><label
-            title="Shows sample counts, means, SDevs, and CVs calculated from the simulated responses, plus the normalized coordinates used for the observed CV-analysis point."
-            ><input id="calculations" type="checkbox" /> Show calculations</label
-          >
+          <label title="Shows the point expected from the entered population parameters. The observed point is calculated from the finite set of randomly generated responses and therefore varies through sampling error.">
+            <input id="theory" type="checkbox" /> Show theoretical point
+          </label>
+          <label title="Shows the entered or expected population values, the statistics measured from the simulated responses, and the normalized coordinates used in the CV-analysis plot.">
+            <input id="calculations" type="checkbox" /> Show calculations
+          </label>
         </section>
+
         <details>
           <summary>How to use this simulation</summary>
           <p>
-            Adjust means and standard deviations to explore LTP, LTD, and variability. New seed
-            reruns the simulation with fresh random responses. Uncheck Reuse random seed to generate
-            fresh random responses whenever you adjust a response parameter or response count. Reset
-            restores the original experiment.
+            Choose <strong>Mean &amp; SDev</strong> to specify response statistics directly, or
+            <strong>Binomial n, p, q</strong> to generate each response from the number of release
+            sites (n), release probability (p), and quantal amplitude (q). The selected model applies
+            to both A and B.
           </p>
           <p>
-            Responses are Gaussian samples, as in the exam-generation code. Negative responses can
-            occur and are retained. This is a teaching model of response statistics, not a
-            simulation of individual release sites.
+            In binomial mode, a response is q times the number of successful releases, plus optional
+            Gaussian background noise. <strong>Correct CV for background noise</strong> subtracts the
+            known noise variance before calculating CV; uncheck it to see how recording noise can
+            distort CV analysis. If the estimated release variance is zero or negative, the corrected
+            CV is undefined.
           </p>
           <p>
-            The normalized coordinates are mean(after)/mean(before) and [CV(before)/CV(after)]². CV
-            = SDev/mean. Theoretical markers use the entered parameters; observed markers use sample
-            statistics.
+            One response is generated every 10 seconds, with a 5-minute induction gap. Reduce the
+            response counts to see how limited sampling makes the observed result less reliable.
+            <strong>New seed</strong> reruns the experiment. Uncheck <strong>Reuse seed</strong>
+            to generate fresh responses whenever a parameter or response count changes.
           </p>
           <p>
-            The horizontal and diagonal reference lines help explore CV analysis. A location alone
-            does not uniquely identify a mechanism; interpretation depends on release-model
-            assumptions.
+            The normalized coordinates are mean(after)/mean(before) and [CV(before)/CV(after)]².
+            Theoretical markers use the entered population parameters; observed markers use sample
+            statistics. A point's location does not uniquely identify a mechanism because the
+            interpretation depends on the assumptions of the release model.
           </p>
+          <p>
+            In binomial mode, changing p alters both mean response and release variability, whereas
+            changing q scales the mean and SDev together and therefore leaves CV unchanged. This
+            interpretation assumes uniform p and q, independent release sites, at most one quantum
+            per site, and stable n. In real experiments, changing background noise, unstable
+            baselines, measurement errors, and outliers can bias the result. CV analysis estimates
+            the locus of plasticity and is best supported by independent measurements.
+          </p>
+          <h3>References</h3>
+          <ul class="references">
+            <li>
+              <a href="https://doi.org/10.3389/fnsyn.2020.00011" target="_blank" rel="noopener noreferrer">Brock JA, Thomazeau A, Watanabe A, Li SSY, &amp; Sjöström PJ: <em>A Practical Guide to Using CV Analysis for Determining the Locus of Synaptic Plasticity.</em> <strong>Frontiers in Synaptic Neuroscience</strong> (2020) 12:11. DOI: 10.3389/fnsyn.2020.00011</a>
+            </li>
+            <li>
+              <a href="https://doi.org/10.1016/S0006-3495(91)82162-2" target="_blank" rel="noopener noreferrer">Faber DS &amp; Korn H: <em>Applicability of the coefficient of variation method for analyzing synaptic plasticity.</em> <strong>Biophysical Journal</strong> (1991) 60:1288–1294. DOI: 10.1016/S0006-3495(91)82162-2</a>
+            </li>
+          </ul>
         </details>
         <button id="download">Download traces</button>
         <p id="status" role="status"></p>
       </aside>
+
       <article>
         <div class="graphs">
           <div id="timePlot" class="plot"></div>
@@ -92,8 +132,29 @@
         <section id="results" hidden></section>
       </article>
     </main>
-    <footer>Version 0.9</footer>
+    <footer>
+      <p><strong>Neuroscience teaching tools</strong></p>
+      <nav aria-label="Further information">
+        <a href="../index.html" target="neuroscienceTeachingToolsMenu">Main menu</a>
+        <a href="http://plasticity.muhc.mcgill.ca/index.html">Sjöström Lab</a>
+        <a href="https://github.com/sjostromlab/SjostromLab.github.io">GitHub source</a>
+      </nav>
+    </footer>
     <script src="plotly-latest.min.js"></script>
-    <script src="CVAnalysis.js"></script>
-  </body>
+    <script src="CVAnalysis.js?v=binomial-mode-4"></script>
+    <script>
+    // Return to the originating menu tab when it is still open; otherwise the named link opens one.
+    document.querySelector('a[target="neuroscienceTeachingToolsMenu"]').addEventListener("click", function (event) {
+      try {
+        if (window.opener && !window.opener.closed && window.opener.name === "neuroscienceTeachingToolsMenu") {
+          event.preventDefault();
+          if (window.opener.location.href !== this.href) window.opener.location.href = this.href;
+          window.opener.focus();
+        }
+      } catch (error) {
+        // A cross-origin opener cannot be reused safely; allow the named link to handle it.
+      }
+    });
+  </script>
+</body>
 </html>

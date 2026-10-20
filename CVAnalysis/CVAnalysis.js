@@ -1,6 +1,6 @@
 /*
  * CV Analysis Simulation — Version 0.9
- * 16 October 2026
+ * 16 October 2026; binomial mode added 19 October 2026
  *
  * This JavaScript implementation was entirely "vibe coded" by OpenAI Codex
  * (GPT-6-based coding assistant), under the guidance of P. Jesper Sjöström
@@ -14,52 +14,133 @@
  * Igor simulation repository linked in the paper:
  * https://github.com/pj-sjostrom/Sim_CV_analysis
  *
- * This teaching version generates Gaussian response samples from specified
- * means and SDevs; it is not a full port of the paper's release-site model.
+ * The original teaching mode generates Gaussian response samples from
+ * specified means and SDevs. The later binomial mode uses the standard n, p,
+ * and q relationships also taught in the Quantal Release simulation, but is
+ * independently implemented here for paired before-and-after CV analysis.
+ *
+ * Contribution clarification, 17 October 2026: P. Jesper Sjöström directed
+ * the scientific and teaching design, supplied requirements, and reviewed
+ * iterative revisions. OpenAI Codex generated the implementation and assisted
+ * with debugging and checks. This is separate from the student implementations.
  */
 
 "use strict";
+
 const $ = (id) => document.getElementById(id);
-// Mean and SDev defaults: baseline first, then post-induction.
-const defaults = { A: [2, 0.2, 4, 0.2], B: [2, 0.2, 4, 0.4] };
-const labels = [
-  "Baseline response (mV)",
-  "Baseline SDev (mV)",
-  "Post-induction response (mV)",
-  "Post-induction SDev (mV)",
-];
+const groups = ["A", "B"];
+const periods = ["baseline", "post"];
 const colors = { A: "#a86812", B: "#2869b0" };
-let experiments = [],
-  pending = false;
-for (const group of ["A", "B"]) {
-  labels.forEach((label, i) => {
-    const row = document.createElement("div");
-    row.title =
-      "One response every 10 seconds, with a 5-minute induction gap between baseline and post-induction responses.";
-    row.innerHTML = `<label for="${group}${i}">${label}</label><input id="${group}${i}" type="number" min="${i % 2 ? 0.01 : 0.1}" max="20" step="${i % 2 ? 0.01 : 0.1}" value="${defaults[group][i]}"><input id="${group}${i}Range" type="range" aria-label="${group}: ${label}" min="${i % 2 ? 0.01 : 0.1}" max="${i % 2 ? 3 : 10}" step="${i % 2 ? 0.01 : 0.1}" value="${defaults[group][i]}">`;
-    $("controls" + group).appendChild(row);
-    const number = $(group + i),
-      slider = $(group + i + "Range");
-    slider.addEventListener("input", () => {
-      number.value = slider.value;
+
+const gaussianDefaults = {
+  A: { baseline: { mean: 2, sd: 0.2 }, post: { mean: 4, sd: 0.2 } },
+  B: { baseline: { mean: 2, sd: 0.2 }, post: { mean: 4, sd: 0.4 } },
+};
+
+// A changes p; B changes q. Both produce about twofold potentiation.
+const binomialDefaults = {
+  A: { baseline: { n: 30, p: 0.33, q: 0.2 }, post: { n: 30, p: 0.67, q: 0.2 } },
+  B: { baseline: { n: 30, p: 0.33, q: 0.2 }, post: { n: 30, p: 0.33, q: 0.4 } },
+};
+
+const parameterSpecs = {
+  gaussian: [
+    { key: "mean", label: "Response (mV)", min: 0.1, numberMax: 20, rangeMax: 10, step: 0.1 },
+    { key: "sd", label: "SDev (mV)", min: 0.01, numberMax: 20, rangeMax: 3, step: 0.01 },
+  ],
+  binomial: [
+    { key: "n", label: "n sites", min: 1, numberMax: 100, rangeMax: 100, step: 1 },
+    { key: "p", label: "p release", min: 0, numberMax: 1, rangeMax: 1, step: 0.01 },
+    { key: "q", label: "q (mV)", min: 0.01, numberMax: 20, rangeMax: 2, step: 0.01 },
+  ],
+};
+
+let experiments = [];
+let pending = false;
+
+function controlId(group, mode, period, key) {
+  return `${group}_${mode}_${period}_${key}`;
+}
+
+function defaultsFor(group, mode, period) {
+  return mode === "gaussian" ? gaussianDefaults[group][period] : binomialDefaults[group][period];
+}
+
+// Build both sets of controls once. Switching modes only changes which set is visible.
+function buildControls() {
+  for (const group of groups) {
+    const container = $("controls" + group);
+    for (const mode of ["gaussian", "binomial"]) {
+      const modeControls = document.createElement("div");
+      modeControls.className = "mode-controls";
+      modeControls.dataset.mode = mode;
+
+      const grid = document.createElement("div");
+      grid.className = "period-grid";
+      for (const period of periods) {
+        const card = document.createElement("div");
+        card.className = "period-card";
+        card.innerHTML = `<h2>${period === "baseline" ? "Baseline" : "Post-induction"}</h2>`;
+
+        for (const spec of parameterSpecs[mode]) {
+          const id = controlId(group, mode, period, spec.key);
+          const value = defaultsFor(group, mode, period)[spec.key];
+          const row = document.createElement("div");
+          row.className = "parameter-control";
+          row.title =
+            "One response every 10 seconds, with a 5-minute induction gap between baseline and post-induction responses.";
+          row.innerHTML =
+            `<label for="${id}">${spec.label}</label>` +
+            `<input id="${id}" type="number" min="${spec.min}" max="${spec.numberMax}" step="${spec.step}" value="${value}">` +
+            `<input id="${id}Range" type="range" aria-label="${group}: ${period} ${spec.label}" min="${spec.min}" max="${spec.rangeMax}" step="${spec.step}" value="${value}">`;
+          card.appendChild(row);
+          bindNumberAndRange(id, spec.rangeMax);
+        }
+        grid.appendChild(card);
+      }
+      modeControls.appendChild(grid);
+      container.appendChild(modeControls);
+    }
+  }
+}
+
+function bindNumberAndRange(id, originalRangeMax) {
+  const bind = () => {
+    const number = $(id);
+    const range = $(id + "Range");
+    range.addEventListener("input", () => {
+      number.value = range.value;
       schedule();
     });
     number.addEventListener("input", () => {
       if (number.validity.valid && number.value !== "") {
-        slider.max = Math.max(Number(slider.max), Number(number.value));
-        slider.value = number.value;
+        range.max = Math.max(originalRangeMax, Number(number.value));
+        range.value = number.value;
         schedule();
       }
     });
-    number.addEventListener("change", () => {
-      if (!number.validity.valid || number.value === "") {
-        $("status").textContent =
-          `Please enter a value from ${i % 2 ? 0.01 : 0.1} to 20 mV in steps of ${i % 2 ? 0.01 : 0.1} mV.`;
-      }
-    });
+  };
+  // The row is inserted immediately after this function returns.
+  requestAnimationFrame(bind);
+}
+
+function bindExistingNumberAndRange(id, originalRangeMax) {
+  const number = $(id);
+  const range = $(id + "Range");
+  range.addEventListener("input", () => {
+    number.value = range.value;
+    schedule();
+  });
+  number.addEventListener("input", () => {
+    if (number.validity.valid && number.value !== "") {
+      range.max = Math.max(originalRangeMax, Number(number.value));
+      range.value = number.value;
+    }
+    schedule();
   });
 }
-// Seeded randomness lets parameter changes reuse the same underlying samples.
+
+// Seeded randomness allows parameter changes to reuse the same random experiment.
 function rng(seed) {
   let a = seed >>> 0;
   return () => {
@@ -70,80 +151,161 @@ function rng(seed) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
+
 function normal(random) {
   return Math.sqrt(-2 * Math.log(1 - random())) * Math.cos(2 * Math.PI * random());
 }
-// Sample SDev uses n - 1; all responses in each period enter the analysis.
-function stats(values) {
-  const mean = values.reduce((a, b) => a + b, 0) / values.length;
-  const sd = Math.sqrt(values.reduce((a, b) => a + (b - mean) ** 2, 0) / (values.length - 1));
-  return { mean, sd, cv: sd / mean, n: values.length };
+
+function binomial(random, n, p) {
+  let successes = 0;
+  for (let i = 0; i < n; i++) if (random() < p) successes++;
+  return successes;
 }
-// Responses are spaced 10 seconds apart, with 30 missing samples during induction.
+
+// Sample variance uses n - 1; every response in each period enters the analysis.
+function rawStats(values) {
+  const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
+  const variance =
+    values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / (values.length - 1);
+  return { mean, variance, sd: Math.sqrt(variance), n: values.length };
+}
+
+function analyzedStats(raw, noiseSD, correctNoise) {
+  const variance = correctNoise ? raw.variance - noiseSD ** 2 : raw.variance;
+  const sd = variance >= 0 ? Math.sqrt(variance) : NaN;
+  return { ...raw, analysisVariance: variance, analysisSD: sd, cv: sd / raw.mean };
+}
+
+function readParameters(group, mode, period) {
+  const parameters = {};
+  for (const spec of parameterSpecs[mode]) {
+    parameters[spec.key] = Number($(controlId(group, mode, period, spec.key)).value);
+  }
+  return parameters;
+}
+
+function expectedStats(parameters, mode, noiseSD, correctNoise) {
+  if (mode === "gaussian") {
+    return {
+      mean: parameters.mean,
+      releaseSD: parameters.sd,
+      measuredSD: parameters.sd,
+      analysisSD: parameters.sd,
+      cv: parameters.sd / parameters.mean,
+    };
+  }
+  const mean = parameters.n * parameters.p * parameters.q;
+  const releaseVariance = parameters.n * parameters.p * (1 - parameters.p) * parameters.q ** 2;
+  const measuredVariance = releaseVariance + noiseSD ** 2;
+  const analysisVariance = correctNoise ? releaseVariance : measuredVariance;
+  const analysisSD = Math.sqrt(analysisVariance);
+  return {
+    mean,
+    releaseSD: Math.sqrt(releaseVariance),
+    measuredSD: Math.sqrt(measuredVariance),
+    analysisSD,
+    cv: analysisSD / mean,
+  };
+}
+
+// Responses are 10 seconds apart, with 30 missing samples during induction.
 function makeExperiment(group, seed) {
-  const parameters = labels.map((_, i) => Number($(group + i).value));
-  const random = rng((seed + (group === "B" ? 104729 : 0)) >>> 0),
-    [m1, s1, m2, s2] = parameters;
-  const baselineCount = Number($("baselineCount").value),
-    postCount = Number($("postCount").value);
-  const time = [],
-    response = [];
+  const mode = $("inputMode").value;
+  const baselineParameters = readParameters(group, mode, "baseline");
+  const postParameters = readParameters(group, mode, "post");
+  const noiseSD = mode === "binomial" ? Number($("noise").value) : 0;
+  const correctNoise = mode === "binomial" && $("correctNoise").checked;
+  const random = rng((seed + (group === "B" ? 104729 : 0)) >>> 0);
+  const baselineCount = Number($("baselineCount").value);
+  const postCount = Number($("postCount").value);
+  const time = [];
+  const response = [];
+
+  const drawResponse = (parameters) => {
+    if (mode === "gaussian") return parameters.mean + parameters.sd * normal(random);
+    return binomial(random, parameters.n, parameters.p) * parameters.q + noiseSD * normal(random);
+  };
+
   for (let i = 0; i < baselineCount + 30 + postCount; i++) {
     time.push(i / 6);
     response.push(
       i < baselineCount
-        ? m1 + s1 * normal(random)
+        ? drawResponse(baselineParameters)
         : i < baselineCount + 30
           ? null
-          : m2 + s2 * normal(random),
+          : drawResponse(postParameters),
     );
   }
-  const before = stats(response.slice(0, baselineCount)),
-    after = stats(response.slice(baselineCount + 30));
+
+  const rawBefore = rawStats(response.slice(0, baselineCount));
+  const rawAfter = rawStats(response.slice(baselineCount + 30));
+  const before = analyzedStats(rawBefore, noiseSD, correctNoise);
+  const after = analyzedStats(rawAfter, noiseSD, correctNoise);
+  const expectedBefore = expectedStats(baselineParameters, mode, noiseSD, correctNoise);
+  const expectedAfter = expectedStats(postParameters, mode, noiseSD, correctNoise);
+
   return {
     group,
+    mode,
     baselineCount,
     postCount,
-    parameters,
+    baselineParameters,
+    postParameters,
+    noiseSD,
+    correctNoise,
     time,
     response,
     before,
     after,
+    expectedBefore,
+    expectedAfter,
     x: after.mean / before.mean,
     y: (before.cv / after.cv) ** 2,
-    theoryX: m2 / m1,
-    theoryY: (s1 / m1 / (s2 / m2)) ** 2,
+    theoryX: expectedAfter.mean / expectedBefore.mean,
+    theoryY: (expectedBefore.cv / expectedAfter.cv) ** 2,
   };
 }
-// Batch slider events and optionally draw a fresh seed for the next experiment.
+
 function schedule() {
-  if (!pending) {
-    pending = true;
-    requestAnimationFrame(() => {
-      pending = false;
-      if (!$("reuseSeed").checked) $("seed").value = crypto.getRandomValues(new Uint32Array(1))[0];
-      generate();
-    });
-  }
+  if (pending) return;
+  pending = true;
+  requestAnimationFrame(() => {
+    pending = false;
+    if (!$("reuseSeed").checked) {
+      $("seed").value = crypto.getRandomValues(new Uint32Array(1))[0];
+    }
+    generate();
+  });
 }
+
+function activeInputsAreValid(activeGroups) {
+  const mode = $("inputMode").value;
+  const commonIds = ["baselineCount", "postCount"];
+  if (mode === "binomial") commonIds.push("noise");
+  if (commonIds.some((id) => !$(id).validity.valid || $(id).value === "")) return false;
+  return activeGroups.every((group) =>
+    periods.every((period) =>
+      parameterSpecs[mode].every((spec) => {
+        const input = $(controlId(group, mode, period, spec.key));
+        return input.validity.valid && input.value !== "";
+      }),
+    ),
+  );
+}
+
 function generate() {
-  if (!$("seed").validity.valid || $("seed").value === "") {
-    $("status").textContent = "Enter a whole-number seed from 0 to 4294967295.";
+  const activeGroups = $("compare").checked ? groups : ["A"];
+  if (!activeInputsAreValid(activeGroups)) {
+    $("status").textContent = "Please enter values within the displayed limits.";
     return;
   }
-  if (["baselineCount", "postCount"].some((id) => !$(id).validity.valid || $(id).value === "")) {
-    $("status").textContent = "Enter whole-number counts: baseline 3–100; post-induction 3–400.";
-    return;
-  }
-  const groups = $("compare").checked ? ["A", "B"] : ["A"];
-  if (groups.some((g) => labels.some((_, i) => !$(g + i).validity.valid || $(g + i).value === "")))
-    return;
-  experiments = groups.map((g) => makeExperiment(g, Number($("seed").value)));
+  experiments = activeGroups.map((group) => makeExperiment(group, Number($("seed").value)));
   render();
 }
+
 function saveBlob(blob, name) {
-  const url = URL.createObjectURL(blob),
-    link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
   link.href = url;
   link.download = name;
   document.body.appendChild(link);
@@ -151,7 +313,8 @@ function saveBlob(blob, name) {
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
-// Export through a Blob so the camera download also works in Safari.
+
+// Export through a Blob so the camera button works in Safari as well as Chrome.
 function downloadPNG(plot) {
   return Plotly.toImage(plot, {
     format: "png",
@@ -160,8 +323,8 @@ function downloadPNG(plot) {
     scale: 2,
   })
     .then((url) => {
-      const binary = atob(url.split(",")[1]),
-        bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+      const binary = atob(url.split(",")[1]);
+      const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
       saveBlob(
         new Blob([bytes], { type: "image/png" }),
         "CVAnalysis_" + (plot.id === "timePlot" ? "time_course" : "normalized") + ".png",
@@ -171,7 +334,8 @@ function downloadPNG(plot) {
       $("status").textContent = "PNG export failed. Please try again.";
     });
 }
-const config = {
+
+const plotConfig = {
   responsive: true,
   displaylogo: false,
   modeBarButtonsToRemove: ["toImage"],
@@ -179,6 +343,7 @@ const config = {
     { name: "Download plot as a png", icon: Plotly.Icons.camera, click: downloadPNG },
   ],
 };
+
 function axis(text, size) {
   return {
     title: { text, font: { size } },
@@ -189,45 +354,56 @@ function axis(text, size) {
     automargin: true,
   };
 }
-function base(title, size) {
+
+function baseLayout(title, size) {
   return {
-    title: { text: "<b>" + title + "</b>", font: { size }, y: 0.97, yanchor: "top" },
+    title: { text: "<b>" + title + "</b>", font: { size }, y: 0.98, yanchor: "top" },
     paper_bgcolor: "#c7c7c7",
     plot_bgcolor: "white",
-    margin: { l: 90, r: 35, t: 130, b: 85 },
+    margin: { l: 90, r: 35, t: 95, b: 72 },
     height: 600,
     legend: {
       orientation: "h",
       font: { size: Math.max(14, size - 3) },
-      y: 1.02,
+      y: 1.01,
       yanchor: "bottom",
     },
     hovermode: "closest",
   };
 }
+
+function finitePositive(value) {
+  return Number.isFinite(value) && value >= 0;
+}
+
 function render() {
   const size = Number($("fontSize").value);
   $("fontValue").textContent = size + " px";
   $("comparison").hidden = !$("compare").checked;
-  const traces = experiments.map((e) => ({
-    x: e.time,
-    y: e.response,
+
+  const timeTraces = experiments.map((experiment) => ({
+    x: experiment.time,
+    y: experiment.response,
     type: "scatter",
     mode: "markers",
-    name: "Experiment " + e.group,
-    marker: { color: colors[e.group], size: 5 },
-    hovertemplate: "%{x:.2f} min<br>%{y:.3f} mV<extra>" + e.group + "</extra>",
+    name: "Experiment " + experiment.group,
+    marker: { color: colors[experiment.group], size: 5 },
+    hovertemplate:
+      "%{x:.2f} min<br>%{y:.3f} mV<extra>" + experiment.group + "</extra>",
   }));
-  const baselineEnd = experiments[0].baselineCount / 6,
-    postStart = baselineEnd + 5,
-    endTime = postStart + experiments[0].postCount / 6;
-  const timeLayout = base("Plasticity time course", size);
+
+  const baselineEnd = experiments[0].baselineCount / 6;
+  const postStart = baselineEnd + 5;
+  const endTime = postStart + experiments[0].postCount / 6;
+  const timeLayout = baseLayout("Plasticity time course", size);
   timeLayout.xaxis = { ...axis("Time (min)", size), range: [0, endTime] };
+  timeLayout.xaxis.title.standoff = 6;
   timeLayout.yaxis = {
     ...axis("EPSP amplitude (mV)", size),
     range: [
       0,
-      Math.max(0.1, ...experiments.flatMap((e) => e.response.filter((v) => v !== null))) * 1.08,
+      Math.max(0.1, ...experiments.flatMap((experiment) => experiment.response.filter(Number.isFinite))) *
+        1.08,
     ],
   };
   timeLayout.shapes = [
@@ -257,41 +433,53 @@ function render() {
       font: { size: Math.max(12, size - 4) },
     },
   ];
-  const points = [];
+
+  const cvTraces = [];
   let limit = 1.4;
-  for (const e of experiments) {
-    if (Number.isFinite(e.x) && Number.isFinite(e.y)) {
-      points.push({
-        x: [1, e.x],
-        y: [1, e.y],
+  for (const experiment of experiments) {
+    if (finitePositive(experiment.x) && finitePositive(experiment.y)) {
+      cvTraces.push({
+        x: [1, experiment.x],
+        y: [1, experiment.y],
         mode: "lines+markers",
-        name: "Observed " + e.group,
-        line: { color: colors[e.group], width: 2 },
+        name: "Observed " + experiment.group,
+        line: { color: colors[experiment.group], width: 2 },
         marker: { size: 10 },
         hovertemplate:
           "Mean normalized: %{x:.3f}<br>1/CV² normalized: %{y:.3f}<extra>Observed " +
-          e.group +
+          experiment.group +
           "</extra>",
       });
-      limit = Math.max(limit, e.x * 1.15, e.y * 1.15);
+      limit = Math.max(limit, experiment.x * 1.15, experiment.y * 1.15);
     }
-    if ($("theory").checked) {
-      points.push({
-        x: [e.theoryX],
-        y: [e.theoryY],
+    if (
+      $("theory").checked &&
+      finitePositive(experiment.theoryX) &&
+      finitePositive(experiment.theoryY)
+    ) {
+      cvTraces.push({
+        x: [experiment.theoryX],
+        y: [experiment.theoryY],
         mode: "markers",
-        name: "Theoretical " + e.group,
-        marker: { size: 14, symbol: "diamond-open", color: colors[e.group], line: { width: 2 } },
+        name: "Theoretical " + experiment.group,
+        marker: {
+          size: 14,
+          symbol: "diamond-open",
+          color: colors[experiment.group],
+          line: { width: 2 },
+        },
         hovertemplate:
           "Mean normalized: %{x:.3f}<br>1/CV² normalized: %{y:.3f}<extra>Theoretical " +
-          e.group +
+          experiment.group +
           "</extra>",
       });
-      limit = Math.max(limit, e.theoryX * 1.15, e.theoryY * 1.15);
+      limit = Math.max(limit, experiment.theoryX * 1.15, experiment.theoryY * 1.15);
     }
   }
-  const cvLayout = base("CV analysis", size);
+
+  const cvLayout = baseLayout("CV analysis", size);
   cvLayout.xaxis = { ...axis("Mean (normalized)", size), range: [0, limit], constrain: "domain" };
+  cvLayout.xaxis.title.standoff = 6;
   cvLayout.yaxis = {
     ...axis("1/CV² (normalized)", size),
     range: [0, limit],
@@ -303,67 +491,127 @@ function render() {
     [0, 0, limit, limit],
     [0, 1, limit, 1],
     [1, 0, 1, limit],
-  ].map(([x0, y0, x1, y1], i) => ({
+  ].map(([x0, y0, x1, y1], index) => ({
     type: "line",
     x0,
     y0,
     x1,
     y1,
-    line: { color: i ? "#444" : "#888", dash: "dot", width: i ? 2 : 1 },
+    line: { color: index ? "#444" : "#888", dash: "dot", width: index ? 2 : 1 },
     layer: "below",
   }));
-  Plotly.react("timePlot", traces, timeLayout, config);
-  Plotly.react("cvPlot", points, cvLayout, config);
-  const f = (v) => (Number.isFinite(v) ? v.toFixed(3) : "Undefined");
-  $("results").hidden = !$("calculations").checked;
-  $("results").style.setProperty("--calculation-size", size + "px");
-  $("results").innerHTML =
-    "<h2>Sample calculations</h2><p>CV = SDev / mean; normalized mean = mean(after) / mean(before); normalized 1/CV² = [CV(before) / CV(after)]².</p>" +
+
+  Plotly.react("timePlot", timeTraces, timeLayout, plotConfig);
+  Plotly.react("cvPlot", cvTraces, cvLayout, plotConfig);
+  renderCalculations(size);
+  renderStatus();
+}
+
+function format(value) {
+  return Number.isFinite(value) ? value.toFixed(3) : "Undefined";
+}
+
+function parameterSummary(parameters, mode) {
+  if (mode === "gaussian") {
+    return `Entered mean ${format(parameters.mean)} mV; entered SDev ${format(parameters.sd)} mV`;
+  }
+  return `n = ${parameters.n}; p = ${parameters.p.toFixed(2)}; q = ${parameters.q.toFixed(2)} mV`;
+}
+
+function calculationRows(experiment) {
+  return [
+    ["Baseline", experiment.baselineParameters, experiment.expectedBefore, experiment.before],
+    ["Post-induction", experiment.postParameters, experiment.expectedAfter, experiment.after],
+  ]
+    .map(([label, parameters, expected, sample]) => {
+      if (experiment.mode === "gaussian") {
+        return `<tr><td>${label}</td><td>${sample.n}</td><td>${parameterSummary(parameters, experiment.mode)}</td><td>${format(sample.mean)}</td><td>${format(sample.analysisSD)}</td><td>${format(sample.cv)}</td></tr>`;
+      }
+      return `<tr><td>${label}</td><td>${sample.n}</td><td>${parameterSummary(parameters, experiment.mode)}</td><td>${format(expected.mean)}</td><td>${format(expected.releaseSD)}</td><td>${format(expected.measuredSD)}</td><td>${format(sample.mean)}</td><td>${format(sample.sd)}</td><td>${format(sample.analysisSD)}</td><td>${format(sample.cv)}</td></tr>`;
+    })
+    .join("");
+}
+
+function renderCalculations(size) {
+  const results = $("results");
+  results.hidden = !$("calculations").checked;
+  results.style.setProperty("--calculation-size", size + "px");
+  if (results.hidden) return;
+
+  const mode = $("inputMode").value;
+  const formula =
+    "CV = SDev / mean; normalized mean = mean(after) / mean(before); normalized 1/CV² = [CV(before) / CV(after)]².";
+  results.innerHTML =
+    `<h2>Sample calculations</h2><p>${formula}</p>` +
     experiments
-      .map(
-        (e) =>
-          `<h2>Experiment ${e.group}</h2><table><tr><th>Window</th><th>n</th><th>Mean (mV)</th><th>SDev (mV)</th><th>CV</th></tr>${[
-            ["Baseline", e.before],
-            ["Post-induction", e.after],
-          ]
-            .map(
-              ([label, s]) =>
-                `<tr><td>${label}</td><td>${s.n}</td><td>${f(s.mean)}</td><td>${f(s.sd)}</td><td>${f(s.cv)}</td></tr>`,
-            )
-            .join(
-              "",
-            )}</table><p>Normalized mean: <b>${f(e.x)}</b> · Normalized 1/CV²: <b>${f(e.y)}</b></p>`,
-      )
+      .map((experiment) => {
+        const headings =
+          mode === "gaussian"
+            ? "<tr><th>Period</th><th>n</th><th>Entered values</th><th>Sample mean (mV)</th><th>Sample SDev (mV)</th><th>CV</th></tr>"
+            : "<tr><th>Period</th><th>n</th><th>Entered values</th><th>Expected mean</th><th>Release SDev</th><th>Expected measured SDev</th><th>Sample mean</th><th>Raw sample SDev</th><th>SDev used for CV</th><th>CV</th></tr>";
+        const correctionNote =
+          mode === "binomial"
+            ? `<p>Background noise SDev: <b>${format(experiment.noiseSD)} mV</b>. CV uses ${experiment.correctNoise ? "sample variance minus known noise variance" : "raw sample variance"}.</p>`
+            : "";
+        return (
+          `<h2>Experiment ${experiment.group}</h2>${correctionNote}<table>${headings}${calculationRows(experiment)}</table>` +
+          `<p>Normalized mean: <b>${format(experiment.x)}</b> · Normalized 1/CV²: <b>${format(experiment.y)}</b></p>`
+        );
+      })
       .join("");
-  $("status").textContent = experiments.some((e) => e.before.mean <= 0 || e.after.mean <= 0)
-    ? "A sampled mean is zero or negative. CV interpretation is unreliable; increase the mean or reduce variability."
-    : "";
 }
-for (const id of ["baselineCount", "postCount"]) {
-  $(id).addEventListener("input", () => {
-    if ($(id).validity.valid && $(id).value !== "") $(id + "Range").value = $(id).value;
-    schedule();
-  });
-  $(id + "Range").addEventListener("input", () => {
-    $(id).value = $(id + "Range").value;
-    schedule();
-  });
+
+function renderStatus() {
+  const messages = [];
+  if (experiments.some((experiment) => experiment.before.mean <= 0 || experiment.after.mean <= 0)) {
+    messages.push("A sampled mean is zero or negative, so CV interpretation is unreliable.");
+  }
+  if (
+    experiments.some(
+      (experiment) =>
+        experiment.correctNoise &&
+        (experiment.before.analysisVariance <= 0 || experiment.after.analysisVariance <= 0),
+    )
+  ) {
+    messages.push(
+      "For at least one period, sample variance does not exceed the known noise variance; corrected CV is undefined.",
+    );
+  }
+  $("status").textContent = messages.join(" ");
 }
-$("compare").addEventListener("change", generate);
-$("seed").addEventListener("input", schedule);
-for (const id of ["fontSize", "theory", "calculations"])
-  $(id).addEventListener(id === "fontSize" ? "input" : "change", render);
-$("newSeed").addEventListener("click", () => {
-  $("seed").value = crypto.getRandomValues(new Uint32Array(1))[0];
-  generate();
-});
-$("reset").addEventListener("click", () => {
-  for (const g of ["A", "B"])
-    defaults[g].forEach((v, i) => {
-      $(g + i).value = v;
-      $(g + i + "Range").max = i % 2 ? 3 : 10;
-      $(g + i + "Range").value = v;
-    });
+
+function updateModeUI() {
+  const mode = $("inputMode").value;
+  document.querySelectorAll(".mode-controls").forEach((controls) => {
+    controls.hidden = controls.dataset.mode !== mode;
+  });
+  $("noiseSection").hidden = mode !== "binomial";
+}
+
+function setPairedValue(id, value, originalRangeMax) {
+  $(id).value = value;
+  $(id + "Range").max = Math.max(originalRangeMax, Number(value));
+  $(id + "Range").value = value;
+}
+
+function resetControls() {
+  for (const group of groups) {
+    for (const mode of ["gaussian", "binomial"]) {
+      for (const period of periods) {
+        for (const spec of parameterSpecs[mode]) {
+          setPairedValue(
+            controlId(group, mode, period, spec.key),
+            defaultsFor(group, mode, period)[spec.key],
+            spec.rangeMax,
+          );
+        }
+      }
+    }
+  }
+  $("inputMode").value = "gaussian";
+  $("noise").value = 0;
+  $("noiseRange").value = 0;
+  $("correctNoise").checked = true;
   $("seed").value = 311;
   $("reuseSeed").checked = true;
   $("compare").checked = false;
@@ -373,31 +621,87 @@ $("reset").addEventListener("click", () => {
   $("postCount").value = 200;
   $("baselineCountRange").value = 60;
   $("postCountRange").value = 200;
+  updateModeUI();
   generate();
-});
-// CV columns contain the baseline (1, 1) and endpoint in their first two rows.
-$("download").addEventListener("click", () => {
+}
+
+function metadataRows() {
+  const mode = $("inputMode").value;
+  const rows = [
+    "",
+    `Simulation mode,${mode === "gaussian" ? "Mean and SDev" : "Binomial n p q"}`,
+    `Random seed,${$("seed").value}`,
+    `Baseline responses,${$("baselineCount").value}`,
+    `Post-induction responses,${$("postCount").value}`,
+  ];
+  if (mode === "binomial") {
+    rows.push(`Background noise SDev (mV),${$("noise").value}`);
+    rows.push(`Correct CV for background noise,${$("correctNoise").checked ? "yes" : "no"}`);
+  }
+  for (const experiment of experiments) {
+    for (const period of periods) {
+      const parameters =
+        period === "baseline" ? experiment.baselineParameters : experiment.postParameters;
+      for (const spec of parameterSpecs[mode]) {
+        rows.push(`Experiment ${experiment.group} ${period} ${spec.key},${parameters[spec.key]}`);
+      }
+    }
+  }
+  return rows;
+}
+
+function downloadData() {
   const headers = [
     "time",
-    ...experiments.map((e) => "EPSP_" + e.group),
-    ...experiments.flatMap((e) => ["CV_mean_" + e.group, "CV_inverse_squared_" + e.group]),
+    ...experiments.map((experiment) => "EPSP_" + experiment.group),
+    ...experiments.flatMap((experiment) => [
+      "CV_mean_" + experiment.group,
+      "CV_inverse_squared_" + experiment.group,
+    ]),
   ];
   const rows = [headers.join(",")];
   for (let i = 0; i < experiments[0].time.length; i++) {
-    const coordinates = experiments.flatMap((e) =>
-      i === 0 ? [1, 1] : i === 1 ? [e.x, e.y] : ["", ""],
+    const coordinates = experiments.flatMap((experiment) =>
+      i === 0 ? [1, 1] : i === 1 ? [experiment.x, experiment.y] : ["", ""],
     );
     rows.push(
       [
         experiments[0].time[i],
-        ...experiments.map((e) => (e.response[i] === null ? "" : e.response[i])),
+        ...experiments.map((experiment) =>
+          experiment.response[i] === null ? "" : experiment.response[i],
+        ),
         ...coordinates,
       ].join(","),
     );
   }
+  rows.push(...metadataRows());
   saveBlob(
     new Blob([rows.join("\r\n") + "\r\n"], { type: "text/plain;charset=utf-8" }),
     "CVAnalysis_seed" + $("seed").value + ".txt",
   );
+}
+
+buildControls();
+
+bindExistingNumberAndRange("baselineCount", 100);
+bindExistingNumberAndRange("postCount", 400);
+bindExistingNumberAndRange("noise", 3);
+
+$("inputMode").addEventListener("change", () => {
+  updateModeUI();
+  schedule();
 });
-generate();
+$("correctNoise").addEventListener("change", schedule);
+$("compare").addEventListener("change", generate);
+$("fontSize").addEventListener("input", render);
+$("theory").addEventListener("change", render);
+$("calculations").addEventListener("change", render);
+$("newSeed").addEventListener("click", () => {
+  $("seed").value = crypto.getRandomValues(new Uint32Array(1))[0];
+  generate();
+});
+$("reset").addEventListener("click", resetControls);
+$("download").addEventListener("click", downloadData);
+
+updateModeUI();
+requestAnimationFrame(generate);
