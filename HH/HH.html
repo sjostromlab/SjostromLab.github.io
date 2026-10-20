@@ -13,7 +13,7 @@
 <body>
 
 <div class="header">
-	<h1>Action Potential</h1>
+	<h1>Action Potentials: The Hodgkin–Huxley Model</h1>
 </div>
 
 <div class="row">
@@ -25,31 +25,32 @@
       <input type="range" id="axisFontSize" min="14" max="36" step="1" value="22" class="slider">
     </p>
   	<div class="center">
-	<input type="button" value="Reset Simulation" id="reset">
+	<input type="button" value="Reset simulation" id="reset">
     <input type="button" value="Download" id="downloadTraces" title="Download all currently plotted traces as comma-delimited text"> <br>
 	</div>
 	<p id="ptoptop">
-		<label for="last10Trace"><b>Save Trace</b></label> <input type="checkbox" id="last10Trace" /><br>
-		<label for="lastTrace"><b>Show Last Trace</b></label> <input type="checkbox" id="lastTrace" /><br>
+		<label for="last10Trace"><b>Save trace</b></label> <input type="checkbox" id="last10Trace" /><br>
+		<label for="lastTrace"><b>Show last trace</b></label> <input type="checkbox" id="lastTrace" /><br>
 
 	</p>
+	<div class="center clamp-switch">
+	  <input type="button" value="Switch to voltage clamp" id="clampMode">
+	</div>
 
 	<p id="ptop1" class="shown"> 
-	<label for="VC"><b>Voltage Clamp</b></label> <input type="checkbox" id="VC" /><br>
-	<label for="ref" id="refLabel"><b>Refractory Period</b></label> <input type="checkbox" id="ref" /><br>
-	<label for="dendrite" id="dendLabel"><b>Stick Dendrite</b></label> <input type="checkbox" id="dendrite" />
+	<label for="ref" id="refLabel"><b>Refractory period</b></label> <input type="checkbox" id="ref" /><br>
+	<label for="dendrite" id="dendLabel"><b>Stick dendrite</b></label> <input type="checkbox" id="dendrite" />
 	</p>
 
 	<p id="ptop2" class="hidden">
-		<label for="RC"><b>Current Clamp</b></label> <input type="checkbox" id="RC" /><br>
-		<label for="VC" id="inactivation"><b>Recovery from Inactivation</b></label> <input type="checkbox" id="VC2" /><br>
+		<label for="VC2" id="inactivation"><b>Recovery from inactivation</b></label> <input type="checkbox" id="VC2" /><br>
 		<label for="ttx" ><b>Add TTX</b></label> <input type="checkbox" id="ttx" /><br>
 		<label for="tea"><b>Add TEA</b></label> <input type="checkbox" id="tea" /><br>
 	</p>
 	
 	<p id="pbottom"> 
-	<strong id="text"> Current Clamp: </strong> <br>
-	<label class="tooltip" for="tspan">Simulation Window (ms): 
+	<strong id="text">Current clamp:</strong> <br>
+	<label class="tooltip" for="tspan">Simulation window (ms): 
 		<span class="tooltiptext">Time span of the simulation.</span> 
 	</label>
     <input type="number" id="tspan" step="1" min="0" /> <br> 
@@ -59,7 +60,7 @@
 	</label>
     <input type="number" id="duration" step="1" min="0" /> <br>
 	
-	<label id="rvlabel" class="tooltip" for="rv">Resting Potential (mV): 
+	<label id="rvlabel" class="tooltip" for="rv">Resting potential (mV): 
 		<span class="tooltiptext">Initial membrane potential.</span> 
 	</label>
     <input type="number" id="rv" step="1" /><br>
@@ -74,7 +75,7 @@
 	</label>
 	<input type="number" id="iinput2" step="0.01" /><br>
 
-	<label id="durationHHlabel" class="tooltip" for="durationHH">Interval between steps 
+	<label id="durationHHlabel" class="tooltip" for="durationHH">Interval between steps: 
 		<span class="tooltiptext">Time span between HH steps.</span> 
 	</label>
 	<input type="number" id="durationHH" step="1" min="0" /> 
@@ -102,8 +103,8 @@
 	<input type="range" id="nRange" step="0.1" min="0" max="1" class="slider" disabled="true">
 	</p>
 
-	<p id="VCPanel" class="hidden"> <strong> V-Clamp settings: </strong> <br>
-	<label class="tooltip" for="tspan2">Simulation Window (ms): 
+	<p id="VCPanel" class="hidden"> <strong>Voltage-clamp settings:</strong> <br>
+	<label class="tooltip" for="tspan2">Simulation window (ms): 
 		<span class="tooltiptext">Time span of the simulation.</span> 
 	</label>
 	<input type="number" id="tspan2" step="1" min="0" /> <br> 
@@ -143,8 +144,8 @@
 		</p> -->
 
 	<p id="DPanel" class="hidden"> 
-		<strong id="text"> Stick Dendrite Settings </strong> <br>
-		<label class="tooltip" for="seg"># of Segments
+		<strong>Stick dendrite settings</strong> <br>
+		<label class="tooltip" for="seg">Number of segments
 			<span class="tooltiptext">Number of dendritic segments (0-10) </span>
 		</label>
 		<input type="number" id="seg" step="1" min="0" /> <br> 
@@ -153,11 +154,11 @@
 			<span class="tooltiptext">Location of current inj</span> 
 		</label>
 		<input type="number" id="iinputd" step="1" min="0"/> <br>
-		<label id="rvlabel" class="tooltip" for="gcoup">g coupling 
+		<label class="tooltip" for="gcoup">g coupling 
 			<span class="tooltiptext">Dendritic conductance (max: 2000)</span> 
 		</label>
 		<input type="number" id="gcoup" step="0.01" /><br>
-		<label id="currin" class="tooltip" for="currinj">Current injected (mA)
+		<label id="currin" class="tooltip" for="currentinj">Current injected (mA)
 			<span class="tooltiptext">current at synapse</span> 
 		</label>
 		<input type="number" id="currentinj" step="0.1" /><br>
@@ -165,11 +166,11 @@
 			<span class="tooltiptext">Duration of injection</span> 
 		</label>
 		<input type="number" id="durationD" step="1" /><br>
-		<label id="somad" class="tooltip" for="d_soma">Soma Diameter (<i>u</i>m)
+		<label id="somad" class="tooltip" for="d_soma">Soma diameter (<i>u</i>m)
 			<span class="tooltiptext">Diameter of the soma in nm</span> 
 		</label>
 		<input type="number" id="d_soma" step="1" /><br>
-		<label id="dendd" class="tooltip" for="d_dend">Dendrite Diameter (<i>u</i>m)
+		<label id="dendd" class="tooltip" for="d_dend">Dendrite diameter (<i>u</i>m)
 			<span class="tooltiptext">Diameter of the dendrite in nm</span> 
 		</label>
 		<input type="number" id="d_dend" step="1" /><br>
@@ -205,13 +206,32 @@
   
 </div>
 
-<div class="footer">
-	Hodgkin-Huxley Model Ver. 0.8.1
-</div>
+<footer class="footer">
+  <p><strong>Neuroscience teaching tools</strong></p>
+  <nav aria-label="Further information">
+        <a href="../index.html" target="neuroscienceTeachingToolsMenu">Main menu</a>
+    <a href="http://plasticity.muhc.mcgill.ca/index.html">Sjöström Lab</a>
+    <a href="https://github.com/sjostromlab/SjostromLab.github.io">GitHub source</a>
+  </nav>
+</footer>
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script src="./HH.js"></script>
   
 
+  <script>
+    // Return to the originating menu tab when it is still open; otherwise the named link opens one.
+    document.querySelector('a[target="neuroscienceTeachingToolsMenu"]').addEventListener("click", function (event) {
+      try {
+        if (window.opener && !window.opener.closed && window.opener.name === "neuroscienceTeachingToolsMenu") {
+          event.preventDefault();
+          if (window.opener.location.href !== this.href) window.opener.location.href = this.href;
+          window.opener.focus();
+        }
+      } catch (error) {
+        // A cross-origin opener cannot be reused safely; allow the named link to handle it.
+      }
+    });
+  </script>
 </body>
 </html>

@@ -1,3 +1,22 @@
+/*
+ * Hodgkin–Huxley neuron — provenance
+ * Original JavaScript simulation developer: Chengxin Yu.
+ * Project period: November 2019–August 2020 (not an exact file-creation date).
+ * Developed in the laboratory of P. Jesper Sjöström, McGill University.
+ * Authorship confirmed by Sjöström; provenance recorded 17 October 2026.
+ *
+ * Scientific model: Hodgkin AL & Huxley AF (1952), J Physiol 117:500–544.
+ * https://doi.org/10.1113/jphysiol.1952.sp004764
+ * Reference materials supplied by Sjöström included James Fallon's Igor Pro
+ * code (header: "Created 25/9/2000 - JBF") and the Neuronal Dynamics exercise:
+ * https://neuronaldynamics-exercises.readthedocs.io/en/latest/exercises/hodgkin-huxley.html
+ * Direct derivation from either supplied implementation is not established.
+ *
+ * Subsequent teaching/interface updates include changes made with OpenAI
+ * Codex under Sjöström's direction in 2026. Original student authorship is
+ * distinct from those later changes; this is not a line-by-line change log.
+ */
+
 //const { pi, json } = require("mathjs");
 
 //const { e } = require("mathjs");
@@ -40,7 +59,7 @@ var config = {
 }; 
 
 var layout = {
-  title: '<b>Voltage Time Series</b>',
+  title: '<b>Voltage Time Course</b>',
   xaxis: {
     title: '<b>Time (ms)</b>'
   },
@@ -131,7 +150,7 @@ var layout7 = {
 }; 
 
 var layout8 = {
-  title: '<b>I vs. Time</b>',
+  title: '<b>Current Time Course</b>',
   xaxis: {
     title: '<b>Time (ms)</b>'
   },
@@ -157,34 +176,63 @@ var layout9 = {
 }; 
 
 var layout10 = {
-  title: '<b>Total I vs. Time</b>',
+  title: '<b>Total Current Time Course</b>',
   xaxis: {
     title: '<b>Time (ms)</b>'
   },
   yaxis: {
-    title: '<b>I<sub>t</sub></b>'
+    title: '<b>I<sub>total</sub></b>'
   }, 
   autosize: true, 
   paper_bgcolor: '#c7c7c7',
   showlegend: true,
 };
 
+// Keep all three stacked plots compact while preserving most of the data area.
+function compactPlotLayout(plotLayout) {
+  plotLayout.height = 345;
+  plotLayout.margin = {t: 42, b: 58, l: 80, r: 123, pad: 0, autoexpand: false};
+
+  var heading = plotLayout.title;
+  plotLayout.title = {
+    text: typeof heading === 'string' ? heading : heading.text,
+    y: 0.98,
+    yanchor: 'top',
+    pad: {t: 0, b: 0}
+  };
+
+  ['xaxis', 'yaxis'].forEach(function(axis) {
+    var axisTitle = plotLayout[axis].title;
+    plotLayout[axis].title = {
+      text: typeof axisTitle === 'string' ? axisTitle : axisTitle.text,
+      standoff: 6
+    };
+  });
+}
+
+[layout, layout2, layout3, layout4, layout5, layout6, layout7, layout8, layout9, layout10].forEach(compactPlotLayout);
+
 function setAxisLabelSize(size) {
   [layout, layout2, layout3, layout4, layout5, layout6, layout7, layout8, layout9, layout10].forEach(function(plotLayout) {
+    // Reserve identical room for axes and the widest legend on every graph.
+    plotLayout.margin.l = 58 + size;
+    plotLayout.margin.r = 35 + 4 * size;
+    plotLayout.margin.b = 36 + size;
+    plotLayout.margin.autoexpand = false;
     plotLayout.legend = {font: {size: size}};
     var heading = plotLayout.title;
-    plotLayout.title = {
-      text: typeof heading === 'string' ? heading : heading.text,
-      font: {size: size}
-    };
+    plotLayout.title = Object.assign({},
+      typeof heading === 'string' ? {text: heading} : heading,
+      {font: {size: size}}
+    );
     ['xaxis', 'yaxis'].forEach(function(axis) {
       var title = plotLayout[axis].title;
-      plotLayout[axis].title = {
-        text: typeof title === 'string' ? title : title.text,
-        font: {size: size}
-      };
+      plotLayout[axis].title = Object.assign({},
+        typeof title === 'string' ? {text: title} : title,
+        {font: {size: size}}
+      );
       plotLayout[axis].tickfont = {size: size};
-      plotLayout[axis].automargin = true;
+      plotLayout[axis].automargin = false;
     });
   });
 }
@@ -203,11 +251,25 @@ document.getElementById('axisFontSize').addEventListener('input', function(event
       'yaxis.title.font.size': size,
       'xaxis.tickfont.size': size,
       'yaxis.tickfont.size': size,
-      'xaxis.automargin': true,
-      'yaxis.automargin': true
+      'margin.l': 58 + size,
+      'margin.r': 35 + 4 * size,
+      'margin.b': 36 + size,
+      'margin.autoexpand': false,
+      'xaxis.automargin': false,
+      'yaxis.automargin': false
     });
   });
 });
+
+function setTimeAxisRange() {
+  if (!t.length) return;
+  var start = t[0];
+  var end = t[t.length - 1];
+  var padding = Math.max((end - start) * 0.01, 0.01);
+  [layout, layout8, layout10].forEach(function(plotLayout) {
+    plotLayout.xaxis.range = [start, end + padding];
+  });
+}
 
  
 
@@ -337,9 +399,8 @@ for(var i=0; i<10; i++){
 
 var userlast10Flag = document.getElementById("last10Trace"); 
 var userlastFlag = document.getElementById("lastTrace");
-var userVCFlag = document.getElementById("VC"); 
+var userClampMode = document.getElementById("clampMode");
 var userVC2Flag = document.getElementById("VC2");
-var userRCFlag = document.getElementById("RC");
 var VC2 = userVC2Flag;
 var userTTX = document.getElementById("ttx"); 
 var userTEA = document.getElementById("tea"); 
@@ -406,9 +467,8 @@ var usergKpRange = document.getElementById("gKpRange");
 document.getElementById("reset").addEventListener("click", resetPanel); 
 document.getElementById("last10Trace").addEventListener("change", checkMode10); 
 document.getElementById("lastTrace").addEventListener("change", checkMode); 
-document.getElementById("VC").addEventListener("change", VCcheck); 
+userClampMode.addEventListener("click", switchClampMode);
 document.getElementById("VC2").addEventListener("change", VCcheck);
-document.getElementById("RC").addEventListener("change", VCcheck);
 document.getElementById("ref").addEventListener("change", submit);
 document.getElementById("dendrite").addEventListener("change", submit);
 document.getElementById("ttx").addEventListener("change", blocker); 
@@ -454,10 +514,12 @@ document.getElementById("gKpRange").addEventListener("input", submitSlider);
 
 
 
-function VCcheck(event) {
+function switchClampMode(event) {
 	event.preventDefault(); 
+	VC = VC ? 0 : 1;
+	userClampMode.value = VC ? 'Switch to current clamp' : 'Switch to voltage clamp';
 
-	if (userVCFlag.checked){
+	if (VC) {
 		var top = document.getElementById("ptop1");
 		top.classList.add("hidden");
 		top.classList.remove("shown");
@@ -470,10 +532,9 @@ function VCcheck(event) {
 		userHHpanel1.classList.remove("shown");
 		userDpanel.classList.add("hidden");
 		userDpanel.classList.remove("shown");
-		userVCFlag.checked=false;
 		VCsubmit(event); 
 	}
-	else if(userRCFlag.checked){
+	else {
 		var top = document.getElementById("ptop1");
 		top.classList.add("shown");
 		top.classList.remove("hidden");
@@ -484,15 +545,18 @@ function VCcheck(event) {
 		userVCpanel.classList.remove("shown");
 		userHHpanel1.classList.add("shown");
 		userHHpanel1.classList.remove("hidden");
-		userRCFlag.checked=false;
 		userTEA.checked=false;
 		userTTX.checked=false;
 		gNa=1.2;
 		gK=0.36;
 		submit(event); 
-
 	}
-	else if(userVC2Flag.checked){
+}
+
+function VCcheck(event) {
+	event.preventDefault();
+
+	if(userVC2Flag.checked){
 		userclamptime.classList.add("shown");
 		userclamptime.classList.remove("hidden");
 		document.getElementById("clampVlabel").style.display='inline';
@@ -545,7 +609,7 @@ function resetPanel(event) {
 	ikQ = []; 
 	ittQ = []; 
 
-	if (userVCFlag.checked) {curd =1;} 
+	if (VC) {curd = 1;} 
 
 	initialize(); 
 }
@@ -992,6 +1056,7 @@ for (var i = 0; i < ina.length; i++) {
 
 
 function draw() {
+	setTimeAxisRange();
 
 	if(!userDendrite.checked){
 	var Vt = {
@@ -1184,7 +1249,7 @@ else{
   		x: t,
   		y: itt,
   		type: 'scatter', 
-  		name: 'I<sub>t</sub>', 
+  		name: 'I<sub>total</sub>', 
   		line: {
     		color: 'rgb(0, 0, 0)',
     		width: 1.5
@@ -1196,7 +1261,7 @@ else{
   		y: olditt,
   		type: 'scatter', 
   		mode: 'lines',
-  		name: 'last I<sub>t</sub>', 
+  		name: 'last I<sub>total</sub>', 
   		line: {
     		color: 'rgb(128, 128, 128)',
     		width: 1.5
@@ -1418,6 +1483,7 @@ function vcrun() {
 }
 
 function VCdraw() {
+	setTimeAxisRange();
 	var Vt = {
   		x: t,
   		y: V,
@@ -1527,7 +1593,7 @@ function VCdraw() {
   		x: t,
   		y: itt,
   		type: 'scatter', 
-  		name: 'I<sub>t</sub>', 
+  		name: 'I<sub>total</sub>', 
   		line: {
     		color: 'rgb(0, 0, 0)',
     		width: 1.5
@@ -1539,7 +1605,7 @@ function VCdraw() {
   		y: olditt,
   		type: 'scatter', 
   		mode: 'lines',
-  		name: 'last I<sub>t</sub>', 
+  		name: 'last I<sub>total</sub>', 
   		line: {
     		color: 'rgb(128, 128, 128)',
     		width: 1.5
@@ -1713,7 +1779,7 @@ function preparettQ(queue) {
   		type: 'scatter', 
   		mode: 'lines',
 		hoverinfo:'skip',
-  		name: `I<sub>t</sub> No.${i+1}`, 
+  		name: `I<sub>total</sub> No.${i+1}`, 
   		line: {
     		color: `rgb(${128+(queue.length-i-1)*10}, ${128+(queue.length-i-1)*10}, ${128+(queue.length-i-1)*10})`,
     		width: 1.5
