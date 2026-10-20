@@ -1,3 +1,17 @@
+/*
+ * Single-channel Monte Carlo simulation — worker — provenance
+ * Original JavaScript simulation developer: Allan Wei.
+ * Project period: September 2022–May 2023 (not an exact file-creation date).
+ * Developed in the laboratory of P. Jesper Sjöström, McGill University.
+ * Authorship confirmed by Sjöström; provenance recorded 17 October 2026.
+ *
+ * Existing project credit: based on Arnd Roth's Colquhoun–Hawkes package.
+ * Original project repository: https://github.com/timeolord/single-channel-sim
+ *
+ * This credit concerns the original simulation source. It does not assign
+ * authorship of third-party dependencies or every subsequent modification.
+ */
+
 //Random number generation with the same behaviour as the original paper
 
 class Random {

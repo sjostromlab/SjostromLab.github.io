@@ -10,7 +10,7 @@
 <body>
 
 <div class="header">
-	<h1>Leaky Integrate and Fire Neuron Model</h1>
+	<h1>Leaky Integrate-and-Fire Neuron Model</h1>
 </div>
 
 <div class="row">
@@ -138,7 +138,7 @@
 		<option value="pulse_summation">pulse_summation</option>
 		<option value="exponential">exponential</option>
 		<option value="NMJ">NMJ</option>
-	</select> <input type="button" value="Download" id="downloadTraces" title="Download all plotted traces as comma-delimited text"> </p>
+	</select> <input type="button" value="Download traces" id="downloadTraces" title="Download all plotted traces as comma-delimited text"> </p>
 	
   </div>
   <div class="col-9 col-s-12 col-d-12 col-h-9">
@@ -151,13 +151,32 @@
   </div>
 </div>
 
-<div class="footer">
-	Leaky Integrate and Fire Neuron Model Ver. 1.1.3.
-</div>
+<footer class="footer">
+  <p><strong>Neuroscience teaching tools</strong></p>
+  <nav aria-label="Further information">
+        <a href="../index.html" target="neuroscienceTeachingToolsMenu">Main menu</a>
+    <a href="http://plasticity.muhc.mcgill.ca/index.html">Sjöström Lab</a>
+    <a href="https://github.com/sjostromlab/SjostromLab.github.io">GitHub source</a>
+  </nav>
+</footer>
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script src="./LIF_simulation.js"></script>
   
 
+  <script>
+    // Return to the originating menu tab when it is still open; otherwise the named link opens one.
+    document.querySelector('a[target="neuroscienceTeachingToolsMenu"]').addEventListener("click", function (event) {
+      try {
+        if (window.opener && !window.opener.closed && window.opener.name === "neuroscienceTeachingToolsMenu") {
+          event.preventDefault();
+          if (window.opener.location.href !== this.href) window.opener.location.href = this.href;
+          window.opener.focus();
+        }
+      } catch (error) {
+        // A cross-origin opener cannot be reused safely; allow the named link to handle it.
+      }
+    });
+  </script>
 </body>
 </html>

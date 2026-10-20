@@ -1,3 +1,17 @@
+/*
+ * Single-channel Monte Carlo simulation — provenance
+ * Original JavaScript simulation developer: Allan Wei.
+ * Project period: September 2022–May 2023 (not an exact file-creation date).
+ * Developed in the laboratory of P. Jesper Sjöström, McGill University.
+ * Authorship confirmed by Sjöström; provenance recorded 17 October 2026.
+ *
+ * Existing project credit: based on Arnd Roth's Colquhoun–Hawkes package.
+ * Original project repository: https://github.com/timeolord/single-channel-sim
+ *
+ * This credit concerns the original simulation source. It does not assign
+ * authorship of third-party dependencies or every subsequent modification.
+ */
+
 import Chart from 'chart.js/auto'
 import zoomPlugin from 'chartjs-plugin-zoom'
 Chart.register(zoomPlugin);
@@ -305,7 +319,7 @@ function updateTraces(chart, data, timeStep, metadata){
 function defaultMetadata(){
   return {
     n: 20,
-    ensembleSize: 5,
+    ensembleSize: 10,
     samplingFrequency: 40,
     cutoffFrequency: 3,
     duration: 1,

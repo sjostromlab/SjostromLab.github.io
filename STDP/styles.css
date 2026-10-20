@@ -300,12 +300,44 @@ button:disabled {
 .footer {
     background-color: #26A69A;
     color: #ffffff;
-    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 24px;
+    padding: 12px 18px;
     margin-top: 4px;
-    text-align: center;
-    font-size: 12px;
+    font-size: 14px;
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.footer p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.footer nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 22px;
+}
+
+.footer a {
+    color: inherit;
+    text-underline-offset: 3px;
+}
+
+.footer a:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 4px;
+}
+
+@media (max-width: 480px) {
+    .footer {
+        justify-content: center;
+    }
 }
 
 /* Responsive design - single column plots on smaller screens */
