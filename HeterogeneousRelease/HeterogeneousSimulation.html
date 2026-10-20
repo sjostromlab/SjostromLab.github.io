@@ -1163,13 +1163,45 @@
         </div>
         <div id="myDiv4" class="legend"></div>
       </div>
+      <details class="simulation-help">
+        <summary>How to use this simulation</summary>
+        <h3>Different release sites</h3>
+        <p>Choose <b>n = 1, 2, or 3</b> release sites. Each site i has its own release probability <b>p<sub>i</sub></b> and quantal amplitude <b>q<sub>i</sub></b> (pA). A site releases either zero or one quantum, independently of the other sites; released amplitudes add linearly. The model calculates every release/failure combination and combines probabilities when different combinations give the same amplitude.</p>
+        <p>With three sites, there can be up to eight distinct amplitudes, including zero. Without measurement noise, mean = Σp<sub>i</sub>q<sub>i</sub>, variance = Σp<sub>i</sub>(1 − p<sub>i</sub>)q<sub>i</sub><sup>2</sup>, and the failure probability is the product of all (1 − p<sub>i</sub>).</p>
+        <h3>Connect to the binomial model</h3>
+        <p>Select <b>Use the same release probability</b> to make active sites use p<sub>1</sub>, and <b>Use the same quantal amplitude</b> to make them use q<sub>1</sub>. With both selected, this reduces to the binomial model. Clear either checkbox to explore departures from its identical-site assumptions. Independence is still assumed: this simulation does not model correlated release.</p>
+        <p>Different p values change the probabilities of release combinations. Different q values change their amplitudes and can produce irregular peak spacing. If q differs but p is identical, the <em>number</em> of releases is still binomial, but EPSC amplitude is no longer a single fixed q times that number.</p>
+
+        <h3>Read the plots</h3>
+        <p>The upper plot shows the theoretical distribution of EPSC amplitudes, displayed as positive magnitudes in pA. These are calculated probabilities, not a finite set of randomly generated trials. With Noise = 0, the point at zero represents release failures. The cumulative plot gives the predicted percentage of responses at or below each amplitude.</p>
+        <p><b>Show as histogram</b> groups probability into amplitude bins. With noise, the ordinary curve shows probability assigned to small numerical intervals; histogram bars combine these intervals. Their heights therefore depend on bin width: do not compare curve heights directly with histogram heights. White markers indicate the underlying noiseless response amplitudes.</p>
+        <h3>Noise and summary statistics</h3>
+        <p><b>Noise</b> is the standard deviation of additive, zero-mean Gaussian measurement noise, in pA. It broadens each response peak, can obscure failures, and can produce apparent negative amplitudes around zero. It does not change the release probabilities.</p>
+        <p><b>Show more</b> displays the theoretical mean, standard deviation (sDev), and coefficient of variation (CV = SD / mean). <b>These statistics describe release variability only; they exclude the added measurement noise.</b> For independent measurement noise, the measured variance would be the release variance plus Noise squared. CV is undefined when the mean is zero. <b>Total p</b> is the numerically summed probability, normally close to 1; finite plotting limits and numerical approximation can cause small deviations.</p>
+        <h3>Controls and figures</h3>
+        <p>Use the sliders or edit the number fields; plots update automatically. The <b>max</b> fields set control limits, not additional biological parameters. <b>Text size</b> adjusts graph and parameter text. Hover over controls for explanations and graphs for values; use a graph’s camera button to save a PNG. <b>Reset</b> restores the model parameters.</p>
+
+        <h3>Try it</h3>
+        <ol>
+          <li>Set n = 3, Noise = 0, and select both same-value checkboxes. Set p<sub>1</sub> = 0.5 and q<sub>1</sub> = 6. Compare with the binomial simulation using the same settings.</li>
+          <li>Clear the probability checkbox and set p values to 0.1, 0.5, and 0.9. The mean remains the same as with three p values of 0.5, but the variance changes.</li>
+          <li>Keep probabilities equal, clear the amplitude checkbox, and set q values to 3, 6, and 12 pA. Identify which release combinations produce each peak.</li>
+          <li>Increase Noise. Can different underlying release-site arrangements produce distributions that are difficult to distinguish?</li>
+        </ol>
+        <p>Each site’s q is fixed; the model does not include trial-to-trial quantal-size variation, multivesicular release at an individual site, or short-term plasticity. A smooth-looking amplitude distribution alone does not establish that release sites are identical.</p>
+      </details>
     </div>
 
   </div>
 
-  <div class="footer">
-    Heterogenous Quantal release simulation Model Ver 0.1.0
-  </div>
+  <footer class="footer">
+    <p><strong>Neuroscience teaching tools</strong></p>
+    <nav aria-label="Further information">
+        <a href="../index.html" target="neuroscienceTeachingToolsMenu">Main menu</a>
+      <a href="http://plasticity.muhc.mcgill.ca/index.html">Sjöström Lab</a>
+      <a href="https://github.com/sjostromlab/SjostromLab.github.io">GitHub source</a>
+    </nav>
+  </footer>
 
   <script src="./plotly-latest.min.js"></script>
   <script src="./Heterogeneous_simulation.js"></script>
@@ -1180,6 +1212,20 @@
     style="position: absolute; left: -10000px; top: -10000px; width: 9000px; height: 9000px; z-index: 1;">
     <path class="js-reference-point" d="M0,0H1V1H0Z" style="stroke-width: 0; fill: black;"></path>
   </svg>
+  <script>
+    // Return to the originating menu tab when it is still open; otherwise the named link opens one.
+    document.querySelector('a[target="neuroscienceTeachingToolsMenu"]').addEventListener("click", function (event) {
+      try {
+        if (window.opener && !window.opener.closed && window.opener.name === "neuroscienceTeachingToolsMenu") {
+          event.preventDefault();
+          if (window.opener.location.href !== this.href) window.opener.location.href = this.href;
+          window.opener.focus();
+        }
+      } catch (error) {
+        // A cross-origin opener cannot be reused safely; allow the named link to handle it.
+      }
+    });
+  </script>
 </body>
 
 </html>

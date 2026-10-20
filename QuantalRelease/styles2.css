@@ -340,3 +340,35 @@ input[type=checkbox]
   }
   #myDiv4 { display: none; }
 }
+
+/* Expandable teaching notes below the plots. */
+.simulation-help { margin: 22px 0 12px; padding: 18px 22px; background: #fff; color: #263238; border: 1px solid #d6dfe3; border-radius: 8px; font-size: 17px; line-height: 1.6; overflow-wrap: anywhere; }
+.simulation-help summary { cursor: pointer; font-size: 20px; font-weight: bold; }
+.simulation-help summary:focus-visible { outline: 2px solid #286b91; outline-offset: 4px; }
+.simulation-help h3 { margin: 20px 0 8px; font-size: 18px; }
+.simulation-help p {
+  margin: 10px 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  line-height: 1.6;
+}
+.simulation-help li { margin: 8px 0; }
+
+/* Course information and links retain the simulation's purple footer. */
+.footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 24px; padding: 12px 18px; font-size: 14px; }
+.footer p {
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.footer nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 22px; }
+.footer a { color: inherit; text-underline-offset: 3px; }
+.footer a:focus-visible { outline: 2px solid white; outline-offset: 4px; }
+@media (max-width: 480px) { .footer { justify-content: center; } }

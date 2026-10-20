@@ -13,7 +13,7 @@
 <body>
 
 <div class="header">
-	<h1>Quantal Release Simulation</h1>
+	<h1>Binomial Quantal Release Simulation</h1>
 </div>
 
 <div class="row">
@@ -116,17 +116,61 @@
 	<div id="myDiv3" class="plots"></div>
 	<div id="myDiv4" class="legend"></div>
     </div>
+      <details class="simulation-help">
+        <summary>How to use this simulation</summary>
+        <h3>The binomial model</h3>
+        <p>Set <b>n</b>, the number of independent release sites; <b>p</b>, the probability that each site releases on a trial; and <b>q</b>, the EPSC amplitude contributed by one release (pA). Each site releases either zero or one quantum. All sites have the same p and q, their responses add linearly, and these properties stay fixed across trials.</p>
+        <p>The number of released quanta k follows a binomial distribution: P(k) = C(n,k) p<sup>k</sup>(1 − p)<sup>n−k</sup>, and the amplitude is kq. Without measurement noise, mean = npq, variance = np(1 − p)q<sup>2</sup>, and the failure probability is (1 − p)<sup>n</sup>.</p>
+
+        <h3>Read the plots</h3>
+        <p>The upper plot shows the theoretical distribution of EPSC amplitudes, displayed as positive magnitudes in pA. These are calculated probabilities, not a finite set of randomly generated trials. With Noise = 0, the point at zero represents release failures. The cumulative plot gives the predicted percentage of responses at or below each amplitude.</p>
+        <p><b>Show as histogram</b> groups probability into amplitude bins. With noise, the ordinary curve shows probability assigned to small numerical intervals; histogram bars combine these intervals. Their heights therefore depend on bin width: do not compare curve heights directly with histogram heights. White markers indicate the underlying noiseless response amplitudes.</p>
+        <h3>Noise and summary statistics</h3>
+        <p><b>Noise</b> is the standard deviation of additive, zero-mean Gaussian measurement noise, in pA. It broadens each response peak, can obscure failures, and can produce apparent negative amplitudes around zero. It does not change the release probabilities.</p>
+        <p><b>Show more</b> displays the theoretical mean, standard deviation (sDev), and coefficient of variation (CV = SD / mean). <b>These statistics describe release variability only; they exclude the added measurement noise.</b> For independent measurement noise, the measured variance would be the release variance plus Noise squared. CV is undefined when the mean is zero. <b>Total p</b> is the numerically summed probability, normally close to 1; finite plotting limits and numerical approximation can cause small deviations.</p>
+        <h3>Controls and figures</h3>
+        <p>Use the sliders or edit the number fields; plots update automatically. The <b>max</b> fields set control limits, not additional biological parameters. <b>Text size</b> adjusts graph and parameter text. Hover over controls for explanations and graphs for values; use a graph’s camera button to save a PNG. <b>Reset</b> restores the model parameters.</p>
+
+        <h3>Try it</h3>
+        <ol>
+          <li>Start with Noise = 0 and n = 5. Increase p: how do failures, mean amplitude, and CV change?</li>
+          <li>Double q while holding n and p fixed. The peak spacing, mean, and SD double, but CV stays the same.</li>
+          <li>Compare n = 5, p = 0.6 with n = 10, p = 0.3 at the same q. Both have the same mean, but do they have the same variability or failure probability?</li>
+          <li>Increase Noise until individual peaks merge. Could you still infer q from this distribution?</li>
+        </ol>
+        <p>This model does not include different properties across sites, correlated release, multivesicular release at an individual site, or changes in release properties during a train. Use the Heterogeneous Release simulation to explore differences between sites.</p>
+      </details>
   </div>
   
 </div>
 
-<div class="footer">
-	Quantal release simulation Model Ver 0.6.0
-</div>
+
+<footer class="footer">
+  <p><strong>Neuroscience teaching tools</strong></p>
+  <nav aria-label="Further information">
+        <a href="../index.html" target="neuroscienceTeachingToolsMenu">Main menu</a>
+    <a href="http://plasticity.muhc.mcgill.ca/index.html">Sjöström Lab</a>
+    <a href="https://github.com/sjostromlab/SjostromLab.github.io">GitHub source</a>
+  </nav>
+</footer>
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script src="./Binomial_simulation.js"></script>
   
 
+  <script>
+    // Return to the originating menu tab when it is still open; otherwise the named link opens one.
+    document.querySelector('a[target="neuroscienceTeachingToolsMenu"]').addEventListener("click", function (event) {
+      try {
+        if (window.opener && !window.opener.closed && window.opener.name === "neuroscienceTeachingToolsMenu") {
+          event.preventDefault();
+          if (window.opener.location.href !== this.href) window.opener.location.href = this.href;
+          window.opener.focus();
+        }
+      } catch (error) {
+        // A cross-origin opener cannot be reused safely; allow the named link to handle it.
+      }
+    });
+  </script>
 </body>
 </html>

@@ -1,3 +1,15 @@
+/*
+ * Heterogeneous quantal release — provenance
+ * Original JavaScript simulation developer: Jialin Ding.
+ * Project period: June–August 2025 (not an exact file-creation date).
+ * Developed in the laboratory of P. Jesper Sjöström, McGill University.
+ * Authorship confirmed by Sjöström; provenance recorded 17 October 2026.
+ *
+ * Subsequent teaching/interface updates include changes made with OpenAI
+ * Codex under Sjöström's direction in 2026. Original student authorship is
+ * distinct from those later changes; this is not a line-by-line change log.
+ */
+
 // Bypass the legacy Plotly Safari download path using a PNG Blob.
 function downloadPlotPNG(plot) {
   var filenames = {myDiv: 'HeterogeneousRelease_distribution', myDiv3: 'HeterogeneousRelease_cumulative'};
