@@ -164,19 +164,5 @@
 <script src="./LIF_simulation.js"></script>
   
 
-  <script>
-    // Return to the originating menu tab when it is still open; otherwise the named link opens one.
-    document.querySelector('a[target="neuroscienceTeachingToolsMenu"]').addEventListener("click", function (event) {
-      try {
-        if (window.opener && !window.opener.closed && window.opener.name === "neuroscienceTeachingToolsMenu") {
-          event.preventDefault();
-          if (window.opener.location.href !== this.href) window.opener.location.href = this.href;
-          window.opener.focus();
-        }
-      } catch (error) {
-        // A cross-origin opener cannot be reused safely; allow the named link to handle it.
-      }
-    });
-  </script>
 </body>
 </html>

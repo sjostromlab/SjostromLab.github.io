@@ -165,19 +165,5 @@
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.9.0.min.js"></script>
 <script src="hopfield.js?v=compact-controls-1"></script>
-  <script>
-    // Return to the originating menu tab when it is still open; otherwise the named link opens one.
-    document.querySelector('a[target="neuroscienceTeachingToolsMenu"]').addEventListener("click", function (event) {
-      try {
-        if (window.opener && !window.opener.closed && window.opener.name === "neuroscienceTeachingToolsMenu") {
-          event.preventDefault();
-          if (window.opener.location.href !== this.href) window.opener.location.href = this.href;
-          window.opener.focus();
-        }
-      } catch (error) {
-        // A cross-origin opener cannot be reused safely; allow the named link to handle it.
-      }
-    });
-  </script>
 </body>
 </html>
