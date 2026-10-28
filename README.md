@@ -49,32 +49,6 @@ Open the website, choose a simulation, and adjust its parameters to explore how 
 - **CSV export:** Applicable simulations include a compact **Download data** button for saving tabular data in a consistent comma-separated format.
 - **Main menu:** Use the footer link to return to the simulation menu.
 
-### CV Analysis
-
-The CV Analysis simulation offers two input modes:
-
-1. **Mean and SDev:** Specify the response mean and standard deviation before and after induction.
-2. **Binomial n, p, and q:** Generate responses from the number of release sites, release probability, and quantal amplitude.
-
-The simulation also allows users to:
-
-- Compare two experiments using side-by-side plasticity time courses and normalized 1/CV²-versus-mean plots.
-- Add shared background noise and optionally correct the CV calculation for its variance.
-- Change the number of baseline and post-induction responses.
-- Show theoretical points alongside results calculated from simulated samples.
-- Reveal sample statistics and normalized coordinates with **Show calculations**.
-- Use **New seed** to repeat an experiment with fresh random responses.
-- Use **Reuse random seed** to distinguish parameter effects from random sampling variability.
-- Explore how small sample sizes reduce the reliability of estimated outcomes.
-- Download simulated responses and CV-analysis coordinates.
-
-The simulation is based on P. Jesper Sjöström’s Igor Pro teaching code and informed by:
-
-- Faber DS and Korn H (1991), *Applicability of the coefficient of variation method for analyzing synaptic plasticity*. [Biophysical Journal](https://doi.org/10.1016/S0006-3495(91)82162-2).
-- Brock JA, Thomazeau A, Watanabe A, Li SSY, and Sjöström PJ (2020), *A Practical Guide to Using CV Analysis for Determining the Locus of Synaptic Plasticity*. [Frontiers in Synaptic Neuroscience](https://doi.org/10.3389/fnsyn.2020.00011). The accompanying Igor Pro code is available on [GitHub](https://github.com/pj-sjostrom/Sim_CV_analysis).
-
-CV-analysis coordinates do not uniquely identify a plasticity mechanism. Their interpretation depends on the underlying assumptions, sources of variability, and experimental design.
-
 ## Running Locally
 
 Download or clone this repository. Most simulations can be opened directly from their HTML files, but the **Single-Channel Activity simulation requires a local web server** because it uses a Web Worker.
