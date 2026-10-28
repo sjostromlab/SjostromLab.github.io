@@ -399,6 +399,53 @@ function modelToString(metadata){
   let modelString = `Model Equation: <br> $$\\sigma^2 = ${metadata.modelSingleCurrent.toFixed(2)}I - \\frac{1}{${metadata.modelChannelAmount}}I^2$$`
   return modelString
 }
+function downloadDataCsv(){
+  const data = window.singleChannelData
+  if (!data) return
+  const rows = [
+    ['parameter', 'value'],
+    ['number_of_channels', data.n],
+    ['ensemble_size', data.ensembleSize],
+    ['driving_force_V', data.u],
+    ['single_channel_conductance_pS', data.conductance],
+    ['excitation_duration_ms', data.duration],
+    ['measurement_duration_ms', data.maxTime],
+    ['time_step_ms', data.timeStep],
+    ['noise_SD_pA', data.singlechannelNoise],
+    ['random_seed', data.randomSeed],
+    []
+  ]
+  const traceHeader = ['time_ms']
+  for (let channel = 0; channel < data.singletraces.length; channel++) {
+    traceHeader.push(`channel_${channel + 1}_current_pA`)
+  }
+  traceHeader.push('sum_current_pA', 'ensemble_mean_current_pA', 'ensemble_variance_pA2')
+  rows.push(traceHeader)
+  const sampleCount = Math.max(data.meantrace.length, data.means.length, data.variances.length)
+  for (let sample = 0; sample < sampleCount; sample++) {
+    const row = [sample * data.timeStep]
+    for (let channel = 0; channel < data.singletraces.length; channel++) {
+      row.push(data.singletraces[channel][sample] ?? '')
+    }
+    row.push(
+      data.meantrace[sample] ?? '',
+      data.means[sample]?.y ?? '',
+      data.variances[sample]?.y ?? ''
+    )
+    rows.push(row)
+  }
+  rows.push([], ['mean_current_pA', 'variance_pA2'])
+  data.CVdata.forEach(point => rows.push([point.x, point.y]))
+  const blob = new Blob([rows.map(row => row.join(',')).join('\r\n') + '\r\n'], {type: 'text/csv;charset=utf-8'})
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'SingleChannel_data.csv'
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
 function estimateSlope(metadata){
   let minX = Math.min(...metadata.CVdata.map(x => x.x))
   let maxX = Math.max(...metadata.CVdata.map(x => x.x))
@@ -442,6 +489,7 @@ function defaultMethods(){
       worker = new Worker(new URL('worker.js', import.meta.url))
       worker.postMessage(getMessage(this))
       worker.onmessage = (e) => {
+        window.singleChannelData = e.data
         window.singletraceGraph = drawTraces(e.data.singletraces, "singletraces", e.data.timeStep, "Single Trace Sweeps", e.data)
         window.meantraceGraph = drawTrace(e.data.meantrace, "meantrace", e.data.timeStep, "Sum Trace", e.data, false)
         window.alvarezChart = drawTrace(e.data.variances, "alvarez", e.data.timeStep, "Variance and Mean Current Vs. Time", e.data, true, e.data.means)
@@ -457,6 +505,7 @@ function defaultMethods(){
       worker = new Worker(new URL('worker.js', import.meta.url))
       worker.postMessage(getMessage(this))
       worker.onmessage = (e) => {
+        window.singleChannelData = e.data
         updateTraces(window.singletraceGraph, e.data.singletraces, e.data.timeStep, e.data)
         updateTrace(window.meantraceGraph, e.data.meantrace, e.data.timeStep, e.data, false, e.data.means)
         updateTrace(window.alvarezChart, e.data.variances, e.data.timeStep, e.data, true, e.data.means)
@@ -508,6 +557,7 @@ createApp({
     this.drawGraphs()
     setSliderCallbacks(this)
     setCheckboxCallbacks(this)
+    document.getElementById('downloadData').addEventListener('click', downloadDataCsv)
   },
   computed: {
     qflatpulse() {

@@ -1,0 +1,86 @@
+:root {
+  --ink:#2f2930;
+  --muted:#71656d;
+  --paper:#f5f3f5;
+  --card:#fff;
+  --line:#d7cdd4;
+  --accent:#8a4f72;
+  --accent-dark:#663b56;
+  --recorded:#965579;
+  --corrected:#23877e;
+  --ideal:#222;
+}
+* { box-sizing:border-box; }
+body { margin:0; color:var(--ink); background:var(--paper); font-family:Arial,Helvetica,sans-serif; }
+.page-header { padding:15px 22px 13px; color:#fff; text-align:center; background:linear-gradient(110deg,#663b56,#9d6385); box-shadow:0 2px 5px #0003; }
+.page-header h1 { margin:0; font-size:clamp(1.6rem,2.5vw,2.35rem); }
+.page-header p { margin:4px 0 0; font-size:1rem; }
+.app-layout { display:grid; grid-template-columns:minmax(350px,410px) minmax(0,1fr); gap:12px; max-width:1900px; margin:12px auto; padding:0 12px; }
+.controls { display:flex; flex-direction:column; gap:8px; }
+.control-card,.plot-card,.summary-card,.howto { border:1px solid var(--line); border-radius:10px; background:var(--card); }
+.control-card { padding:9px 13px; }
+.control-card h2 { margin:0 0 6px; font-size:1.1rem; }
+.shared-settings-card { border-left:7px solid var(--accent); }
+.two-column { display:grid; grid-template-columns:1fr 1fr; gap:6px 12px; }
+.three-column { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px 10px; }
+.compact-row + .compact-row { margin-top:6px; }
+.parameter,.range-field,.select-field { display:flex; min-width:0; flex-direction:column; gap:2px; font-size:.9rem; }
+.parameter span,.select-field span { min-height:1.2em; line-height:1.05; }
+.parameter sub,.select-field sub { line-height:0; }
+input[type=number] { width:100%; min-width:0; height:34px; padding:3px 8px; color:var(--ink); background:#fff; border:1px solid #ad9ca7; border-radius:6px; font-size:1rem; }
+input[type=range] { width:100%; height:16px; margin:0; accent-color:var(--accent); }
+select { width:100%; height:34px; padding:3px 8px; color:var(--ink); background:#fff; border:1px solid #ad9ca7; border-radius:6px; font-size:.94rem; }
+.button-row { display:flex; gap:7px; margin-top:8px; }
+button { border:0; border-radius:6px; padding:8px 11px; color:#fff; background:var(--accent); font-size:.94rem; font-weight:bold; cursor:pointer; }
+button:hover { filter:brightness(1.08); }
+.view-card { padding-bottom:9px; }
+.view-heading-row { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px; }
+.view-heading-row h2 { margin:0; }
+.view-stepper { display:flex; gap:5px; }
+.view-stepper button { width:32px; height:28px; padding:0; font-size:1rem; line-height:1; }
+[hidden] { display:none !important; }
+.visuals { min-width:0; }
+.summary-card { display:grid; grid-template-columns:repeat(4,minmax(125px,1fr)); gap:0; margin-bottom:12px; overflow:hidden; }
+.summary-card div { display:flex; flex-direction:column; align-items:center; gap:3px; padding:9px 8px; border-right:1px solid #eadfe6; }
+.summary-card div:last-child { border-right:0; }
+.summary-card span { color:var(--muted); font-size:.83rem; }
+.summary-card strong { font-size:1rem; }
+.plot-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:stretch; }
+.plot-grid.single-visible { grid-template-columns:1fr; }
+.plot-card { width:100%; min-width:0; overflow:hidden; }
+.plot { width:100%; height:430px; }
+.iv-card-title { margin:9px 13px 0; font-size:1.15rem; }
+.iv-plot-pair { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:6px; width:100%; height:430px; }
+.iv-subplot { width:100%; min-width:0; height:100%; }
+body[data-view="step"] #stepPlot,
+body[data-view="synapse"] #synapsePlot { height:560px; }
+body[data-view="iv"] .iv-plot-pair { height:530px; }
+body[data-view="all"] .plot { height:335px; }
+body[data-view="all"] .iv-plot-pair { height:300px; }
+.takeaway-card { display:flex; min-width:0; flex-direction:column; justify-content:center; padding:24px 30px; border:1px solid var(--line); border-radius:10px; color:#3d2e37; background:linear-gradient(145deg,#fcf9fb,#eee4ea); }
+.takeaway-card h2 { margin:0 0 14px; color:var(--accent-dark); font-size:clamp(1.35rem,2vw,2rem); }
+.takeaway-card ul { margin:0; padding-left:1.35em; font-size:clamp(.96rem,1.15vw,1.12rem); line-height:1.45; }
+.takeaway-card li { margin:0 0 12px; }
+.takeaway-card li:last-child { margin-bottom:0; }
+.metric-strip { display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid #eadfe6; }
+.metric-strip div { min-width:0; padding:8px 9px 9px; text-align:center; border-right:1px solid #eadfe6; }
+.metric-strip div:last-child { border-right:0; }
+.metric-strip span { display:block; color:var(--muted); font-size:.78rem; }
+.metric-strip strong { display:block; margin-top:2px; font-size:.91rem; }
+.plot-help { margin:7px 2px 12px; color:var(--muted); font-size:.9rem; }
+.howto { padding:0; overflow:hidden; }
+.howto summary { padding:11px 13px; font-weight:bold; cursor:pointer; }
+.howto-content { padding:0 18px 14px; line-height:1.48; }
+.howto-content h3 { margin:13px 0 5px; }
+.howto-content p { margin:5px 0 10px; }
+.howto-content li { margin-bottom:5px; }
+a { color:#75405e; }
+footer { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px 24px; padding:12px 18px; color:#fff; background:var(--accent-dark); font-size:14px; }
+footer p { margin:0; }
+footer nav { display:flex; flex-wrap:wrap; gap:10px 22px; }
+footer a { color:#fff; font-weight:normal; }
+footer strong { font-weight:bold; }
+@media (max-width:1000px) { .app-layout { grid-template-columns:1fr; } }
+@media (max-width:760px) { .plot-grid { grid-template-columns:1fr; } body[data-view="all"] .plot { height:390px; } .iv-plot-pair { grid-template-columns:1fr; height:760px; } body[data-view="iv"] .iv-plot-pair,body[data-view="all"] .iv-plot-pair { height:760px; } }
+@media (max-width:680px) { .summary-card { grid-template-columns:1fr 1fr; } .summary-card div:nth-child(2) { border-right:0; } .metric-strip { grid-template-columns:1fr 1fr; } }
+@media (max-width:540px) { .two-column,.three-column { grid-template-columns:1fr; } .parameter span { min-height:0; } .plot,body[data-view="step"] #stepPlot,body[data-view="synapse"] #synapsePlot { height:430px; } .takeaway-card { padding:20px; } footer { justify-content:center; } }

@@ -10,7 +10,7 @@
     <title>Spike-Timing Dependent Plasticity Simulation</title>
 
     <!-- Link to stylesheet -->
-    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="./styles.css?v=references-1">
 
     <!-- Load Plotly graphing library from CDN -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -20,6 +20,7 @@
     <!-- Header section with title, subtitle, and tab buttons -->
     <div class="header">
         <h1>STDP Simulations</h1>
+        <p class="subtitle">How spike timing reshapes synaptic competition and selectivity</p>
 
     </div>
 
@@ -192,12 +193,35 @@
     </div>
     </div>
 
+<details class="simulation-help">
+  <summary>How to use this simulation</summary>
+  <h3>Spike timing changes synaptic strength</h3>
+  <p>Spike-timing-dependent plasticity (STDP) changes a synapse according to the relative timing of presynaptic and postsynaptic spikes. Presynaptic spikes that consistently precede a postsynaptic spike tend to strengthen their synapses; spikes arriving after it tend to weaken them. Because spikes and initial conditions are stochastic here, repeated runs need not finish with identical weights.</p>
+
+  <h3>Figure 1: correlations and competition</h3>
+  <p>The first tab compares uncorrelated inputs, one correlated group competing with uncorrelated inputs, and two correlated groups competing with each other. Run the three conditions and compare the final normalized conductances. Correlated inputs can cooperate in driving postsynaptic spikes and thereby gain an advantage. <b>B</b> controls the relative strength of LTD and LTP; changing it shifts the competitive balance.</p>
+
+  <h3>Figure 4: temporal selectivity</h3>
+  <p>The second tab gives inputs different preferred latencies within repeated bursts. STDP strengthens inputs that reliably arrive early enough to help evoke a postsynaptic spike and weakens later inputs. Compare the initial and final weight distributions and voltage traces to see how learning sharpens the response in time.</p>
+
+  <h3>Try it</h3>
+  <ol>
+    <li>Run each Figure 1 condition more than once. Separate robust effects of correlation structure from run-to-run variability.</li>
+    <li>Change B slightly above and below its default. Observe whether weights saturate high, low, or separate into competitors.</li>
+    <li>In Figure 4, increase latency jitter. Ask when temporal order becomes too unreliable for strong selectivity.</li>
+    <li>Compare early and late weights with the voltage trace rather than interpreting either plot alone.</li>
+  </ol>
+
+  <h3>References</h3>
+  <p>Figure 1 follows <a href="https://doi.org/10.1016/S0896-6273(01)00451-2" target="_blank" rel="noopener">Song &amp; Abbott (2001), <em>Cortical Remapping through Spike Timing-Dependent Plasticity</em></a>. Figure 4 follows <a href="https://doi.org/10.1038/78829" target="_blank" rel="noopener">Song, Miller &amp; Abbott (2000), <em>Competitive Hebbian Learning Through Spike-Timing-Dependent Synaptic Plasticity</em></a>. This teaching simulation reproduces selected principles and figures; it is not a complete reimplementation of every biological mechanism in those papers.</p>
+</details>
+
 <footer class="footer">
     <p><strong>Neuroscience teaching tools</strong></p>
     <nav aria-label="Further information">
-        <a href="../index.html" target="neuroscienceTeachingToolsMenu">Main menu</a>
-        <a href="http://plasticity.muhc.mcgill.ca/index.html">Sjöström Lab</a>
-        <a href="https://github.com/sjostromlab/SjostromLab.github.io">GitHub source</a>
+        <a href="../index.html" target="_blank" rel="noopener">Main menu</a>
+        <a href="http://plasticity.muhc.mcgill.ca/index.html" target="_blank" rel="noopener">Sjöström Lab</a>
+        <a href="https://github.com/sjostromlab/SjostromLab.github.io" target="_blank" rel="noopener">GitHub source</a>
     </nav>
 </footer>
 

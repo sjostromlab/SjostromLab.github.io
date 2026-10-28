@@ -1,0 +1,62 @@
+:root { --ink:#24323a; --muted:#5d6a70; --paper:#f3f6f5; --card:#fff; --line:#cbd6d3; --a:#187d72; --b:#d36a2d; --accent:#246e68; }
+* { box-sizing:border-box; }
+body { margin:0; color:var(--ink); background:var(--paper); font-family:Arial, Helvetica, sans-serif; }
+.page-header { padding:15px 22px 13px; color:white; text-align:center; background:linear-gradient(110deg,#176e68,#25928a); box-shadow:0 2px 5px #0003; }
+.page-header h1 { margin:0; font-size:clamp(1.6rem,2.5vw,2.35rem); }
+.page-header p { margin:4px 0 0; font-size:1rem; }
+.app-layout { display:grid; grid-template-columns:minmax(320px,385px) minmax(0,1fr); gap:12px; max-width:1900px; margin:12px auto; padding:0 12px; }
+.controls { display:flex; flex-direction:column; gap:10px; }
+.control-card, .howto { border:1px solid var(--line); border-radius:10px; background:var(--card); padding:11px 13px; }
+.control-card h2 { margin:0 0 8px; font-size:1.1rem; }
+.utility-card { padding-bottom:12px; }
+.two-column { display:grid; grid-template-columns:1fr 1fr; gap:8px 12px; }
+.parameter, .range-field, .select-field { display:flex; min-width:0; flex-direction:column; gap:4px; font-size:.9rem; }
+.parameter span, .select-field span { min-height:1.05em; line-height:1.2; }
+.parameter sub { line-height:0; }
+input[type=number], select { width:100%; min-width:0; height:34px; padding:3px 8px; color:var(--ink); background:#fff; border:1px solid #9cafaa; border-radius:6px; font-size:1rem; }
+input[type=range] { width:100%; height:16px; margin:0; accent-color:var(--accent); }
+.select-field { margin:8px 0; }
+.button-row { display:flex; gap:7px; margin-top:8px; }
+button { border:0; border-radius:6px; padding:8px 11px; color:white; background:var(--accent); font-size:.94rem; font-weight:bold; cursor:pointer; }
+button:hover { filter:brightness(1.08); }
+.model-a { border-left:7px solid var(--a); }
+.model-b { border-left:7px solid var(--b); }
+.checkbox-heading { display:flex; align-items:center; gap:7px; min-height:25px; font-size:1.08rem; }
+.checkbox-heading input { width:18px; height:18px; accent-color:var(--b); }
+.compact-grid { margin-top:7px; }
+.display-card { padding:9px 13px 8px; }
+.animation-control-row { display:grid; grid-template-columns:auto minmax(84px,112px) auto; align-items:center; gap:7px; }
+.animation-control-row input[type=number] { height:32px; }
+.animation-button { width:auto; margin:0; }
+.display-card > input[type=range] { display:block; margin-top:4px; }
+.visuals { min-width:0; }
+.plot { min-width:0; overflow:hidden; background:#fff; border:1px solid var(--line); border-radius:10px; }
+.schematic-plot { height:205px; }
+.profile-plot { height:330px; margin-top:12px; }
+.response-row { display:grid; grid-template-columns:minmax(0,1fr) minmax(265px,330px); gap:12px; align-items:stretch; margin-top:12px; }
+.trace-plot { height:410px; }
+.metrics-card { min-width:0; height:410px; overflow:auto; padding:14px 15px; background:#fff; border:1px solid var(--line); border-radius:10px; }
+.metrics-card h2 { margin:0 0 10px; font-size:1.1rem; }
+.combined-readout { display:grid; grid-template-columns:minmax(0,1fr) auto auto; align-items:center; gap:0; font-size:.88rem; }
+.combined-readout > span { min-width:0; padding:6px 7px; border-bottom:1px solid #e0e7e5; }
+.combined-readout .metric-heading { font-weight:bold; border-bottom:2px solid #b8c8c4; }
+.combined-readout .metric-value { min-width:70px; text-align:right; font-weight:bold; }
+.combined-readout .model-a-value { color:var(--a); }
+.combined-readout .model-b-value { color:var(--b); }
+.plot-help { margin:7px 2px 12px; color:var(--muted); font-size:.9rem; }
+.howto { padding:0; overflow:hidden; }
+.howto summary { padding:11px 13px; font-weight:bold; cursor:pointer; }
+.howto-content { padding:0 18px 14px; line-height:1.48; }
+.howto-content h3 { margin:13px 0 5px; }
+.howto-content p { margin:5px 0 10px; }
+.howto-content li { margin-bottom:5px; }
+a { color:#075f74; }
+footer { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px 24px; padding:12px 18px; color:white; background:#176e68; font-size:14px; }
+footer p { margin:0; }
+footer nav { display:flex; flex-wrap:wrap; gap:10px 22px; }
+footer a { color:white; font-weight:normal; }
+footer strong { font-weight:bold; }
+@media (max-width:1100px) { .response-row { grid-template-columns:1fr; } .metrics-card { height:auto; } }
+@media (max-width:950px) { .app-layout { grid-template-columns:1fr; } }
+@media (max-width:480px) { footer { justify-content:center; } }
+@media (max-width:520px) { .two-column { grid-template-columns:1fr; } .profile-plot, .trace-plot { height:390px; } }

@@ -33,6 +33,54 @@ function downloadPlotPNG(plot) {
   });
 }
 
+function saveCsv(filename, rows) {
+  var blob = new Blob([rows.join('\r\n') + '\r\n'], {type: 'text/csv;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+}
+
+function downloadDataCsv() {
+  var rows = [
+    'parameter,value',
+    'number_of_release_sites,' + n,
+    'release_probability,' + p_r,
+    'quantal_amplitude_pA,' + q,
+    'noise_SD_pA,' + noise,
+    'release_mean_pA,' + theMean,
+    'release_SD_pA,' + theSD,
+    'release_CV,' + CV,
+    '',
+    'released_quanta,amplitude_pA,probability'
+  ];
+
+  for (var k = 0; k <= n; k++) {
+    rows.push([k, k * q, binomial(n, k) * Math.pow(p_r, k) * Math.pow(1 - p_r, n - k)].join(','));
+  }
+
+  rows.push('', 'histogram_bin_center_pA,probability,cumulative_percent');
+  var histogramLength = Math.max(xdatah.length, ydatah.length, cumulativeh.length);
+  for (var i = 0; i < histogramLength; i++) {
+    rows.push([
+      xdatah[i] == null ? '' : xdatah[i],
+      ydatah[i] == null ? '' : ydatah[i],
+      cumulativeh[i] == null ? '' : cumulativeh[i]
+    ].join(','));
+  }
+
+  rows.push('', 'sampled_amplitude_pA,probability_mass,cumulative_percent');
+  var stride = Math.max(1, Math.ceil(xdata.length / 5000));
+  for (var j = 0; j < xdata.length; j += stride) {
+    rows.push([xdata[j], ydata[j], cumulative[j]].join(','));
+  }
+  saveCsv('QuantalRelease_data.csv', rows);
+}
+
 var config = {
   responsive: true,
   modeBarButtonsToRemove: ['toImage'],
@@ -211,7 +259,7 @@ var n = 5;
 var p_r = 0.6; 
 var q = 6; 
 
-var noise = 0;	// 
+var noise = 0.8;	// pA measurement-noise standard deviation
  
 var nMin = 1;	//
 var p_rMin = 0; 	//
@@ -291,6 +339,7 @@ var userpTotal = document.getElementById("pTotal");
 
 document.getElementById("reset").addEventListener("click", resetPanel); 
 document.getElementById("toggle").addEventListener("click", toggle); 
+document.getElementById("downloadData").addEventListener("click", downloadDataCsv);
 
 document.getElementById("numOfSyn").addEventListener("input", submit); 
 document.getElementById("nRange").addEventListener("input", submitSlider); 
@@ -321,7 +370,8 @@ function resetPanel(event) {
 	nMax = 25; 
 	p_rMax = 1; 
 	qMax = 20; 
-	noise = 0; 
+	noise = 0.8;
+	userhistogFlag.checked = true;
 	
 	theMean = n*p_r*q;
 	theSD = Math.sqrt(n*p_r*(1-p_r))*q;

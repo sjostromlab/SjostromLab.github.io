@@ -7,6 +7,7 @@
   <body>
     <header class="page-header">
       <h1>Single-Channel Monte Carlo Simulation</h1>
+      <p>How stochastic channel openings create fluctuating currents</p>
     </header>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script type="module" src="index.js"></script>
@@ -35,6 +36,15 @@
       input {
         font-size:14pt;
       }
+      .csv-button {
+        background: #b43758;
+        color: #fff;
+        border: 0;
+        border-radius: 4px;
+        padding: 7px 10px;
+        font: bold 14px Arial, sans-serif;
+        cursor: pointer;
+      }
       .page-header,
       .footer {
         background-color: #e46982;
@@ -51,6 +61,10 @@
       .page-header h1 {
         margin: 0;
         font-size: 28px;
+      }
+      .page-header p {
+        margin: 4px 0 0;
+        font-size: 16px;
       }
       .how-to {
         margin: 14px 4px 10px;
@@ -94,6 +108,7 @@
         padding: 12px 18px;
         margin-top: 3px;
         font-size: 14px;
+        box-sizing: border-box;
       }
       .footer p {
         margin: 0;
@@ -177,6 +192,9 @@
             <p>Show Model</p>
             <input type="checkbox" id="modelVisibility">
           </div>
+          <div class="inside-container">
+            <button type="button" id="downloadData" class="csv-button" title="Download traces and fluctuation data as CSV">CSV data</button>
+          </div>
           <div class="inside-container" id="modelParamsDiv" style="display:none">
             <p><span id="modelParams"></span></p>
           </div>
@@ -199,9 +217,10 @@
       <p><strong>Reading the left plots.</strong> <em>Single Trace Sweeps</em> shows <em>N</em> independent channel records, vertically offset so that openings can be distinguished. <em>Sum Trace</em> is the point-by-point sum of those <em>N</em> currents, not their average. When a channel is open, its current is calculated as <em>i</em> = −<em>γ</em>(<em>E</em> − <em>E</em><sub>rev</sub>); increasing either the single-channel conductance or the magnitude of the driving force therefore increases the current step. Excitation duration controls the agonist pulse, while measurement duration controls the displayed recording window.</p>
       <p><strong>Noise and random seed.</strong> Noise standard deviation adds independent Gaussian current noise to every sampled channel value. The random seed makes a run reproducible when all other settings are unchanged. Keep it fixed to reduce one source of variation during comparisons, or change it to generate a new realization.</p>
       <p><strong>Reading the right plots.</strong> Ensemble size is the number of independently simulated repetitions used for fluctuation analysis; every repetition contains the selected <em>N</em> channels. <em>Variance and Mean Current Vs. Time</em> shows the across-ensemble mean and variance at each time point. <em>Variance Vs. Mean</em> plots those same time points against one another. Larger ensembles usually give a smoother and more reliable relationship.</p>
+      <p><strong>CSV data.</strong> Download the current realization’s individual channel traces, summed current, ensemble mean and variance, variance–mean coordinates, parameters, and random seed.</p>
       <p><strong>Show Model.</strong> This adds the binomial fluctuation relation <em>σ</em><sup>2</sup> = <em>iI</em> − <em>I</em><sup>2</sup>/<em>N</em>. The overlay uses the selected number of channels and estimates the unitary current from the low-current portion of the simulated variance–mean data. Compare the points with the curve, then explore how a small ensemble or added recording noise makes the estimate less reliable.</p>
       <p><strong>Suggested exploration.</strong> Begin with the defaults and compare several random seeds. Then change <em>N</em>, ensemble size, conductance, driving force, pulse duration, and noise one at a time. Notice which settings change the size of each opening, the number of available channels, the time course of the summed current, or the scatter around the variance–mean curve.</p>
-      <p><strong>Model scope.</strong> The four-state kinetic scheme is a simplified teaching model and is not a quantitative fit to a particular receptor. Its stochastic Q-matrix approach follows the general framework described by <a href="https://doi.org/10.1007/978-1-4419-1229-9_20" target="_blank" rel="noopener">Colquhoun and Hawkes</a>.</p>
+      <p><strong>Model scope.</strong> The four-state kinetic scheme is a simplified teaching model and is not a quantitative fit to a particular receptor. Its stochastic Q-matrix approach follows the general framework described by <a href="https://doi.org/10.1007/978-1-4419-1229-9_18" target="_blank" rel="noopener">Colquhoun &amp; Hawkes (1995), <em>The Principles of the Stochastic Interpretation of Ion-Channel Mechanisms</em></a>, chapter 18 in <em>Single-Channel Recording</em>, 2nd edition.</p>
     </details>
     <div class="credit">
       <p>Created by: Allan Wei (<a href="mailto:timeolord6677@gmail.com">timeolord6677@gmail.com</a>). Based on Arnd Roth's Colquhoun Hawkes package.</p>
@@ -209,8 +228,9 @@
     <footer class="footer">
       <p><strong>Neuroscience teaching tools</strong></p>
       <nav aria-label="Further information">
-        <a href="http://plasticity.muhc.mcgill.ca/index.html">Sjöström Lab</a>
-        <a href="https://github.com/sjostromlab/SjostromLab.github.io">GitHub source</a>
+        <a href="../index.html" target="_blank" rel="noopener">Main menu</a>
+        <a href="http://plasticity.muhc.mcgill.ca/index.html" target="_blank" rel="noopener">Sjöström Lab</a>
+        <a href="https://github.com/sjostromlab/SjostromLab.github.io" target="_blank" rel="noopener">GitHub source</a>
       </nav>
     </footer>
   </body>

@@ -4,85 +4,102 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge"> 
-  <link rel="stylesheet" href="styles3.css">
+  <link rel="stylesheet" href="styles3.css?v=20261022b">
   <title>Hodgkin-Huxley Model</title>
-  <style> 
-	p {line-height: 2;}
-  </style>
 </head>
 <body>
 
 <div class="header">
 	<h1>Action Potentials: The Hodgkin–Huxley Model</h1>
+	<p>From voltage-gated currents to action potentials and dendritic propagation</p>
 </div>
 
 <div class="row">
-  <div class="col-3 col-s-9 col-d-6 col-h-3 hh-controls"> 
+  <aside class="col-3 col-s-9 col-d-6 col-h-3 hh-controls"> 
   	
-    <p>
-      <label for="axisFontSize"><b>Graph text size</b></label>:
-      <output id="axisFontSizeValue" for="axisFontSize">22 px</output><br>
+    <section class="control-card utility-card">
+      <label class="range-field" for="axisFontSize"><span>Graph text size <strong><output id="axisFontSizeValue" for="axisFontSize">22 px</output></strong></span></label>
       <input type="range" id="axisFontSize" min="14" max="36" step="1" value="22" class="slider">
-    </p>
-  	<div class="center">
-	<input type="button" value="Reset simulation" id="reset">
-    <input type="button" value="Download" id="downloadTraces" title="Download all currently plotted traces as comma-delimited text"> <br>
-	</div>
-	<p id="ptoptop">
+  	  <div class="button-row">
+	    <input type="button" value="Reset simulation" id="reset">
+        <input type="button" value="Download" id="downloadTraces" title="Download all currently plotted traces as CSV">
+	  </div>
+	</section>
+	<p id="ptoptop" class="control-card">
 		<label for="last10Trace"><b>Save trace</b></label> <input type="checkbox" id="last10Trace" /><br>
 		<label for="lastTrace"><b>Show last trace</b></label> <input type="checkbox" id="lastTrace" /><br>
 
 	</p>
-	<div class="center clamp-switch">
+	<div class="clamp-switch">
 	  <input type="button" value="Switch to voltage clamp" id="clampMode">
 	</div>
 
-	<p id="ptop1" class="shown"> 
+	<p id="ptop1" class="control-card shown"> 
 	<label for="ref" id="refLabel"><b>Refractory period</b></label> <input type="checkbox" id="ref" /><br>
 	<label for="dendrite" id="dendLabel"><b>Stick dendrite</b></label> <input type="checkbox" id="dendrite" />
 	</p>
 
-	<p id="ptop2" class="hidden">
+	<p id="ptop2" class="control-card hidden">
 		<label for="VC2" id="inactivation"><b>Recovery from inactivation</b></label> <input type="checkbox" id="VC2" /><br>
 		<label for="ttx" ><b>Add TTX</b></label> <input type="checkbox" id="ttx" /><br>
 		<label for="tea"><b>Add TEA</b></label> <input type="checkbox" id="tea" /><br>
 	</p>
 	
-	<p id="pbottom"> 
+	<section id="pbottom" class="control-card"> 
 	<strong id="text">Current clamp:</strong> <br>
-	<label class="tooltip" for="tspan">Simulation window (ms): 
-		<span class="tooltiptext">Time span of the simulation.</span> 
-	</label>
-    <input type="number" id="tspan" step="1" min="0" /> <br> 
+	<div class="paired-controls">
+	  <div class="inline-control">
+	    <label class="tooltip" for="tspan">Simulation window (ms)
+		  <span class="tooltiptext">Time span of the simulation.</span>
+	    </label>
+	    <input type="number" id="tspan" step="1" min="0" />
+	  </div>
+	  <div class="inline-control">
+	    <label id="rvlabel" class="tooltip" for="rv">Resting potential (mV)
+		  <span class="tooltiptext">Initial membrane potential.</span>
+	    </label>
+	    <input type="number" id="rv" step="1" />
+	  </div>
+	</div>
 
-    <label class="tooltip" for="duration">Duration (ms): 
-		<span class="tooltiptext">Duration of input current.</span> 
-	</label>
-    <input type="number" id="duration" step="1" min="0" /> <br>
+	<div class="paired-controls">
+	  <div class="inline-control">
+	    <label class="tooltip" for="startHH">Start (ms)
+		  <span class="tooltiptext">Time at which current injection begins.</span>
+	    </label>
+	    <input type="number" id="startHH" step="0.1" min="0" />
+	  </div>
+	  <div class="inline-control">
+	    <label class="tooltip" for="duration">Duration (ms)
+		  <span class="tooltiptext">Duration of input current.</span>
+	    </label>
+        <input type="number" id="duration" step="1" min="0" />
+	  </div>
+	</div>
 	
-	<label id="rvlabel" class="tooltip" for="rv">Resting potential (mV): 
-		<span class="tooltiptext">Initial membrane potential.</span> 
-	</label>
-    <input type="number" id="rv" step="1" /><br>
-
-	<label id="iinputlabel" class="tooltip" for="iinput"><i>I</i> (mA): 
-		<span class="tooltiptext">Input current.</span> 
-	</label>
-    <input type="number" id="iinput" step="0.01" /> <br>
-
-	<label id="iinput2label" class="tooltip" for="iinput2">Stim 2 (mA): 
-		<span class="tooltiptext">Input current.</span> 
-	</label>
-	<input type="number" id="iinput2" step="0.01" /><br>
+	<div class="paired-controls">
+	  <div class="inline-control">
+	    <label id="iinputlabel" class="tooltip" for="iinput"><i>I</i> (mA)
+		  <span class="tooltiptext">Input current.</span>
+	    </label>
+	    <input type="number" id="iinput" step="0.01" />
+	  </div>
+	  <div class="inline-control">
+	    <label id="iinput2label" class="tooltip" for="iinput2">Stim 2 (mA)
+		  <span class="tooltiptext">Second input current.</span>
+	    </label>
+	    <input type="number" id="iinput2" step="0.01" />
+	  </div>
+	</div>
 
 	<label id="durationHHlabel" class="tooltip" for="durationHH">Interval between steps: 
 		<span class="tooltiptext">Time span between HH steps.</span> 
 	</label>
 	<input type="number" id="durationHH" step="1" min="0" /> 
-	</p> 
+	</section> 
 	
 	
-	<p id="ParaPanel" class="hidden"> 
+	<p id="ParaPanel" class="control-card hidden"> 
 	<label for="custompara"><b>Customize gating variables</b></label> <input type="checkbox" id="custompara" /><br>
     <label class="tooltip" for="mi" style="color:rgb(55, 128, 191);"><i>m</i><sub>i</sub>: 
 		<span class="tooltiptext">Initial value of gating variable <i>m</i>.</span> 
@@ -103,23 +120,49 @@
 	<input type="range" id="nRange" step="0.1" min="0" max="1" class="slider" disabled="true">
 	</p>
 
-	<p id="VCPanel" class="hidden"> <strong>Voltage-clamp settings:</strong> <br>
-	<label class="tooltip" for="tspan2">Simulation window (ms): 
-		<span class="tooltiptext">Time span of the simulation.</span> 
-	</label>
-	<input type="number" id="tspan2" step="1" min="0" /> <br> 
-	<label class="tooltip" for="mean" id="cv">Command voltage (mV) 
-		<span class="tooltiptext">The voltage at which the cell is clamped</span> 
-	</label>
-    <input type="number" id="clampV" step="5" /><br>
-	<label class="tooltip" for="durationV" id="d">Duration (ms): 
-		<span class="tooltiptext">Duration of voltage clamp.</span> 
-	</label>
-    <input type="number" id="durationV" step="1" min="0" /> <br>
-    <label class="tooltip" for="restV">V<sub>i</sub> (mV): 
-		<span class="tooltiptext">Holding potential before command voltage step is applied.</span> 
-	</label>
-    <input type="number" id="restV" step="1" /><br> 
+	<section id="VCPanel" class="control-card hidden"> <strong>Voltage-clamp settings</strong> <br>
+	<div class="paired-controls">
+	  <div class="inline-control">
+	    <label class="tooltip" for="tspan2">Simulation window (ms)
+		  <span class="tooltiptext">Time span of the simulation.</span>
+	    </label>
+	    <input type="number" id="tspan2" step="1" min="0" />
+	  </div>
+	  <div class="inline-control">
+	    <label class="tooltip" for="clampV" id="cv">Command voltage (mV)
+		  <span class="tooltiptext">The voltage at which the cell is clamped.</span>
+	    </label>
+	    <input type="number" id="clampV" step="5" />
+	  </div>
+	</div>
+	<div class="paired-controls">
+	  <div class="inline-control">
+	    <label class="tooltip" for="startV">Start (ms)
+		  <span class="tooltiptext">Time at which the voltage command begins.</span>
+	    </label>
+	    <input type="number" id="startV" step="0.1" min="0" />
+	  </div>
+	  <div class="inline-control">
+	    <label class="tooltip" for="durationV" id="d">Duration (ms)
+		  <span class="tooltiptext">Duration of the voltage command.</span>
+	    </label>
+        <input type="number" id="durationV" step="1" min="0" />
+	  </div>
+	</div>
+	<div class="paired-controls">
+	  <div class="inline-control">
+	    <label class="tooltip" for="restV">V<sub>hold</sub> (mV)
+		  <span class="tooltiptext">Holding potential before command voltage step is applied.</span>
+	    </label>
+	    <input type="number" id="restV" step="1" />
+	  </div>
+	  <div class="inline-control">
+	    <label class="tooltip" for="clampVtime" id="clampVlabel">S1–S2 interval (ms)
+		  <span class="tooltiptext">Time between voltage applications.</span>
+	    </label>
+	    <input type="number" id="clampVtime" step="1" min="0" />
+	  </div>
+	</div>
 
 	<!--<label for="type" class="hidden" id="selection">Time or Membrane</label>
 		<select name="option" id="t/m" class="hidden">
@@ -127,13 +170,7 @@
   		<option value="membrane">Membrane</option>
 	</select><br>-->
 
-	<label class="tooltip" for="clampVtime" id="clampVlabel">Interval between S1 and S2 (ms):
-		<span class="tooltiptext">Time between voltage applications.</span> 
-	</label>
-	<input type="number" id="clampVtime" step="1" min="0" />
-
-
-	</p> 
+	</section> 
 
 	<!--<p id="VC2Panel" class="hidden"> 
 		<strong> Recovery from Inactivation</strong> <br>
@@ -143,80 +180,135 @@
 		<input type="number" id="clampVtime" step="1" min="0" /> <br> 
 		</p> -->
 
-	<p id="DPanel" class="hidden"> 
+	<section id="DPanel" class="control-card hidden"> 
 		<strong>Stick dendrite settings</strong> <br>
-		<label class="tooltip" for="seg">Number of segments
-			<span class="tooltiptext">Number of dendritic segments (0-10) </span>
+		<div class="paired-controls">
+		  <div class="inline-control">
+		    <label class="tooltip" for="tspanD">Simulation window (ms)
+			  <span class="tooltiptext">Time span of the dendritic simulation and animation.</span>
+		    </label>
+		    <input type="number" id="tspanD" step="1" min="1" />
+		  </div>
+		  <div class="inline-control">
+		    <label class="tooltip" for="gcoup">R<sub>a</sub> (Ω·cm)
+			  <span class="tooltiptext">Axial resistivity of the cytoplasm. Coupling is calculated from this value and the cable geometry.</span>
+		    </label>
+		    <input type="number" id="gcoup" step="5" min="50" max="300" />
+		  </div>
+		</div>
+		<div class="paired-controls">
+		  <div class="inline-control">
+		    <label class="tooltip" for="seg">Segments
+			  <span class="tooltiptext">Compartments used to represent the dendrite. More segments give better spatial resolution.</span>
+		    </label>
+		    <input type="number" id="seg" step="1" min="2" max="20" />
+		  </div>
+		  <div class="inline-control">
+		    <label id="dendriteInputLabel" class="tooltip" for="iinputd">Input compartment
+			  <span class="tooltiptext">0 injects the soma; 1 is the proximal dendrite and the final segment is distal.</span>
+		    </label>
+		    <input type="number" id="iinputd" step="1" min="0"/>
+		  </div>
+		</div>
+		<label id="currin" class="tooltip" for="currentinj">Input current (nA)
+			<span class="tooltiptext">Current injected into the selected compartment.</span> 
 		</label>
-		<input type="number" id="seg" step="1" min="0" /> <br> 
-		
-		<label id="iinputlabel" class="tooltip" for="iinputd">Location 
-			<span class="tooltiptext">Location of current inj</span> 
+		<input type="number" id="currentinj" step="1" /><br>
+		<div class="paired-controls">
+		  <div class="inline-control">
+		    <label class="tooltip" for="startD">Start (ms)
+			  <span class="tooltiptext">Time at which current injection begins.</span>
+		    </label>
+		    <input type="number" id="startD" step="0.1" min="0" />
+		  </div>
+		  <div class="inline-control">
+		    <label id="dur" class="tooltip" for="durationD">Duration (ms)
+			  <span class="tooltiptext">Duration of current injection.</span>
+		    </label>
+		    <input type="number" id="durationD" step="1" min="0" />
+		  </div>
+		</div>
+		<div class="paired-controls">
+		  <div class="inline-control">
+		    <label id="somad" class="tooltip" for="d_soma">Soma diameter (µm)
+			  <span class="tooltiptext">Diameter of the spherical soma in µm.</span>
+		    </label>
+		    <input type="number" id="d_soma" step="1" />
+		  </div>
+		  <div class="inline-control">
+		    <label id="dendd" class="tooltip" for="d_dend">Dendrite diameter (µm)
+			  <span class="tooltiptext">Diameter of the uniform cylindrical dendrite in µm.</span>
+		    </label>
+		    <input type="number" id="d_dend" step="1" />
+		  </div>
+		</div>
+		<label id="dendl" class="tooltip" for="l_dend">Dendrite length (µm)
+			<span class="tooltiptext">Total length of the dendrite in µm.</span> 
 		</label>
-		<input type="number" id="iinputd" step="1" min="0"/> <br>
-		<label class="tooltip" for="gcoup">g coupling 
-			<span class="tooltiptext">Dendritic conductance (max: 2000)</span> 
+		<input type="number" id="l_dend" step="10" /><br><br>
+		<label class="tooltip" for="gNap">Dendritic Na⁺ density (% of soma)
+			<span class="tooltiptext">Controls regenerative propagation. At 0%, the somatic spike invades the dendrite without dendritic Na⁺ regeneration.</span> 
 		</label>
-		<input type="number" id="gcoup" step="0.01" /><br>
-		<label id="currin" class="tooltip" for="currentinj">Current injected (mA)
-			<span class="tooltiptext">current at synapse</span> 
-		</label>
-		<input type="number" id="currentinj" step="0.1" /><br>
-		<label id="dur" class="tooltip" for="dura">Duration (ms)
-			<span class="tooltiptext">Duration of injection</span> 
-		</label>
-		<input type="number" id="durationD" step="1" /><br>
-		<label id="somad" class="tooltip" for="d_soma">Soma diameter (<i>u</i>m)
-			<span class="tooltiptext">Diameter of the soma in nm</span> 
-		</label>
-		<input type="number" id="d_soma" step="1" /><br>
-		<label id="dendd" class="tooltip" for="d_dend">Dendrite diameter (<i>u</i>m)
-			<span class="tooltiptext">Diameter of the dendrite in nm</span> 
-		</label>
-		<input type="number" id="d_dend" step="1" /><br>
-		<label id="dendl" class="tooltip" for="l_dend">Dendrite length (<i>u</i>m)
-			<span class="tooltiptext">length of the dendrite in nm</span> 
-		</label>
-		<input type="number" id="l_dend" step="1" /><br><br>
-		<label class="tooltip" for="gNap" style="color:rgb(55, 128, 191);">gNa: 
-			<span class="tooltiptext">Ratio of Dendritic gNa relative to Soma gNa</span> 
-		</label>
-		<input type="number" id="gNap" step="0.01" min="0" max="3.2">
-		<span id="gNav"></span><br> 
-		<input type="range" id="gNapRange" step="0.01" min="0" max="1" class="slider"><br>
+		<input type="number" id="gNap" step="1" min="0" max="100">
+		<input type="range" id="gNapRange" step="1" min="0" max="100" class="slider"><br>
 
-		<label class="tooltip" for="gKp" style="color:rgb(255, 165, 0);">gK: 
-			<span class="tooltiptext">Ratio of Dendritic gK relative to Soma gK</span> 
+		<label class="tooltip" for="gKp">Dendritic K⁺ density (% of soma)
+			<span class="tooltiptext">Potassium-channel density controls dendritic spike repolarization.</span> 
 		</label>
-		<input type="number" id="gKp" step="0.01" min="0" max="0.36" /> 
-		<span id="gKv"></span><br> 
-		<input type="range" id="gKpRange" step="0.01" min="0" max="1" class="slider"> <br>
-		</p> 
+		<input type="number" id="gKp" step="1" min="0" max="100" /> 
+		<input type="range" id="gKpRange" step="1" min="0" max="100" class="slider"> <br>
+		</section> 
 		
-  </div>
+  </aside>
   
-  <div class="col-9 col-s-12 col-d-12 col-h-9">
+  <section class="col-9 col-s-12 col-d-12 col-h-9 hh-visuals">
   	<div class="wrapper">
     	<div id="myDiv1" class="plots"></div>
+		<section id="dendriteGeometryCard" class="plots dendrite-geometry-card hidden" aria-label="Stick dendrite and input compartment">
+		  <div id="dendriteGeometryPlot" class="dendrite-geometry-plot"></div>
+		  <div class="dendrite-input-slider">
+		    <input type="range" id="iinputdRange" min="0" max="16" step="1" value="0" aria-label="Input compartment along the stick dendrite">
+		  </div>
+		</section>
+		<div id="dendriteSpatialPlot" class="plots hidden"></div>
+		<section id="dendriteAnimationControls" class="control-card graph-animation-controls hidden" aria-label="Dendritic propagation animation">
+		  <input type="button" value="Animate" id="dendriteAnimationButton">
+		  <input type="number" id="dendriteTimeNumber" min="0" step="0.1" aria-label="Spatial-profile time">
+		  <span>ms</span>
+		  <input type="range" id="dendriteTimeRange" min="0" step="0.1" value="0" aria-label="Spatial-profile time" class="slider">
+		</section>
 		<div id="myDiv2" class="plots"></div> 
 		<!-- <div id="myDiv3" class="plots"></div> -->
 		<div id="myDiv4" class="plots"></div>
 	</div>
-  </div>
+
+	<details class="hh-howto">
+	  <summary>How to use this simulation</summary>
+	  <div class="hh-howto-content">
+	    <p><strong>Current clamp:</strong> vary the amplitude and duration of the injected current to examine spike threshold and waveform. Enable <strong>Refractory period</strong> to test how closely two action potentials can occur.</p>
+	    <p><strong>Voltage clamp:</strong> command membrane voltage directly and inspect the underlying ionic currents. TTX removes the fast Na⁺ current and TEA removes the delayed-rectifier K⁺ current; the recovery protocol explores Na⁺-channel inactivation.</p>
+	    <p><strong>Stick dendrite:</strong> inject the soma and compare dendritic Na⁺ densities of 0%, 20%, 40%, and 100%. Low density produces decremental invasion, whereas increasing Na⁺ density progressively recruits regenerative propagation. Drag the time slider or select <strong>Animate</strong> to follow the membrane-voltage profile from soma to distal dendrite; the vertical line in the voltage graph marks the same moment. Set both dendritic Na⁺ and K⁺ to 0% for a fully passive cable. The stick is a generic active cable using squid HH kinetics, not a quantitative model of a layer-5 pyramidal neuron.</p>
+	    <h3>References</h3>
+	    <p>Hodgkin AL &amp; Huxley AF (1952), <a href="https://doi.org/10.1113/jphysiol.1952.sp004764" target="_blank" rel="noopener">A quantitative description of membrane current and its application to conduction and excitation in nerve</a>. <em>Journal of Physiology</em> 117:500–544.</p>
+	    <p>Häusser M, Stuart G, Racca C &amp; Sakmann B (1995), <a href="https://doi.org/10.1016/0896-6273(95)90152-3" target="_blank" rel="noopener">Axonal initiation and active dendritic propagation of action potentials in substantia nigra neurons</a>. <em>Neuron</em> 15:637–647.</p>
+	    <p>Vetter P, Roth A &amp; Häusser M (2001), <a href="https://doi.org/10.1152/jn.2001.85.2.926" target="_blank" rel="noopener">Propagation of action potentials in dendrites depends on dendritic morphology</a>. <em>Journal of Neurophysiology</em> 85:926–937.</p>
+	  </div>
+	</details>
+  </section>
   
 </div>
 
 <footer class="footer">
   <p><strong>Neuroscience teaching tools</strong></p>
   <nav aria-label="Further information">
-        <a href="../index.html" target="neuroscienceTeachingToolsMenu">Main menu</a>
-    <a href="http://plasticity.muhc.mcgill.ca/index.html">Sjöström Lab</a>
-    <a href="https://github.com/sjostromlab/SjostromLab.github.io">GitHub source</a>
+        <a href="../index.html" target="_blank" rel="noopener">Main menu</a>
+    <a href="http://plasticity.muhc.mcgill.ca/index.html" target="_blank" rel="noopener">Sjöström Lab</a>
+    <a href="https://github.com/sjostromlab/SjostromLab.github.io" target="_blank" rel="noopener">GitHub source</a>
   </nav>
 </footer>
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<script src="./HH.js"></script>
+<script src="./HH.js?v=20261022e"></script>
   
 
 </body>

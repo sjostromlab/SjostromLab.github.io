@@ -676,8 +676,8 @@ function downloadData() {
   }
   rows.push(...metadataRows());
   saveBlob(
-    new Blob([rows.join("\r\n") + "\r\n"], { type: "text/plain;charset=utf-8" }),
-    "CVAnalysis_seed" + $("seed").value + ".txt",
+    new Blob([rows.join("\r\n") + "\r\n"], { type: "text/csv;charset=utf-8" }),
+    "CVAnalysis_seed" + $("seed").value + ".csv",
   );
 }
 

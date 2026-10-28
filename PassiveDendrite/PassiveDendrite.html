@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Passive Dendrites and Cable Filtering</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="plotly-latest.min.js"></script>
+</head>
+<body>
+  <header class="page-header">
+    <h1>Passive Dendrites and Cable Filtering</h1>
+    <p>How dendrites attenuate, delay, and broaden electrical signals</p>
+  </header>
+
+  <main class="app-layout">
+    <aside class="controls" aria-label="Simulation controls">
+      <section class="control-card utility-card">
+        <label class="range-field">
+          <span>Graph text size <strong id="fontSizeValue">18 px</strong></span>
+          <input id="fontSize" type="range" min="12" max="28" step="1" value="18">
+        </label>
+        <div class="button-row">
+          <button id="resetButton" type="button">Reset</button>
+          <button id="downloadButton" type="button">Download data</button>
+        </div>
+      </section>
+
+      <section class="control-card display-card" aria-label="Animation controls">
+        <div class="animation-control-row">
+          <button id="animationButton" class="animation-button" type="button">Animate</button>
+          <input id="snapshotNumber" type="number" aria-label="Animation time (ms)">
+          <span>ms</span>
+        </div>
+        <input id="snapshotRange" type="range" aria-label="Animation time">
+      </section>
+
+      <section class="control-card" title="The same stimulus and recording locations are used for dendrites A and B.">
+        <h2>Protocol</h2>
+        <div class="two-column">
+          <label class="parameter"><span>Length (µm)</span><input id="lengthNumber" type="number"><input id="lengthRange" type="range"></label>
+          <label class="parameter"><span>Resting V<sub>m</sub> (mV)</span><input id="restNumber" type="number"><input id="restRange" type="range"></label>
+          <label class="parameter"><span>Dendritic recording (µm)</span><input id="recordNumber" type="number"><input id="recordRange" type="range"></label>
+          <label class="parameter"><span>Input location (µm)</span><input id="inputNumber" type="number"><input id="inputRange" type="range"></label>
+        </div>
+        <label class="select-field"><span>Input waveform</span>
+          <select id="waveform"><option value="alpha">Alpha synaptic current</option><option value="square">Square current pulse</option></select>
+        </label>
+        <div class="two-column">
+          <label class="parameter"><span>Amplitude (pA)</span><input id="amplitudeNumber" type="number"><input id="amplitudeRange" type="range"></label>
+          <label class="parameter"><span>Start (ms)</span><input id="startNumber" type="number"><input id="startRange" type="range"></label>
+          <label class="parameter"><span id="widthLabel">Time constant τ (ms)</span><input id="widthNumber" type="number"><input id="widthRange" type="range"></label>
+          <label class="parameter"><span>Run time (ms)</span><input id="runNumber" type="number"><input id="runRange" type="range"></label>
+        </div>
+      </section>
+
+      <section class="control-card model-a" title="Specific membrane resistance and capacitance apply to both the cable and its finite soma.">
+        <h2>Dendrite A</h2>
+        <div class="two-column compact-grid">
+          <label class="parameter"><span>Diameter (µm)</span><input id="diameterANumber" type="number"><input id="diameterARange" type="range"></label>
+          <label class="parameter"><span>R<sub>m</sub> (kΩ·cm²)</span><input id="rmANumber" type="number"><input id="rmARange" type="range"></label>
+          <label class="parameter"><span>C<sub>m</sub> (µF/cm²)</span><input id="cmANumber" type="number"><input id="cmARange" type="range"></label>
+          <label class="parameter"><span>R<sub>a</sub> (Ω·cm)</span><input id="raANumber" type="number"><input id="raARange" type="range"></label>
+        </div>
+      </section>
+
+      <section class="control-card model-b">
+        <label class="checkbox-heading"><input id="compareB" type="checkbox"><strong>Compare dendrite B</strong></label>
+        <div id="modelBControls" hidden>
+          <div class="two-column compact-grid">
+            <label class="parameter"><span>Diameter (µm)</span><input id="diameterBNumber" type="number"><input id="diameterBRange" type="range"></label>
+            <label class="parameter"><span>R<sub>m</sub> (kΩ·cm²)</span><input id="rmBNumber" type="number"><input id="rmBRange" type="range"></label>
+            <label class="parameter"><span>C<sub>m</sub> (µF/cm²)</span><input id="cmBNumber" type="number"><input id="cmBRange" type="range"></label>
+            <label class="parameter"><span>R<sub>a</sub> (Ω·cm)</span><input id="raBNumber" type="number"><input id="raBRange" type="range"></label>
+          </div>
+        </div>
+      </section>
+
+    </aside>
+
+    <section class="visuals">
+      <div id="schematicPlot" class="plot schematic-plot" aria-label="Dendrite schematic"></div>
+      <div id="profilePlot" class="plot profile-plot" aria-label="Spatial voltage profile"></div>
+      <div class="response-row">
+        <div id="tracePlot" class="plot trace-plot" aria-label="Voltage traces"></div>
+        <section class="metrics-card" aria-label="Cable measurements">
+          <h2>Cable measurements</h2>
+          <div id="combinedReadout" class="combined-readout"></div>
+        </section>
+      </div>
+      <p class="plot-help">Hover over graphs for numerical values. Camera buttons download PNG files.</p>
+
+      <details class="howto full-howto">
+        <summary>Model, interpretation, and teaching ideas</summary>
+        <div class="howto-content">
+          <h3>How to use the simulation</h3>
+          <p>Start with the distal alpha-current input. Compare the local input response with the dendrite-recording and soma traces. Drag the animation-time slider or select <strong>Animate</strong> to watch voltage spread along the cable, then move the input toward the soma.</p>
+          <p><strong>Try these:</strong> increase dendrite length; reduce diameter; increase axial resistance R<sub>a</sub>; change R<sub>m</sub> or C<sub>m</sub>; then enable dendrite B to make a controlled comparison.</p>
+
+          <h3>What the model shows</h3>
+          <p>A passive dendrite is both a resistor and a capacitor. Current spreads longitudinally through the cytoplasm while leaking through, and charging, the membrane. Consequently, a signal normally becomes smaller, later, and broader as recording distance increases. The spatial profile reveals attenuation along the cable at the selected time. Its voltage axis is fixed from the minimum and maximum found over the complete simulation, so apparent changes cannot be caused by rescaling. During animation, the voltage traces grow up to the moving time cursor while the spatial profile shows the voltage everywhere at that same moment.</p>
+          <p>The membrane time constant is τ<sub>m</sub> = R<sub>m</sub>C<sub>m</sub>. For a uniform cylindrical cable, the displayed steady-state length constant is λ = √(dR<sub>m</sub>/4R<sub>a</sub>). Electrotonic distance x/λ expresses physical distance in units that reflect the cable properties. The finite cable and soma mean that transient attenuation is not simply e<sup>−x/λ</sup>.</p>
+
+          <h3>Suggested exercises</h3>
+          <ol>
+            <li><strong>Location:</strong> move the same input from distal dendrite to soma. Compare peak amplitude, peak time, and waveform width.</li>
+            <li><strong>Morphology:</strong> compare thin and thick dendrites. Predict the change in λ before viewing the traces.</li>
+            <li><strong>Membrane versus cytoplasm:</strong> vary R<sub>m</sub>, C<sub>m</sub>, and R<sub>a</sub> separately. Decide which property changes λ, τ<sub>m</sub>, or both.</li>
+            <li><strong>Low-pass filtering:</strong> compare a brief alpha current with longer square pulses. Fast changes are attenuated more strongly with distance.</li>
+            <li><strong>Space clamp:</strong> place the input distally and inspect the simultaneous voltage gradient. A somatic voltage measurement cannot imply that the whole dendrite has the same voltage.</li>
+          </ol>
+
+          <h3>Scope and assumptions</h3>
+          <p>The simulation uses a uniform, unbranched, sealed-end passive cable attached to a 20-µm spherical soma. It solves a compartmental cable model with an implicit numerical method. The stimulus is prescribed current, which isolates cable filtering from changes in synaptic driving force. There are no voltage-gated conductances, dendritic spines, branching, or conductance-based synapses. These choices make causal comparisons clear, but the model is not a reconstruction of a particular neuron.</p>
+
+          <h3>References</h3>
+          <p>Rall W (1959), <a href="https://doi.org/10.1016/0014-4886(59)90046-9" target="_blank" rel="noopener">Branching dendritic trees and motoneuron membrane resistivity</a>. <em>Experimental Neurology</em> 1:491–527.</p>
+          <p>Rall W (1962), <a href="https://doi.org/10.1016/S0006-3495(62)86953-7" target="_blank" rel="noopener">Electrophysiology of a dendritic neuron model</a>. <em>Biophysical Journal</em> 2:145–167.</p>
+          <p>Rall W (1967), <a href="https://doi.org/10.1152/jn.1967.30.5.1138" target="_blank" rel="noopener">Distinguishing theoretical synaptic potentials computed for different soma-dendritic distributions of synaptic input</a>. <em>Journal of Neurophysiology</em> 30:1138–1168.</p>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>Neuroscience teaching tools</strong></p>
+    <nav aria-label="Further information">
+      <a href="../index.html" target="_blank" rel="noopener">Main menu</a>
+      <a href="http://plasticity.muhc.mcgill.ca/index.html" target="_blank" rel="noopener">Sjöström Lab</a>
+      <a href="https://github.com/sjostromlab/SjostromLab.github.io" target="_blank" rel="noopener">GitHub source</a>
+    </nav>
+  </footer>
+  <script src="PassiveDendrite.js"></script>
+</body>
+</html>

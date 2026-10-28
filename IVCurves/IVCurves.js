@@ -435,8 +435,8 @@ $("download").addEventListener("click", () => {
   const rows = [columns.map((c) => c[0]).join(",")];
   for (let n = 0; n < length; n++) rows.push(columns.map((c) => c[1][n] ?? "").join(","));
   save(
-    new Blob([rows.join("\r\n") + "\r\n"], { type: "text/plain;charset=utf-8" }),
-    "IVCurves_" + parameters.measure + ".txt",
+    new Blob([rows.join("\r\n") + "\r\n"], { type: "text/csv;charset=utf-8" }),
+    "IVCurves_" + parameters.measure + ".csv",
   );
 });
 generate();

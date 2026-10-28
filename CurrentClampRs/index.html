@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Series Resistance in Current Clamp</title>
+  <link rel="stylesheet" href="styles.css?v=20261027h">
+  <script src="plotly-latest.min.js"></script>
+</head>
+<body>
+  <header class="page-header">
+    <h1>Series Resistance in Current Clamp</h1>
+    <p>Why electrodes distort fast voltage signals</p>
+  </header>
+
+  <main class="app-layout">
+    <aside class="controls" aria-label="Simulation controls">
+      <section class="control-card utility-card">
+        <label class="range-field">
+          <span>Graph text size <strong id="fontSizeValue">18 px</strong></span>
+          <input id="fontSize" type="range" min="12" max="26" step="1" value="18">
+        </label>
+        <div class="button-row">
+          <button id="resetButton" type="button">Reset</button>
+          <button id="downloadButton" type="button">Download data</button>
+        </div>
+      </section>
+
+      <section class="control-card view-card" aria-label="Select demonstration">
+        <div class="view-heading-row">
+          <h2>Demonstration</h2>
+          <div class="view-stepper" aria-label="Step through demonstrations">
+            <button id="previousViewButton" type="button" aria-label="Previous demonstration" title="Previous demonstration">←</button>
+            <button id="nextViewButton" type="button" aria-label="Next demonstration" title="Next demonstration">→</button>
+          </div>
+        </div>
+        <select id="viewSelect" aria-label="Demonstration">
+          <option value="passive">1. Passive step</option>
+          <option value="spike">2. Action potential</option>
+          <option value="epsp">3. EPSP</option>
+          <option value="all">Compare all</option>
+        </select>
+      </section>
+
+      <section class="control-card electrode-card">
+        <h2>Recording electrode</h2>
+        <div class="two-column">
+          <label class="parameter">
+            <span>R<sub>s</sub> (MΩ)</span>
+            <input id="rsNumber" type="number" min="1" max="100" step="1" value="25">
+            <input id="rsRange" type="range" min="1" max="100" step="1" value="25">
+          </label>
+          <label class="parameter">
+            <span>C<sub>p</sub> (pF)</span>
+            <input id="cpNumber" type="number" min="0.5" max="20" step="0.5" value="5">
+            <input id="cpRange" type="range" min="0.5" max="20" step="0.5" value="5">
+          </label>
+          <label class="parameter">
+            <span>Bridge balance (%)</span>
+            <input id="bridgeNumber" type="number" min="0" max="120" step="5" value="100">
+            <input id="bridgeRange" type="range" min="0" max="120" step="5" value="100">
+          </label>
+          <label class="parameter">
+            <span>C<sub>p</sub> neutralization (%)</span>
+            <input id="neutralNumber" type="number" min="0" max="95" step="5" value="0">
+            <input id="neutralRange" type="range" min="0" max="95" step="5" value="0">
+          </label>
+        </div>
+      </section>
+
+      <section id="passiveControls" class="control-card shared-settings-card">
+        <h2>Membrane properties</h2>
+        <div class="three-column">
+          <label class="parameter">
+            <span>R<sub>m</sub> (MΩ)</span>
+            <input id="rmNumber" type="number" min="20" max="500" step="10" value="100">
+            <input id="rmRange" type="range" min="20" max="500" step="10" value="100">
+          </label>
+          <label class="parameter">
+            <span>C<sub>m</sub> (pF)</span>
+            <input id="cmNumber" type="number" min="20" max="300" step="10" value="100">
+            <input id="cmRange" type="range" min="20" max="300" step="10" value="100">
+          </label>
+          <label class="parameter">
+            <span>V<sub>rest</sub> (mV)</span>
+            <input id="restNumber" type="number" min="-90" max="-50" step="1" value="-65">
+            <input id="restRange" type="range" min="-90" max="-50" step="1" value="-65">
+          </label>
+        </div>
+      </section>
+
+      <section id="passiveStepControls" class="control-card">
+        <h2>1. Passive step</h2>
+        <div class="two-column">
+          <label class="parameter">
+            <span>Current (pA)</span>
+            <input id="stepNumber" type="number" min="-300" max="300" step="10" value="100">
+            <input id="stepRange" type="range" min="-300" max="300" step="10" value="100">
+          </label>
+          <label class="parameter">
+            <span>Duration (ms)</span>
+            <input id="stepDurationNumber" type="number" min="10" max="60" step="5" value="40">
+            <input id="stepDurationRange" type="range" min="10" max="60" step="5" value="40">
+          </label>
+        </div>
+      </section>
+
+      <section id="spikeControls" class="control-card" hidden>
+        <h2>2. Action potential</h2>
+        <div class="two-column">
+          <label class="parameter">
+            <span>Current (nA)</span>
+            <input id="spikeCurrentNumber" type="number" min="0.1" max="1.5" step="0.05" value="0.7">
+            <input id="spikeCurrentRange" type="range" min="0.1" max="1.5" step="0.05" value="0.7">
+          </label>
+          <label class="parameter">
+            <span>Duration (ms)</span>
+            <input id="spikeDurationNumber" type="number" min="1" max="20" step="1" value="12">
+            <input id="spikeDurationRange" type="range" min="1" max="20" step="1" value="12">
+          </label>
+        </div>
+      </section>
+
+      <section id="epspControls" class="control-card" hidden>
+        <h2>3. EPSP</h2>
+        <div class="three-column">
+          <label class="parameter">
+            <span>g<sub>syn</sub> (nS)</span>
+            <input id="epspGNumber" type="number" min="0.1" max="5" step="0.1" value="1">
+            <input id="epspGRange" type="range" min="0.1" max="5" step="0.1" value="1">
+          </label>
+          <label class="parameter">
+            <span>τ<sub>rise</sub> (ms)</span>
+            <input id="epspRiseNumber" type="number" min="0.2" max="10" step="0.1" value="1">
+            <input id="epspRiseRange" type="range" min="0.2" max="10" step="0.1" value="1">
+          </label>
+          <label class="parameter">
+            <span>τ<sub>decay</sub> (ms)</span>
+            <input id="epspTauNumber" type="number" min="2" max="30" step="1" value="10">
+            <input id="epspTauRange" type="range" min="2" max="30" step="1" value="10">
+          </label>
+        </div>
+      </section>
+    </aside>
+
+    <section class="visuals">
+      <section class="summary-card" aria-label="Recording summary">
+        <div><span id="summaryLabel1">τ<sub>m</sub></span><strong id="summaryValue1">10.0 ms</strong></div>
+        <div><span id="summaryLabel2">τ<sub>electrode</sub></span><strong id="summaryValue2">0.125 ms</strong></div>
+        <div><span id="summaryLabel3">Step I·R<sub>s</sub></span><strong id="summaryValue3">2.5 mV</strong></div>
+        <div><span id="summaryLabel4">After bridge balance</span><strong id="summaryValue4">0.0 mV</strong></div>
+      </section>
+
+      <div id="plotGrid" class="plot-grid single-visible">
+        <section id="stepCard" class="plot-card">
+          <div id="stepPlot" class="plot" aria-label="1. Passive step"></div>
+          <div id="stepMetrics" class="metric-strip"></div>
+        </section>
+        <section id="spikeCard" class="plot-card" hidden>
+          <div id="spikePlot" class="plot" aria-label="2. Action potential"></div>
+          <div id="spikeMetrics" class="metric-strip four-metrics"></div>
+        </section>
+        <section id="epspCard" class="plot-card" hidden>
+          <div id="epspPlot" class="plot" aria-label="3. EPSP"></div>
+          <div id="epspMetrics" class="metric-strip"></div>
+        </section>
+        <aside id="takeawayCard" class="takeaway-card" hidden aria-labelledby="takeawayTitle">
+          <h2 id="takeawayTitle">Take-home messages</h2>
+          <ul>
+            <li><strong>Fast voltage signals are filtered most.</strong> The electrode cannot follow a spike as faithfully as a slow membrane response.</li>
+            <li><strong>Injected current creates an I·R<sub>s</sub> voltage error.</strong> It displaces the apparent spike threshold and the current-step response.</li>
+            <li><strong>Bridge balance removes an offset, not lost bandwidth.</strong> It cannot reconstruct rapid waveform components already filtered out.</li>
+            <li><strong>Slow EPSPs are largely preserved.</strong> They change slowly and do not pass the stimulating current through the recording electrode.</li>
+          </ul>
+        </aside>
+      </div>
+
+      <p class="plot-help">Black traces show the membrane signal before electrode distortion. The blue trace is recorded at the electrode; the dashed trace applies the selected bridge balance. Hover for values; camera buttons download PNG files.</p>
+
+      <details class="howto">
+        <summary>How to use this simulation</summary>
+        <div class="howto-content">
+          <h3>Work through the three demonstrations</h3>
+          <p>Choose the three numbered demonstrations from the popup menu in order. Each view enlarges one graph and shows its relevant controls and summary measurements. <strong>Compare all</strong> places the passive step, action potential, and EPSP in a compact 2 × 2 layout beside the main teaching conclusions.</p>
+          <p>In every graph, black is the membrane voltage before electrode distortion, blue is the voltage recorded through the electrode, and the dashed brown trace is the bridge-balanced result when applicable. The lower panel shows the stimulus current. Positive current injected through the electrode is plotted upward; inward excitatory synaptic current is negative and plotted downward.</p>
+
+          <h3>The shared membrane and electrode models</h3>
+          <p>The same membrane controls apply to all three demonstrations. R<sub>m</sub> is the passive leak resistance, C<sub>m</sub> is the total membrane capacitance, and V<sub>rest</sub> sets the initial equilibrium. In the Hodgkin–Huxley model, the leak reversal potential is recalculated so that the selected V<sub>rest</sub> remains stable without an unreported holding current. Because voltage-gated Na<sup>+</sup> and K<sup>+</sup> channels also contribute near rest, the HH cell's measured small-signal input resistance need not equal the displayed passive R<sub>m</sub> exactly.</p>
+          <p>The same electrode is also used in all three demonstrations. Series resistance R<sub>s</sub> and residual pipette capacitance C<sub>p</sub> give an electrode time constant τ<sub>electrode</sub> = R<sub>s</sub>C<sub>p</sub>. During electrode current injection, the measured voltage approaches V<sub>m</sub> + I<sub>inj</sub>R<sub>s</sub>. Bridge balance subtracts the selected fraction of this resistive voltage error. C<sub>p</sub> neutralization reduces the effective pipette capacitance and therefore shortens τ<sub>electrode</sub>.</p>
+
+          <h3>Reading about bridge balance</h3>
+          <p><a href="https://doi.org/10.1152/jn.01122.2011" target="_blank" rel="noopener">Rossant et al. (2012)</a> describe conventional bridge balance in the Abstract and Introduction and illustrate its onset and offset artifacts in Figure 1. Bridge balance subtracts the estimated steady resistive drop, I<sub>inj</sub>R<sub>s</sub>; it does not reverse electrode low-pass filtering. Because a real electrode responds with a finite time constant, instantaneous bridge subtraction can itself create brief transients when current begins or ends. At current onset, for example, the bridge immediately subtracts I<sub>inj</sub>R<sub>s</sub> before the actual electrode voltage has fully developed, producing the downward transient seen here.</p>
+
+          <h3>1. Passive step: two exponential components</h3>
+          <p>A current step of the selected amplitude and duration drives an isopotential passive membrane with τ<sub>m</sub> = R<sub>m</sub>C<sub>m</sub>. The recording contains the slower membrane response plus the faster electrode component governed by R<sub>s</sub>C<sub>p</sub>. Compare the raw voltage offset with the bridge-balanced error, and calculate I<sub>inj</sub>R<sub>s</sub> from the displayed settings.</p>
+
+          <h3>2. Action potential: voltage displacement and filtering</h3>
+          <p>A current step elicits a Hodgkin–Huxley action potential during a 30-ms simulation. The selected R<sub>m</sub>, C<sub>m</sub>, and V<sub>rest</sub> now determine the spike model's passive leak, capacitance, and resting equilibrium as well as the other two protocols. R<sub>s</sub> produces an I<sub>inj</sub>R<sub>s</sub> displacement that makes the apparent spike threshold more positive. The finite electrode bandwidth also reduces maximum dV/dt and alters spike peak and half-width. Bridge balance can correct the resistive displacement, but it cannot reconstruct rapid waveform components already lost to low-pass filtering.</p>
+
+          <h3>3. EPSP: the slow-event comparison</h3>
+          <p>The EPSP is generated by a normalized double-exponential, AMPA-like conductance. <strong>Rise τ</strong> and <strong>decay τ</strong> control its kinetics independently; they are exponential time constants rather than a direct 10–90% rise-time measurement. The synaptic current crosses the membrane rather than being injected through the recording electrode, so there is no I<sub>inj</sub>R<sub>s</sub> displacement. When the EPSP changes slowly relative to τ<sub>electrode</sub>, its peak and timing are therefore recorded with very little error.</p>
+
+          <h3>Suggested exercises</h3>
+          <ol>
+            <li>Set R<sub>s</sub> to 5, 10, 25, 50, and 100 MΩ. In <strong>Compare all</strong>, contrast the passive voltage offset, spike errors, and EPSP peak error.</li>
+            <li>Calculate I<sub>inj</sub>R<sub>s</sub> for both current-step protocols and compare your answers with the displayed voltage displacements.</li>
+            <li>Calculate τ<sub>m</sub> and τ<sub>electrode</sub>. Use their relative sizes to predict which signals should be distorted most.</li>
+            <li>Vary R<sub>m</sub>, C<sub>m</sub>, and V<sub>rest</sub>. Compare their effects on the passive response, EPSP, and spike threshold or latency.</li>
+            <li>Set bridge balance to 100%, then vary C<sub>p</sub>. Which spike errors remain even when the resistive displacement is corrected?</li>
+            <li>Increase C<sub>p</sub> neutralization and determine when the spike becomes acceptably accurate.</li>
+            <li>Shorten the EPSP rise and decay constants. At what kinetics does electrode filtering become appreciable?</li>
+          </ol>
+
+          <h3>Scope and references</h3>
+          <p>The passive response and EPSP use a single isopotential membrane. The spike uses the classic Hodgkin–Huxley equations with fixed maximum Na<sup>+</sup> and K<sup>+</sup> conductances, while the shared controls set its passive leak resistance, total capacitance, and resting equilibrium. The electrode is represented by one resistance and one residual capacitance; real electrodes can have several time constants and additional nonlinearities. The teaching comparison follows the supplied series-resistance simulation. Bridge balance and capacitive electrode errors are discussed by <a href="https://doi.org/10.1152/jn.01122.2011" target="_blank" rel="noopener">Rossant et al. (2012), <em>A calibration-free electrode compensation method</em></a>. The action-potential model follows <a href="https://doi.org/10.1113/jphysiol.1952.sp004764" target="_blank" rel="noopener">Hodgkin &amp; Huxley (1952)</a>.</p>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>Neuroscience teaching tools</strong></p>
+    <nav aria-label="Further information">
+      <a href="../index.html" target="_blank" rel="noopener">Main menu</a>
+      <a href="http://plasticity.muhc.mcgill.ca/index.html" target="_blank" rel="noopener">Sjöström Lab</a>
+      <a href="https://github.com/sjostromlab/SjostromLab.github.io" target="_blank" rel="noopener">GitHub source</a>
+    </nav>
+  </footer>
+  <script src="CurrentClampRs.js?v=20261027j"></script>
+</body>
+</html>

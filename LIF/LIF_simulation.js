@@ -1177,11 +1177,11 @@ function buildTraceDownload() {
 }
 
 document.getElementById('downloadTraces').addEventListener('click', function() {
-  var blob = new Blob([buildTraceDownload()], {type: 'text/plain;charset=utf-8'});
+  var blob = new Blob([buildTraceDownload()], {type: 'text/csv;charset=utf-8'});
   var url = URL.createObjectURL(blob);
   var link = document.createElement('a');
   link.href = url;
-  link.download = 'LIF_traces.txt';
+  link.download = 'LIF_traces.csv';
   document.body.appendChild(link);
   link.click();
   link.remove();

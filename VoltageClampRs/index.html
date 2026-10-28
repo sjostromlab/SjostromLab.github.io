@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Series Resistance in Voltage Clamp</title>
+  <link rel="stylesheet" href="styles.css?v=20261028c">
+  <script src="plotly-latest.min.js"></script>
+</head>
+<body>
+  <header class="page-header">
+    <h1>Series Resistance in Voltage Clamp</h1>
+    <p>How access resistance limits voltage control and distorts measured currents</p>
+  </header>
+
+  <main class="app-layout">
+    <aside class="controls" aria-label="Simulation controls">
+      <section class="control-card utility-card">
+        <label class="range-field">
+          <span>Graph text size <strong id="fontSizeValue">18 px</strong></span>
+          <input id="fontSize" type="range" min="12" max="26" step="1" value="18">
+        </label>
+        <div class="button-row">
+          <button id="resetButton" type="button">Reset</button>
+          <button id="downloadButton" type="button">Download data</button>
+        </div>
+      </section>
+
+      <section class="control-card view-card" aria-label="Select demonstration">
+        <div class="view-heading-row">
+          <h2>Demonstration</h2>
+          <div class="view-stepper" aria-label="Step through demonstrations">
+            <button id="previousViewButton" type="button" aria-label="Previous demonstration" title="Previous demonstration">←</button>
+            <button id="nextViewButton" type="button" aria-label="Next demonstration" title="Next demonstration">→</button>
+          </div>
+        </div>
+        <select id="viewSelect" aria-label="Demonstration">
+          <option value="step">1. Voltage step</option>
+          <option value="synapse">2. Synaptic current</option>
+          <option value="iv">3. I–V relations</option>
+          <option value="all">Compare all</option>
+        </select>
+      </section>
+
+      <section class="control-card shared-settings-card">
+        <h2>Recording electrode</h2>
+        <div class="two-column">
+          <label class="parameter">
+            <span>R<sub>s</sub> (MΩ)</span>
+            <input id="rsNumber" type="number" min="1" max="100" step="1" value="25">
+            <input id="rsRange" type="range" min="1" max="100" step="1" value="25">
+          </label>
+          <label class="parameter">
+            <span>R<sub>s</sub> compensation (%)</span>
+            <input id="compNumber" type="number" min="0" max="90" step="5" value="0">
+            <input id="compRange" type="range" min="0" max="90" step="5" value="0">
+          </label>
+        </div>
+      </section>
+
+      <section class="control-card shared-settings-card">
+        <h2>Membrane properties</h2>
+        <div class="three-column">
+          <label class="parameter">
+            <span>R<sub>m</sub> (MΩ)</span>
+            <input id="rmNumber" type="number" min="20" max="500" step="10" value="100">
+            <input id="rmRange" type="range" min="20" max="500" step="10" value="100">
+          </label>
+          <label class="parameter">
+            <span>C<sub>m</sub> (pF)</span>
+            <input id="cmNumber" type="number" min="20" max="300" step="10" value="100">
+            <input id="cmRange" type="range" min="20" max="300" step="10" value="100">
+          </label>
+          <label class="parameter">
+            <span>V<sub>rest</sub> (mV)</span>
+            <input id="restNumber" type="number" min="-90" max="-40" step="1" value="-70">
+            <input id="restRange" type="range" min="-90" max="-40" step="1" value="-70">
+          </label>
+        </div>
+      </section>
+
+      <section id="stepControls" class="control-card">
+        <h2>1. Voltage step</h2>
+        <div class="three-column">
+          <label class="parameter">
+            <span>V<sub>hold</sub> (mV)</span>
+            <input id="stepHoldNumber" type="number" min="-100" max="40" step="5" value="-70">
+            <input id="stepHoldRange" type="range" min="-100" max="40" step="5" value="-70">
+          </label>
+          <label class="parameter">
+            <span>V<sub>step</sub> (mV)</span>
+            <input id="stepVoltageNumber" type="number" min="-100" max="60" step="5" value="0">
+            <input id="stepVoltageRange" type="range" min="-100" max="60" step="5" value="0">
+          </label>
+          <label class="parameter">
+            <span>Duration (ms)</span>
+            <input id="stepDurationNumber" type="number" min="5" max="40" step="5" value="20">
+            <input id="stepDurationRange" type="range" min="5" max="40" step="5" value="20">
+          </label>
+        </div>
+      </section>
+
+      <section id="synapseControls" class="control-card" hidden>
+        <h2>2. Synaptic current</h2>
+        <div class="two-column compact-row">
+          <label class="parameter">
+            <span>V<sub>hold</sub> (mV)</span>
+            <input id="synHoldNumber" type="number" min="-100" max="50" step="5" value="-70">
+            <input id="synHoldRange" type="range" min="-100" max="50" step="5" value="-70">
+          </label>
+          <label class="parameter">
+            <span>E<sub>syn</sub> (mV)</span>
+            <input id="synReversalNumber" type="number" min="-100" max="50" step="5" value="0">
+            <input id="synReversalRange" type="range" min="-100" max="50" step="5" value="0">
+          </label>
+        </div>
+        <div class="three-column compact-row">
+          <label class="parameter">
+            <span>g<sub>syn</sub> (nS)</span>
+            <input id="synGNumber" type="number" min="0.1" max="10" step="0.1" value="1">
+            <input id="synGRange" type="range" min="0.1" max="10" step="0.1" value="1">
+          </label>
+          <label class="parameter">
+            <span>τ<sub>rise</sub> (ms)</span>
+            <input id="synRiseNumber" type="number" min="0.1" max="10" step="0.1" value="0.5">
+            <input id="synRiseRange" type="range" min="0.1" max="10" step="0.1" value="0.5">
+          </label>
+          <label class="parameter">
+            <span>τ<sub>decay</sub> (ms)</span>
+            <input id="synDecayNumber" type="number" min="1" max="50" step="1" value="8">
+            <input id="synDecayRange" type="range" min="1" max="50" step="1" value="8">
+          </label>
+        </div>
+      </section>
+
+      <section id="ivControls" class="control-card" hidden>
+        <h2>3. I–V relations</h2>
+        <label class="select-field">
+          <span>AMPAR model</span>
+          <select id="ivModel">
+            <option value="ohmic">AMPAR (linear)</option>
+            <option value="rectifying">CP-AMPAR (inwardly rectifying)</option>
+          </select>
+        </label>
+        <div class="two-column compact-row">
+          <label class="parameter">
+            <span>g<sub>syn</sub> (nS)</span>
+            <input id="ivSynGNumber" type="number" min="0.1" max="20" step="0.1" value="1">
+            <input id="ivSynGRange" type="range" min="0.1" max="20" step="0.1" value="1">
+          </label>
+          <label class="parameter">
+            <span>E<sub>syn</sub> (mV)</span>
+            <input id="ivSynReversalNumber" type="number" min="-100" max="50" step="5" value="0">
+            <input id="ivSynReversalRange" type="range" min="-100" max="50" step="5" value="0">
+          </label>
+        </div>
+      </section>
+    </aside>
+
+    <section class="visuals">
+      <div id="summaryCard" class="summary-card" aria-label="Recording summary">
+        <div><span id="summaryLabel1"></span><strong id="summaryValue1"></strong></div>
+        <div><span id="summaryLabel2"></span><strong id="summaryValue2"></strong></div>
+        <div><span id="summaryLabel3"></span><strong id="summaryValue3"></strong></div>
+        <div><span id="summaryLabel4"></span><strong id="summaryValue4"></strong></div>
+      </div>
+
+      <div id="plotGrid" class="plot-grid single-visible">
+        <section id="stepCard" class="plot-card">
+          <div id="stepPlot" class="plot" aria-label="1. Voltage step"></div>
+          <div id="stepMetrics" class="metric-strip four-metrics"></div>
+        </section>
+        <section id="synapseCard" class="plot-card" hidden>
+          <div id="synapsePlot" class="plot" aria-label="2. Synaptic current"></div>
+          <div id="synapseMetrics" class="metric-strip four-metrics"></div>
+        </section>
+        <section id="ivCard" class="plot-card" hidden>
+          <h2 class="iv-card-title">3. I–V relations</h2>
+          <div id="ivPlot" class="iv-plot-pair" aria-label="3. Holding-current and synaptic-current I–V relations">
+            <div id="ivHoldingPlot" class="iv-subplot" aria-label="Holding-current I–V relation"></div>
+            <div id="ivSynapticPlot" class="iv-subplot" aria-label="Synaptic-current I–V relation"></div>
+          </div>
+          <div id="ivMetrics" class="metric-strip four-metrics"></div>
+        </section>
+        <aside id="takeawayCard" class="takeaway-card" hidden aria-labelledby="takeawayTitle">
+          <h2 id="takeawayTitle">Take-home messages</h2>
+          <ul>
+            <li><strong>Voltage clamp is not perfect voltage control.</strong> Current through R<sub>s</sub> separates actual V<sub>m</sub> from V<sub>command</sub>.</li>
+            <li><strong>Error scales with current.</strong> Small miniature events may be nearly unaffected, while large currents can produce substantial voltage errors.</li>
+            <li><strong>R<sub>s</sub>C<sub>m</sub> limits clamp speed.</strong> Fast voltage changes and currents are the hardest to control.</li>
+            <li><strong>Ohm's law can correct the voltage coordinate.</strong> It separates nominal command voltage from the voltage actually experienced by the membrane conductances.</li>
+          </ul>
+        </aside>
+      </div>
+
+      <p class="plot-help">Positive current is outward. Black indicates the command or ideal relation; purple shows the uncompensated recording; teal shows the voltage coordinate after I·R<sub>s</sub> correction. Hover for values; camera buttons download PNG files.</p>
+
+      <details class="howto">
+        <summary>How to use this simulation</summary>
+        <div class="howto-content">
+          <h3>Work through the three demonstrations</h3>
+          <p>Choose the numbered demonstrations from the popup menu or use the arrow buttons. <strong>Compare all</strong> places the voltage step, synaptic current, and I–V relations beside the main conclusions. The recording electrode and membrane-property controls apply throughout.</p>
+
+          <h3>The shared voltage-clamp model</h3>
+          <p>The amplifier controls the membrane through series resistance R<sub>s</sub>. With outward-positive current, actual membrane voltage is V<sub>m</sub> = V<sub>command</sub> − IR<sub>s</sub>. The effective clamp speed also depends on C<sub>m</sub>. The compensation control is an intentionally idealized reduction of effective R<sub>s</sub>; real amplifier compensation can introduce ringing or instability, which is outside this simulation.</p>
+
+          <h3>1. Voltage step: settling and capacitive current</h3>
+          <p>Compare V<sub>command</sub> with actual V<sub>m</sub>. A finite R<sub>s</sub> prevents an instantaneous voltage change, producing a capacitive current that decays as the membrane approaches its steady voltage. Increase R<sub>s</sub> or C<sub>m</sub> to slow the clamp. The dashed current is the ideal steady membrane current and deliberately excludes an instantaneous ideal capacitive impulse.</p>
+
+          <h3>2. Synaptic current: when does R<sub>s</sub> matter?</h3>
+          <p>The event is a normalized double-exponential conductance with reversal potential E<sub>syn</sub>, peak g<sub>syn</sub>, τ<sub>rise</sub>, and τ<sub>decay</sub>. The displayed current is baseline-subtracted. Try an excitatory miniature at V<sub>hold</sub> = −70 mV and E<sub>syn</sub> = 0 mV, then an inhibitory miniature at V<sub>hold</sub> = 0 mV and E<sub>syn</sub> = −70 mV. Error depends on the resulting current, not simply on whether the recording is in voltage clamp.</p>
+
+          <h3>3. I–V relations: separate holding and synaptic currents</h3>
+          <p>The upper panel shows the steady holding current needed to maintain each command voltage. Its ideal I–V relation crosses zero at V<sub>rest</sub>. Finite R<sub>s</sub> reduces the actual voltage excursion and makes the measured relation pivot around V<sub>rest</sub>. Purple points use nominal V<sub>command</sub>; teal points use the actual baseline voltage V<sub>baseline</sub> = V<sub>command</sub> − I<sub>hold</sub>R<sub>s,eff</sub>.</p>
+          <p>The lower panel shows the synaptic current after subtracting the holding current. The <strong>AMPAR (linear)</strong> model represents an ohmic AMPA-receptor conductance: its ideal synaptic I–V relation is a straight line crossing zero at E<sub>syn</sub>. During the response, additional current through R<sub>s</sub> moves V<sub>m</sub> away from both V<sub>command</sub> and its baseline value. The corrected voltage coordinate therefore uses the total current during the response: V<sub>response</sub> = V<sub>command</sub> − I<sub>total,response</sub>R<sub>s,eff</sub>.</p>
+          <p>The <strong>CP-AMPAR (inwardly rectifying)</strong> option represents calcium-permeable, commonly GluA2-lacking AMPA receptors. Intracellular polyamines increasingly block these receptors at positive potentials, suppressing outward current and producing inward rectification. The simulation uses a qualitative voltage-dependent rectification factor to demonstrate how R<sub>s</sub> error can displace or obscure that shape; it is not a quantitative kinetic fit to Lalanne et al. Mode 3 treats g<sub>syn</sub> as a steady open conductance at the sampled point. C<sub>m</sub> and synaptic kinetics determine how quickly that state is approached but do not change these steady I–V relations.</p>
+
+          <h3>Suggested exercises</h3>
+          <ol>
+            <li>Calculate the initial current and steady voltage error for a voltage step using Ohm's law. Compare your result with the displayed values.</li>
+            <li>Set R<sub>s</sub> to 5, 25, 50, and 100 MΩ. Determine when a 1-nS synaptic event first exceeds a 1-mV clamp error.</li>
+            <li>Keep g<sub>syn</sub> fixed while changing V<sub>hold</sub> and E<sub>syn</sub>. Explain the error from driving force and current amplitude.</li>
+            <li>At +30 mV, calculate I<sub>hold</sub>R<sub>s</sub> and predict the baseline membrane voltage before reading the I–V summary.</li>
+            <li>Explain why the holding-current relation pivots around V<sub>rest</sub>, whereas the linear synaptic relation reverses at E<sub>syn</sub>.</li>
+            <li>Compare the AMPAR and CP-AMPAR models. Why can plotting current against nominal command voltage misrepresent CP-AMPAR rectification?</li>
+          </ol>
+
+          <h3>Scope and references</h3>
+          <p>This is a single-compartment teaching model. It omits spatial voltage escape, imperfect R<sub>s</sub> estimates, noise, amplifier saturation, and instability from aggressive compensation. Series-resistance correction follows the Ohm's-law treatment described by <a href="https://doi.org/10.1016/S0165-0270(98)00140-X" target="_blank" rel="noopener">Traynelis (1998)</a> and the classical analysis of <a href="https://doi.org/10.1016/S0006-3495(84)84048-5" target="_blank" rel="noopener">Moore, Hines &amp; Harris (1984)</a>. Direct measurements of somatic voltage-clamp error are discussed by <a href="https://doi.org/10.1038/nn.2137" target="_blank" rel="noopener">Williams &amp; Mitchell (2008)</a> and <a href="https://doi.org/10.1152/jn.00476.2022" target="_blank" rel="noopener">Gray &amp; Santin (2023)</a>. The positive-voltage I–V correction is motivated by <a href="https://doi.org/10.1113/JP271394" target="_blank" rel="noopener">Lalanne et al. (2016)</a>.</p>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>Neuroscience teaching tools</strong></p>
+    <nav aria-label="Further information">
+      <a href="../index.html" target="_blank" rel="noopener">Main menu</a>
+      <a href="http://plasticity.muhc.mcgill.ca/index.html" target="_blank" rel="noopener">Sjöström Lab</a>
+      <a href="https://github.com/sjostromlab/SjostromLab.github.io" target="_blank" rel="noopener">GitHub source</a>
+    </nav>
+  </footer>
+  <script src="VoltageClampRs.js?v=20261028c"></script>
+</body>
+</html>

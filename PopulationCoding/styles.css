@@ -1,0 +1,62 @@
+* { box-sizing: border-box; }
+:root { --accent: #6253a3; --ink: #303648; --border: #d9d7e5; }
+body { margin: 12px; font-family: Arial, sans-serif; color: var(--ink); background: #f6f5f9; }
+header, footer { background: var(--accent); color: white; border-radius: 7px; text-align: center; }
+header { padding: 12px; }
+h1 { margin: 0; font-size: 28px; }
+header p { margin: 7px 0 0; }
+main { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 14px; margin-top: 14px; }
+aside, article { min-width: 0; }
+section, details { margin-bottom: 10px; padding: 12px; background: white; border: 1px solid var(--border); border-radius: 7px; }
+h2 { margin: 0 0 9px; font-size: 17px; }
+h3 { margin: 15px 0 7px; font-size: 15px; }
+label { display: block; margin: 7px 0 5px; font-size: 15px; }
+input[type="number"], select { width: 100%; padding: 6px; font: inherit; border: 1px solid #aaa7b8; border-radius: 4px; background: white; }
+input[type="range"] { width: 100%; margin: 5px 0 2px; accent-color: var(--accent); }
+.control-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.control-pair > * { min-width: 0; }
+#timingControls:not(.many-active) { grid-template-columns: 1fr; }
+.mode-row { display: grid; grid-template-columns: minmax(0, 170px) auto; gap: 12px; align-items: stretch; justify-content: start; }
+.mode-row button { margin: 0; padding: 6px 11px; }
+.button-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.checkbox-row { display: flex; align-items: center; gap: 7px; margin-top: 9px; }
+.checkbox-row input { margin: 0; }
+button { margin-top: 6px; padding: 9px 11px; color: white; background: var(--accent); border: 0; border-radius: 4px; font-size: 15px; cursor: pointer; }
+.top-plots { display: grid; grid-template-columns: 1.25fr .75fr; gap: 12px; }
+.plot-with-nav { position: relative; min-width: 0; }
+.plot-with-nav .plot { width: 100%; }
+.plot-nav { position: absolute; z-index: 1002; right: 8px; bottom: 7px; display: flex; align-items: center; gap: 4px; padding: 1px 4px; border-radius: 5px; background: rgba(255,255,255,.92); border: 1px solid var(--border); }
+.plot-nav button { margin: 0; padding: 2px 6px; font-size: 12px; line-height: 1.25; }
+.plot-nav output { min-width: 82px; text-align: center; font-size: 11px; font-weight: bold; }
+.plot-nav button:disabled { opacity: .4; cursor: default; }
+.neuron-nav output { min-width: 92px; }
+.plot { min-width: 0; height: 400px; background: white; border: 1px solid var(--border); border-radius: 7px; overflow: hidden; }
+.top-plots .plot { height: 306px; }
+.raster-panel { margin-top: 12px; }
+.raster-plot { height: 272px; }
+.raster-panel.with-psth .raster-plot { height: 350px; }
+.bottom-plots { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin-top: 12px; }
+.bottom-plots.with-accuracy { grid-template-columns: 1fr 1fr; }
+.bottom-plots > * { min-width: 0; }
+.vector-plot { height: 332px; }
+.hint, details p, details li { font-size: 13px; line-height: 1.5; }
+details { margin-top: 10px; }
+summary { cursor: pointer; font-weight: bold; }
+.references { padding-left: 20px; }
+.references li { margin-bottom: 7px; }
+.readout dl { margin: 0; }
+.readout dl div { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-top: 1px solid #eceaf2; }
+.readout dt { font-weight: normal; }
+.readout dd { margin: 0; font-weight: bold; font-variant-numeric: tabular-nums; }
+#status { color: #9b3821; font-size: 13px; }
+[hidden] { display: none !important; }
+footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 24px; margin-top: 14px; padding: 12px 18px; font-size: 14px; }
+footer p { margin: 0; }
+footer nav { display: flex; flex-wrap: wrap; gap: 10px 22px; }
+footer a { color: inherit; text-underline-offset: 3px; }
+:focus-visible { outline: 3px solid #d39220; outline-offset: 2px; }
+@media (min-width: 1101px) { aside { max-height: calc(100vh - 135px); overflow-y: auto; padding-right: 4px; } }
+@media (max-width: 1100px) { .top-plots { grid-template-columns: 1fr; } }
+@media (max-width: 1200px) { .bottom-plots.with-accuracy { grid-template-columns: 1fr; } }
+@media (max-width: 720px) { main { grid-template-columns: 1fr; } .control-pair { grid-template-columns: 1fr; } h1 { font-size: 24px; } }
+@media (max-width: 480px) { footer { justify-content: center; } }

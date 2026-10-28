@@ -13,7 +13,10 @@
     .eyebrow { margin: 0 0 10px; color: #596b78; font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
     h1 { margin: 0; font-size: clamp(28px, 4vw, 40px); letter-spacing: -.035em; line-height: 1.15; }
     .intro { margin: 12px 0 0; color: #526471; font-size: 18px; line-height: 1.5; }
-    .simulations { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(5, auto); grid-auto-flow: column; gap: 16px; }
+    .simulation-group { padding: 20px; border: 1px solid #d7e0e6; border-radius: 16px; background: #edf2f5; box-shadow: 0 2px 7px #20313c08; }
+    .simulation-group + .simulation-group { margin-top: 20px; }
+    .group-title { margin: 0 0 13px; color: #385568; font-size: 23px; font-weight: 750; letter-spacing: -.01em; line-height: 1.25; }
+    .simulations { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
     .card { display: flex; align-items: flex-start; gap: 16px; padding: 22px 22px 22px 20px; border: 1px solid #dce3e8; border-left: 12px solid var(--accent); border-radius: 12px; background: white; color: inherit; text-decoration: none; box-shadow: 0 2px 5px #20313c05; transition: transform .15s, box-shadow .15s, border-color .15s; }
     .card:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 6px 18px #20313c12; }
     .card h2 { margin: 0 0 7px; font-size: 21px; font-weight: 650; line-height: 1.25; }
@@ -27,7 +30,7 @@
     details { margin-top: 22px; color: #526471; font-size: 14px; line-height: 1.65; }
     summary { width: fit-content; cursor: pointer; font-weight: 600; color: #385568; }
     details p { max-width: 78ch; margin: 10px 0; }
-    @media (max-width: 640px) { .page { padding: 28px 18px 20px; } .simulations { grid-template-columns: 1fr; grid-template-rows: none; grid-auto-flow: row; } .card { padding: 20px 16px; } }
+    @media (max-width: 640px) { .page { padding: 28px 18px 20px; } .simulation-group { padding: 14px; border-radius: 14px; } .simulations { grid-template-columns: 1fr; grid-template-rows: none; grid-auto-flow: row; } .card { padding: 20px 16px; } }
     @media (prefers-reduced-motion: reduce) { .card { transition: none; } .card:hover { transform: none; } }
   </style>
 </head>
@@ -39,35 +42,71 @@
       <p class="intro">Explore channels, synapses, neurons, and learning.</p>
     </header>
     <main>
-      <nav class="simulations" aria-label="Choose a simulation">
-        <a class="card" target="singleChannelSimulation" rel="opener" href="SingleChannel/index.html" style="--accent: #e46982">
-          <div><h2>Single-Channel Activity</h2><p>Explore random channel openings and the currents they produce.</p></div><span class="arrow" aria-hidden="true">↗</span>
-        </a>
-        <a class="card" target="ivCurvesSimulation" rel="opener" href="IVCurves/IVCurves.html" style="--accent: #167b87">
-          <div><h2>Channel Currents &amp; I–V Curves</h2><p>Compare population currents and current–voltage relationships across channel types.</p></div><span class="arrow" aria-hidden="true">↗</span>
-        </a>
-        <a class="card" target="quantalReleaseSimulation" rel="opener" href="QuantalRelease/BinomSim.html" style="--accent: #9933cc">
-          <div><h2>Quantal Release</h2><p>Explore a binomial model of how release-site number, release probability, and quantal amplitude shape responses.</p></div><span class="arrow" aria-hidden="true">↗</span>
-        </a>
-        <a class="card" target="heterogeneousReleaseSimulation" rel="opener" href="HeterogeneousRelease/HeterogeneousSimulation.html" style="--accent: #2176ff">
-          <div><h2>Heterogeneous Release</h2><p>Explore what happens when binomial assumptions do not hold: release sites have different probabilities or quantal amplitudes.</p></div><span class="arrow" aria-hidden="true">↗</span>
-        </a>
-        <a class="card" target="cvAnalysisSimulation" rel="opener" href="CVAnalysis/CVAnalysis.html" style="--accent: #a86812">
-          <div><h2>CV Analysis</h2><p>Use changes in response mean and variability to explore the locus of synaptic plasticity and the importance of sample size.</p></div><span class="arrow" aria-hidden="true">↗</span>
-        </a>
-        <a class="card" target="lifSimulation" rel="opener" href="LIF/LIFSim.html" style="--accent: #4caf50">
-          <div><h2>Integrate-and-Fire</h2><p>Investigate temporal integration, spiking, and short-term synaptic plasticity.</p></div><span class="arrow" aria-hidden="true">↗</span>
-        </a>
-        <a class="card" target="hhSimulation" rel="opener" href="HH/HH.html" style="--accent: #33b5e5">
-          <div><h2>Hodgkin–Huxley</h2><p>Examine action potentials and ionic currents with current and voltage clamp.</p></div><span class="arrow" aria-hidden="true">↗</span>
-        </a>
-        <a class="card" target="stdpSimulation" rel="opener" href="STDP/STDPSim.html" style="--accent: #26a69a">
-          <div><h2>STDP</h2><p>Discover how spike timing changes synaptic strength and input selectivity.</p></div><span class="arrow" aria-hidden="true">↗</span>
-        </a>
-        <a class="card" target="hopfieldSimulation" rel="opener" href="hopfield/hopfield.html" style="--accent: #fa5e5e">
-          <div><h2>Hopfield Memory</h2><p>Retrieve stored patterns from noisy cues in a content-addressable network.</p></div><span class="arrow" aria-hidden="true">↗</span>
-        </a>
-      </nav>
+      <section class="simulation-group" aria-labelledby="membrane-heading">
+        <h2 class="group-title" id="membrane-heading">Membrane Potentials and Excitability</h2>
+        <nav class="simulations" aria-label="Membrane Potentials and Excitability simulations">
+          <a class="card" target="nernstGoldmanSimulation" href="NernstGoldman/NernstGoldman.html" style="--accent: #365f91">
+            <div><h2>Nernst &amp; Goldman Potentials</h2><p>Explore how ion concentrations and relative permeabilities determine equilibrium and membrane potentials.</p></div><span class="arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="card" target="ivCurvesSimulation" href="IVCurves/IVCurves.html" style="--accent: #167b87">
+            <div><h2>Channel Currents &amp; I–V Curves</h2><p>Compare population currents and current–voltage relationships across channel types.</p></div><span class="arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="card" target="hhSimulation" href="HH/HH.html" style="--accent: #33b5e5">
+            <div><h2>Hodgkin–Huxley</h2><p>Examine action potentials and ionic currents with current and voltage clamp.</p></div><span class="arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="card" target="lifSimulation" href="LIF/LIFSim.html" style="--accent: #4caf50">
+            <div><h2>Integrate-and-Fire</h2><p>Investigate temporal integration, spiking, and short-term synaptic plasticity.</p></div><span class="arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="card" target="passiveDendriteSimulation" href="PassiveDendrite/PassiveDendrite.html" style="--accent: #267d73">
+            <div><h2>Passive Dendrites</h2><p>Explore how cable properties attenuate, delay, and broaden signals as they spread through a dendrite.</p></div><span class="arrow" aria-hidden="true">↗</span>
+          </a>
+        </nav>
+      </section>
+
+      <section class="simulation-group" aria-labelledby="synaptic-heading">
+        <h2 class="group-title" id="synaptic-heading">Synaptic Transmission and Plasticity</h2>
+        <nav class="simulations" aria-label="Synaptic Transmission and Plasticity simulations">
+          <a class="card" target="singleChannelSimulation" href="SingleChannel/index.html" style="--accent: #e46982">
+            <div><h2>Single-Channel Activity</h2><p>Explore random channel openings and the currents they produce.</p></div><span class="arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="card" target="quantalReleaseSimulation" href="QuantalRelease/BinomSim.html" style="--accent: #9933cc">
+            <div><h2>Quantal Release</h2><p>Explore a binomial model of how release-site number, release probability, and quantal amplitude shape responses.</p></div><span class="arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="card" target="heterogeneousReleaseSimulation" href="HeterogeneousRelease/HeterogeneousSimulation.html" style="--accent: #2176ff">
+            <div><h2>Heterogeneous Release</h2><p>Explore non-binomial release arising from different release probabilities or quantal amplitudes.</p></div><span class="arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="card" target="cvAnalysisSimulation" href="CVAnalysis/CVAnalysis.html" style="--accent: #a86812">
+            <div><h2>CV Analysis</h2><p>Use changes in response mean and variability to explore the locus of synaptic plasticity and the importance of sample size.</p></div><span class="arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="card" target="stdpSimulation" href="STDP/STDPSim.html" style="--accent: #26a69a">
+            <div><h2>STDP</h2><p>Discover how spike timing changes synaptic strength and input selectivity.</p></div><span class="arrow" aria-hidden="true">↗</span>
+          </a>
+        </nav>
+      </section>
+
+      <section class="simulation-group" aria-labelledby="coding-heading">
+        <h2 class="group-title" id="coding-heading">Coding and Networks</h2>
+        <nav class="simulations" aria-label="Coding and Networks simulations">
+          <a class="card" target="populationCodingSimulation" href="PopulationCoding/PopulationCoding.html" style="--accent: #6253a3">
+            <div><h2>Population Coding</h2><p>Explore how neural populations encode stimulus direction and how decoders estimate it from stochastic spikes.</p></div><span class="arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="card" target="hopfieldSimulation" href="hopfield/hopfield.html" style="--accent: #fa5e5e">
+            <div><h2>Hopfield Memory</h2><p>Retrieve stored patterns from noisy cues in a content-addressable network.</p></div><span class="arrow" aria-hidden="true">↗</span>
+          </a>
+        </nav>
+      </section>
+
+      <section class="simulation-group" aria-labelledby="recording-heading">
+        <h2 class="group-title" id="recording-heading">Electrophysiology and Recording</h2>
+        <nav class="simulations" aria-label="Electrophysiology and Recording simulations">
+          <a class="card" target="currentClampRsSimulation" href="CurrentClampRs/index.html" style="--accent: #477fa5">
+            <div><h2>Series Resistance in Current Clamp</h2><p>Explore how electrode resistance and capacitance distort passive responses, action potentials, and EPSPs.</p></div><span class="arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="card" target="voltageClampRsSimulation" href="VoltageClampRs/index.html" style="--accent: #76506f">
+            <div><h2>Series Resistance in Voltage Clamp</h2><p>Explore clamp error, current measurement, compensation, and post-hoc correction of I–V relations.</p></div><span class="arrow" aria-hidden="true">↗</span>
+          </a>
+        </nav>
+      </section>
       <details id="help">
         <summary>How to use these simulations</summary>
         <p>Choose a simulation to open it in a new tab, then adjust its controls to explore how the model behaves. This menu stays open in its original tab, so you can return here to choose another simulation.</p>
@@ -77,8 +116,8 @@
     <footer>
       <p><strong>Neuroscience teaching tools</strong></p>
       <nav aria-label="Further information">
-        <a href="http://plasticity.muhc.mcgill.ca/index.html" target="_new">Sjöström Lab</a>
-        <a href="https://github.com/sjostromlab/SjostromLab.github.io" target="_new">GitHub source</a>
+        <a href="http://plasticity.muhc.mcgill.ca/index.html" target="_blank" rel="noopener">Sjöström Lab</a>
+        <a href="https://github.com/sjostromlab/SjostromLab.github.io" target="_blank" rel="noopener">GitHub source</a>
       </nav>
     </footer>
   </div>

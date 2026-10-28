@@ -33,6 +33,74 @@ function downloadPlotPNG(plot) {
   });
 }
 
+function saveCsv(filename, rows) {
+	var blob = new Blob([rows.join('\r\n') + '\r\n'], {type: 'text/csv;charset=utf-8'});
+	var url = URL.createObjectURL(blob);
+	var link = document.createElement('a');
+	link.href = url;
+	link.download = filename;
+	document.body.appendChild(link);
+	link.click();
+	link.remove();
+	setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+}
+
+function downloadDataCsv() {
+	var ps = [p_r, p_2, p_3].slice(0, n);
+	var qs = [q_1, q_2, q_3].slice(0, n);
+	var rows = [
+		'parameter,value',
+		'number_of_release_sites,' + n,
+		'noise_SD_pA,' + noise,
+		'release_mean_pA,' + theMean,
+		'release_SD_pA,' + theSD,
+		'release_CV,' + CV
+	];
+	for (var site = 0; site < n; site++) {
+		rows.push('site_' + (site + 1) + '_release_probability,' + ps[site]);
+		rows.push('site_' + (site + 1) + '_quantal_amplitude_pA,' + qs[site]);
+	}
+
+	rows.push('', 'release_pattern,amplitude_pA,probability');
+	for (var mask = 0; mask < (1 << n); mask++) {
+		var pattern = [];
+		var amplitude = 0;
+		var probability = 1;
+		for (var i = 0; i < n; i++) {
+			var released = Boolean(mask & (1 << i));
+			pattern.push(released ? 1 : 0);
+			amplitude += released ? qs[i] : 0;
+			probability *= released ? ps[i] : (1 - ps[i]);
+		}
+		rows.push(pattern.join('') + ',' + amplitude + ',' + probability);
+	}
+
+	var exactAmplitudes = [];
+	var exactProbabilities = [];
+	get_Axis(n, ps, qs, exactAmplitudes, exactProbabilities);
+	rows.push('', 'merged_amplitude_pA,probability');
+	for (var j = 0; j < exactAmplitudes.length; j++) {
+		rows.push(exactAmplitudes[j] + ',' + exactProbabilities[j]);
+	}
+
+	rows.push('', 'histogram_bin_center_pA,probability,cumulative_percent');
+	var histogramLength = Math.max(xdatah.length, ydatah.length, cumulativeh.length);
+	for (var h = 0; h < histogramLength; h++) {
+		rows.push([
+			xdatah[h] == null ? '' : xdatah[h],
+			ydatah[h] == null ? '' : ydatah[h],
+			cumulativeh[h] == null ? '' : cumulativeh[h]
+		].join(','));
+	}
+
+	rows.push('', 'sampled_amplitude_pA,probability_mass,cumulative_percent');
+	var stride = Math.max(1, Math.ceil(xdata.length / 5000));
+	for (var p = 0; p < xdata.length; p += stride) {
+		rows.push([xdata[p], ydata[p], cumulative[p]].join(','));
+	}
+	saveCsv('HeterogeneousRelease_data.csv', rows);
+}
+
 var config = {
   responsive: true,
   modeBarButtonsToRemove: ['toImage'],
@@ -154,7 +222,7 @@ var q_1 = 6;
 var q_2 = 0;
 var q_3 = 0;
 
-var noise = 0;	// 
+var noise = 0.8;	// pA measurement-noise standard deviation
 
 var p_rMin = 0; //
 var p_2Min = 0;	//
@@ -276,6 +344,7 @@ var userp3Total = document.getElementById("p3Total");
 
 document.getElementById("reset").addEventListener("click", resetPanel);
 document.getElementById("toggle").addEventListener("click", toggle);
+document.getElementById("downloadData").addEventListener("click", downloadDataCsv);
 document.getElementById("p_linked").addEventListener("click", link_p);
 document.getElementById("q_linked").addEventListener("click", link_q);
 
@@ -429,7 +498,7 @@ function submitSlider(event) {
 function resetPanel(event) {
 	event.preventDefault();
 
-	userhistogFlag.checked = false;
+	userhistogFlag.checked = true;
 	userplinkFlag.checked = false;
 	userqlinkFlag.checked = false;
 
@@ -446,7 +515,7 @@ function resetPanel(event) {
 	q_1Max = 20;
 	q_2Max = 20;
 	q_3Max = 20;
-	noise = 0;
+	noise = 0.8;
 
 	cal_Mean();
 	initialize();

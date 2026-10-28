@@ -15,6 +15,9 @@
  * Subsequent teaching/interface updates include changes made with OpenAI
  * Codex under Sjöström's direction in 2026. Original student authorship is
  * distinct from those later changes; this is not a line-by-line change log.
+ * The stick-dendrite solver was replaced on 21 October 2026 by OpenAI Codex,
+ * under Sjöström's guidance, with a geometry- and axial-resistivity-based
+ * compartmental cable supporting graded active propagation.
  */
 
 //const { pi, json } = require("mathjs");
@@ -27,7 +30,7 @@
 
 // Bypass the legacy Plotly Safari download path using a PNG Blob.
 function downloadPlotPNG(plot) {
-  var filenames = {myDiv1: 'HH_voltage', myDiv2: 'HH_ionic_currents', myDiv4: 'HH_total_current'};
+  var filenames = {myDiv1: 'HH_voltage', dendriteSpatialPlot: 'HH_dendritic_spatial_profile', myDiv2: 'HH_ionic_currents', myDiv4: 'HH_total_current'};
   return Plotly.toImage(plot, {
     format: 'png', width: plot._fullLayout.width, height: plot._fullLayout.height, scale: 2
   }).then(function(dataURL) {
@@ -188,10 +191,29 @@ var layout10 = {
   showlegend: true,
 };
 
+var layoutSpatial = {
+  title: '<b>Spatial Profile</b>',
+  xaxis: {
+    title: '<b>Distance from soma (µm)</b>'
+  },
+  yaxis: {
+    title: '<b>V<sub>m</sub> (mV)</b>'
+  },
+  autosize: true,
+  paper_bgcolor: '#ffffff',
+  showlegend: false
+};
+
 // Keep all three stacked plots compact while preserving most of the data area.
 function compactPlotLayout(plotLayout) {
   plotLayout.height = 345;
   plotLayout.margin = {t: 42, b: 58, l: 80, r: 123, pad: 0, autoexpand: false};
+  plotLayout.paper_bgcolor = '#ffffff';
+  plotLayout.plot_bgcolor = '#ffffff';
+  plotLayout.font = {family: 'Arial, Helvetica, sans-serif', color: '#24323a'};
+  plotLayout.hovermode = 'closest';
+  plotLayout.hoverdistance = 18;
+  plotLayout.spikedistance = -1;
 
   var heading = plotLayout.title;
   plotLayout.title = {
@@ -210,16 +232,18 @@ function compactPlotLayout(plotLayout) {
   });
 }
 
-[layout, layout2, layout3, layout4, layout5, layout6, layout7, layout8, layout9, layout10].forEach(compactPlotLayout);
+[layout, layout2, layout3, layout4, layout5, layout6, layout7, layout8, layout9, layout10, layoutSpatial].forEach(compactPlotLayout);
 
 function setAxisLabelSize(size) {
-  [layout, layout2, layout3, layout4, layout5, layout6, layout7, layout8, layout9, layout10].forEach(function(plotLayout) {
+  document.documentElement.style.setProperty('--hh-axis-font-size', size + 'px');
+  [layout, layout2, layout3, layout4, layout5, layout6, layout7, layout8, layout9, layout10, layoutSpatial].forEach(function(plotLayout) {
     // Reserve identical room for axes and the widest legend on every graph.
+	var legendSize = Math.max(12, size - 6);
     plotLayout.margin.l = 58 + size;
-    plotLayout.margin.r = 35 + 4 * size;
+	plotLayout.margin.r = 92 + 7 * legendSize;
     plotLayout.margin.b = 36 + size;
     plotLayout.margin.autoexpand = false;
-    plotLayout.legend = {font: {size: size}};
+    plotLayout.legend = {font: {size: legendSize}, tracegroupgap: 0};
     var heading = plotLayout.title;
     plotLayout.title = Object.assign({},
       typeof heading === 'string' ? {text: heading} : heading,
@@ -234,6 +258,10 @@ function setAxisLabelSize(size) {
       plotLayout[axis].tickfont = {size: size};
       plotLayout[axis].automargin = false;
     });
+	if (plotLayout === layoutSpatial) {
+	  plotLayout.margin.r = 28;
+	  plotLayout.showlegend = false;
+	}
   });
 }
 
@@ -241,24 +269,30 @@ setAxisLabelSize(22);
 
 document.getElementById('axisFontSize').addEventListener('input', function(event) {
   var size = Number(event.target.value);
+	var legendSize = Math.max(12, size - 6);
   setAxisLabelSize(size);
   document.getElementById('axisFontSizeValue').textContent = size + ' px';
-  ['myDiv1', 'myDiv2', 'myDiv4'].forEach(function(id) {
+  ['myDiv1', 'myDiv2', 'myDiv4', 'dendriteSpatialPlot'].forEach(function(id) {
+	if (!document.getElementById(id).data) return;
     Plotly.relayout(id, {
-      'legend.font.size': size,
+	  'legend.font.size': legendSize,
       'title.font.size': size,
       'xaxis.title.font.size': size,
       'yaxis.title.font.size': size,
       'xaxis.tickfont.size': size,
       'yaxis.tickfont.size': size,
       'margin.l': 58 + size,
-      'margin.r': 35 + 4 * size,
+      'margin.r': id === 'dendriteSpatialPlot' ? 28 : 92 + 7 * legendSize,
       'margin.b': 36 + size,
       'margin.autoexpand': false,
       'xaxis.automargin': false,
       'yaxis.automargin': false
     });
   });
+  if (userDendrite && userDendrite.checked) {
+	renderDendriteGeometry();
+	renderDendriteSnapshot();
+  }
 });
 
 function setTimeAxisRange() {
@@ -274,7 +308,8 @@ function setTimeAxisRange() {
  
 
 var dt = 0.01;               // time step for forward euler method
-var offset = 3/dt; 
+var currentStart = 1;
+var offset = currentStart/dt;
 var vcoffset = 25/dt; 
 var Cm = 0.01; 
 
@@ -307,20 +342,21 @@ var h2 = alphaH(v2)/(alphaH(v2)+betaH(v2));
 var ni = alphaN(v)/(alphaN(v)+betaN(v)); 
 var n2 = alphaN(v2)/(alphaN(v2)+betaN(v2)); 
 
-var gNap = 0.283333;
-var gKp = 0.555555;
+var gNap = 15; // dendritic Na density, percent of soma
+var gKp = 100; // dendritic K density, percent of soma
 
 var VC = 0; 
 var clampv = 0; 
 var clampv2 = 0;
 var clamptime=5;
 var clamptime2=0;
+var vcStart=1;
 var restv = -60;
 
 //dendrite set up
 
-var nSegments=1;
-var g_coupl=2000; //ns
+var nSegments=16;
+var g_coupl=150; // axial resistivity, ohm cm (legacy variable name retained for UI compatibility)
 var synLoc=0;
 var d_soma=20; //um
 var d_dend=1; //um 
@@ -329,12 +365,14 @@ var R_input = 100;
 var tauM = 10;
 //var C_M = tauM*0.001/(R_input*1*1e6)*1*1e12;
 var C_M = 0.01;
-var A_soma = 4*Math.PI*(d_soma/2)^2;
+var A_soma = 4*Math.PI*Math.pow(d_soma/2, 2);
 var A_seg = 2*Math.PI*(d_dend/2)*l_seg;
 var R_seg = d_dend*l_dend/(2*d_soma*nSegments)*R_input;
 var tauM_seg = R_seg*1e6*C_M*1e-12*1e3;
 var l_seg = l_dend/nSegments;
 var durationD = 1;
+var dendriteStart = 1;
+var currentinj = 0.45;
 var vDend = [];
 
 //set up soma
@@ -416,6 +454,7 @@ userclamptime.classList.remove("shown");
 document.getElementById("clampVlabel").style.display='none';
 
 var userrestV = document.getElementById("restV"); 
+var userstartV = document.getElementById("startV");
 var userdurationV = document.getElementById("durationV");
 //var userRefPanel = document.getElementById("refPanel");
 
@@ -433,6 +472,7 @@ var userHHpanel1 = document.getElementById("pbottom");
 var usertspan = document.getElementById("tspan"); 
 var usertspan2 = document.getElementById("tspan2"); 
 var useriinput = document.getElementById("iinput"); 
+var userstartHH = document.getElementById("startHH");
 var usercurd = document.getElementById("duration"); 
 var userrv = document.getElementById("rv");
 var useriinput2 = document.getElementById("iinput2"); 
@@ -449,10 +489,13 @@ document.getElementById("iinput2label").style.display = 'none';
 document.getElementById("durationHHlabel").style.display = 'none';
 
 var userDpanel = document.getElementById("DPanel");
+var usertspanD = document.getElementById("tspanD");
 var userseg = document.getElementById("seg");
 var useriinputd = document.getElementById("iinputd");
+var useriinputdRange = document.getElementById("iinputdRange");
 var usergcoup = document.getElementById("gcoup");
 var usercurrentinj = document.getElementById("currentinj");
+var userstartD = document.getElementById("startD");
 var userdurationD = document.getElementById("durationD");
 var userd_soma = document.getElementById("d_soma");
 var userd_dend = document.getElementById("d_dend");
@@ -462,6 +505,14 @@ var usergKp = document.getElementById("gKp");
 
 var usergNapRange = document.getElementById("gNapRange");
 var usergKpRange = document.getElementById("gKpRange");
+var dendriteAnimationControls = document.getElementById("dendriteAnimationControls");
+var dendriteAnimationButton = document.getElementById("dendriteAnimationButton");
+var dendriteTimeNumber = document.getElementById("dendriteTimeNumber");
+var dendriteTimeRange = document.getElementById("dendriteTimeRange");
+var dendriteAnimationFrame = null;
+var dendriteAnimationPreviousTime = null;
+var dendriteAnimationRunning = false;
+var dendriteSnapshotIndex = 0;
 
 
 document.getElementById("reset").addEventListener("click", resetPanel); 
@@ -477,6 +528,7 @@ document.getElementById("tea").addEventListener("change", blocker);
 document.getElementById("clampV").addEventListener("change", VCsubmit); 
 document.getElementById("clampVtime").addEventListener("change", VCsubmit); 
 document.getElementById("restV").addEventListener("change", VCsubmit); 
+document.getElementById("startV").addEventListener("change", VCsubmit);
 document.getElementById("durationV").addEventListener("change", VCsubmit); 
 
 document.getElementById("custompara").addEventListener("change", customize); 
@@ -490,6 +542,7 @@ document.getElementById("nRange").addEventListener("input", submitSlider);
 document.getElementById("tspan").addEventListener("change", submit); 
 document.getElementById("tspan2").addEventListener("change", VCsubmit); 
 document.getElementById("iinput").addEventListener("change", submit); 
+document.getElementById("startHH").addEventListener("change", submit);
 document.getElementById("duration").addEventListener("change", submit); 
 document.getElementById("rv").addEventListener("change", submit); 
 document.getElementById("iinput2").addEventListener("change", submit); 
@@ -498,16 +551,31 @@ document.getElementById("iinput2").addEventListener("change", submit);
 document.getElementById("durationHH").addEventListener("change", submit); 
 
 document.getElementById("seg").addEventListener("change", submit);
+document.getElementById("tspanD").addEventListener("change", submit);
 document.getElementById("iinputd").addEventListener("change", submit);
+useriinputdRange.addEventListener("input", function(event) {
+	useriinputd.value = useriinputdRange.value;
+	submit(event);
+});
 document.getElementById("gcoup").addEventListener("change", submit);
 document.getElementById("currentinj").addEventListener("change", submit);
+document.getElementById("startD").addEventListener("change", submit);
 document.getElementById("durationD").addEventListener("change",submit);
 document.getElementById("d_dend").addEventListener("change", submit);
 document.getElementById("l_dend").addEventListener("change", submit);
 document.getElementById("d_soma").addEventListener("change", submit);
+document.getElementById("gNap").addEventListener("change", submit);
+document.getElementById("gKp").addEventListener("change", submit);
 
 document.getElementById("gNapRange").addEventListener("input", submitSlider);
 document.getElementById("gKpRange").addEventListener("input", submitSlider);
+dendriteAnimationButton.addEventListener("click", toggleDendriteAnimation);
+dendriteTimeRange.addEventListener("input", function() {
+	setDendriteSnapshotFromTime(parseFloat(dendriteTimeRange.value));
+});
+dendriteTimeNumber.addEventListener("change", function() {
+	setDendriteSnapshotFromTime(parseFloat(dendriteTimeNumber.value));
+});
 
 
 
@@ -516,10 +584,14 @@ document.getElementById("gKpRange").addEventListener("input", submitSlider);
 
 function switchClampMode(event) {
 	event.preventDefault(); 
+	stopDendriteAnimation();
 	VC = VC ? 0 : 1;
 	userClampMode.value = VC ? 'Switch to current clamp' : 'Switch to voltage clamp';
 
 	if (VC) {
+		userDendrite.checked = false;
+		setDendriteModeControls(false);
+		setDendriteDisplayMode(false);
 		var top = document.getElementById("ptop1");
 		top.classList.add("hidden");
 		top.classList.remove("shown");
@@ -589,10 +661,12 @@ window.addEventListener("load", (event) => {
 
 function resetPanel(event) {
 	event.preventDefault(); 
+	stopDendriteAnimation();
 	
-	tspan = 25; 
+	tspan = userDendrite.checked ? 10 : 25;
 	I = 0.1; 
 	curd = 1; 
+	currentStart = 1;
 	v = -60; 
 	mi = alphaM(v)/(alphaM(v)+betaM(v)); 
 	hi = alphaH(v)/(alphaH(v)+betaH(v)); 
@@ -602,7 +676,15 @@ function resetPanel(event) {
 	n2 = alphaN(v)/(alphaN(v)+betaN(v));  
 	clampv = 0; 
 	clamptime=0;
+	vcStart=1;
 	restv = -60; 
+	nSegments = 16;
+	synLoc = 0;
+	g_coupl = 150;
+	currentinj = 0.45;
+	dendriteStart = 1;
+	gNap = 15;
+	gKp = 100;
 
 	VQ = []; 
 	inaQ = []; 
@@ -615,6 +697,8 @@ function resetPanel(event) {
 }
 
 function initialize() {
+	stopDendriteAnimation();
+	setDendriteModeControls(userDendrite.checked);
 	usermi.value = mi; 
 	usermRange.value = mi; 
 	userhi.value = hi; 
@@ -623,21 +707,27 @@ function initialize() {
 	usernRange.value = ni; 
 	usertspan.value = tspan; 
 	usertspan2.value=tspan;
+	usertspanD.value = tspan;
 	useriinput.value = 0.45; 
 	useriinput2.value = 0.45;
+	userstartHH.value = currentStart;
 	usercurd.value = curd; 
 	//usercurd2.value = 0;
 	userrv.value = v; 
 	//userrv2.value = v;
 	userclampV.value = clampv; 
 	userclamptime.value=clamptime;
+	userstartV.value=vcStart;
 	userdurationV.value=5;
 	userrestV.value = restv;
 	userdurationHH.value = 5;
 	usergcoup.value = g_coupl;
-	userseg.value = 1;
+	userseg.value = nSegments;
 	useriinputd.value = 0;
-	usercurrentinj.value = 0.1;
+	useriinputdRange.max = nSegments;
+	useriinputdRange.value = 0;
+	usercurrentinj.value = 0.45;
+	userstartD.value=dendriteStart;
 	userdurationD.value=durationD;
 	userd_dend.value = d_dend;
 	userd_soma.value = d_soma;
@@ -690,14 +780,33 @@ function submitSlider(event) {
 	submit(event); 
 }
 
+function setDendriteModeControls(enabled) {
+	userRef.disabled = enabled;
+	userlastFlag.disabled = enabled;
+	userlast10Flag.disabled = enabled;
+	if (enabled) {
+		userRef.checked = false;
+		userlastFlag.checked = false;
+		userlast10Flag.checked = false;
+	}
+	document.getElementById("refLabel").classList.toggle("disabled-control", enabled);
+	document.getElementById("ptoptop").classList.toggle("disabled-card", enabled);
+}
+
 function submit(event) {
   event.preventDefault(); 
+	stopDendriteAnimation();
 
   if (VC) {
   	VCsubmit(event); 
   } 
 
   else {
+	if (userDendrite.checked && event.target === userDendrite) {
+		usertspanD.value = 10;
+		usertspan.value = 10;
+	}
+	setDendriteModeControls(userDendrite.checked);
 	if(userDendrite.checked){
 		userDpanel.classList.add("shown");
 		userDpanel.classList.remove("hidden");
@@ -754,21 +863,35 @@ function submit(event) {
 	buildQ(ittQ, itt.slice()); 
   	
   	foolProve(); 
-  	tspan = parseFloat(usertspan.value); 
+	  tspan = userDendrite.checked ? parseFloat(usertspanD.value) : parseFloat(usertspan.value);
+	  usertspan.value = tspan;
+	  usertspanD.value = tspan;
   	I = parseFloat(useriinput.value); 
+	currentStart = Math.max(0, Math.min(tspan, parseFloat(userstartHH.value)));
+	userstartHH.value = currentStart;
   	curd = parseFloat(usercurd.value); 
   	v = parseFloat(userrv.value); 
 	I2 = parseFloat(useriinput2.value);
 	curd2 = 0;
 	time = parseFloat(userdurationHH.value);
-	nSegments = parseFloat(userseg.value);
-	synLoc = parseFloat(useriinputd.value);
+	nSegments = Math.max(2, Math.min(20, Math.round(parseFloat(userseg.value))));
+	userseg.value = nSegments;
+	useriinputdRange.max = nSegments;
+	synLoc = Math.max(0, Math.min(nSegments, Math.round(parseFloat(useriinputd.value))));
+	useriinputd.value = synLoc;
+	useriinputdRange.value = synLoc;
 	g_coupl = parseFloat(usergcoup.value);
 	currentinj = parseFloat(usercurrentinj.value);
+	dendriteStart = Math.max(0, Math.min(tspan, parseFloat(userstartD.value)));
+	userstartD.value = dendriteStart;
 	durationD = parseFloat(userdurationD.value);
 	d_soma = parseFloat(userd_soma.value);
 	l_dend = parseFloat(userl_dend.value);
 	d_dend = parseFloat(userd_dend.value);
+	usergNap.value = Math.max(0, Math.min(100, parseFloat(usergNap.value)));
+	usergKp.value = Math.max(0, Math.min(100, parseFloat(usergKp.value)));
+	usergNapRange.value = usergNap.value;
+	usergKpRange.value = usergKp.value;
 
   	usermRange.value = usermi.value; 
   	userhRange.value = userhi.value; 
@@ -779,7 +902,7 @@ function submit(event) {
   	ni = parseFloat(userni.value); 
 
 	l_seg = l_dend/nSegments;
-	A_soma = 4*Math.PI*(d_soma/2)^2;
+	A_soma = 4*Math.PI*Math.pow(d_soma/2, 2);
 	A_seg = 2*Math.PI*(d_dend/2)*l_seg;
 	R_seg = d_dend*l_dend/(2*d_soma*nSegments)*R_input;
 	tauM_seg = R_seg*1e6*C_M*1e-12*1e3;
@@ -815,9 +938,10 @@ function buildHH() {
 	curinjt2=[];
 	itt = []; 
 	vMembrane=[restv];
-	for(var i=0; i<10; i++)[
-		vDend[i]=[restv]
-	]
+	vDend = [];
+	for(var i=0; i<nSegments; i++){
+		vDend[i]=[v];
+	}
 	for(var i=0; i<nSegments; i++){
 		inad.push([]);
 		ikd.push([]);
@@ -826,15 +950,149 @@ function buildHH() {
 		hd.push([]);
 		nd.push([]);
 	}
-	gNad = gNa*usergNap.value;
-	gKd = gK*usergKp.value;
-	document.getElementById("gNav").innerText = gNad+" S";
-	document.getElementById("gKv").innerText = gKd+" S";
+	gNad = gNa*parseFloat(usergNap.value)/100;
+	gKd = gK*parseFloat(usergKp.value)/100;
 
-	hhrun(); 
+	if(userDendrite.checked){
+		runStickDendrite();
+	}
+	else{
+		hhrun();
+	}
+}
+
+// Physically scaled active stick cable. Node 0 is the soma; nodes 1..N are
+// equal dendritic compartments. Axial conductance follows cylinder geometry
+// and Ra. The distal boundary is sealed. Dendritic Na and K densities are
+// expressed as percentages of their somatic HH densities.
+function runStickDendrite() {
+	var nodeCount = nSegments + 1;
+	var internalDt = 0.002; // ms; small enough for explicit HH and axial terms
+	var outputEvery = Math.max(1, Math.round(dt/internalDt));
+	var totalSteps = Math.round(tspan/internalDt);
+	var inputStart = dendriteStart;
+	var ra = Math.max(1, parseFloat(usergcoup.value));
+	var dxUm = l_dend/nSegments;
+	var dxCm = dxUm*1e-4;
+	var dendDiameterCm = d_dend*1e-4;
+	var somaDiameterCm = d_soma*1e-4;
+	var dendAreaCm2 = Math.PI*dendDiameterCm*dxCm;
+	var somaAreaCm2 = Math.PI*Math.pow(somaDiameterCm, 2);
+	var crossSectionCm2 = Math.PI*Math.pow(dendDiameterCm, 2)/4;
+
+	// HH.js uses conductance and capacitance densities scaled by 1/100 from
+	// the conventional HH values. Apply the same scaling to axial conductance.
+	function scaledAxialConductance(pathCm) {
+		return (crossSectionCm2/(ra*pathCm))*1000/100; // scaled mS
+	}
+	var edgeConductance = new Float64Array(nSegments);
+	edgeConductance[0] = scaledAxialConductance((d_soma/2 + dxUm/2)*1e-4);
+	for(var edge=1; edge<nSegments; edge++) edgeConductance[edge] = scaledAxialConductance(dxCm);
+
+	var areas = new Float64Array(nodeCount);
+	var capacitances = new Float64Array(nodeCount);
+	var sodiumDensities = new Float64Array(nodeCount);
+	var potassiumDensities = new Float64Array(nodeCount);
+	var leakDensities = new Float64Array(nodeCount);
+	areas[0] = somaAreaCm2;
+	capacitances[0] = Cm;
+	sodiumDensities[0] = gNa;
+	potassiumDensities[0] = gK;
+	leakDensities[0] = gL;
+	for(var node=1; node<nodeCount; node++) {
+		areas[node] = dendAreaCm2;
+		capacitances[node] = C_M;
+		sodiumDensities[node] = gNad;
+		potassiumDensities[node] = gKd;
+		leakDensities[node] = gLd;
+	}
+
+	var volts = new Float64Array(nodeCount);
+	var gatesM = new Float64Array(nodeCount);
+	var gatesH = new Float64Array(nodeCount);
+	var gatesN = new Float64Array(nodeCount);
+	var nextVolts = new Float64Array(nodeCount);
+	var nextM = new Float64Array(nodeCount);
+	var nextH = new Float64Array(nodeCount);
+	var nextN = new Float64Array(nodeCount);
+	var holdingCurrent = new Float64Array(nodeCount);
+	var initialM = alphaM(v)/(alphaM(v)+betaM(v));
+	var initialH = alphaH(v)/(alphaH(v)+betaH(v));
+	var initialN = alphaN(v)/(alphaN(v)+betaN(v));
+
+	for(node=0; node<nodeCount; node++) {
+		volts[node] = v;
+		gatesM[node] = initialM;
+		gatesH[node] = initialH;
+		gatesN[node] = initialN;
+		// A small holding current keeps every channel-density condition at the
+		// same starting voltage, so density comparisons are not confounded by
+		// a different initial membrane potential.
+		holdingCurrent[node] = sodiumDensities[node]*Math.pow(initialM,3)*initialH*(v-eNa)
+			+ potassiumDensities[node]*Math.pow(initialN,4)*(v-eK)
+			+ leakDensities[node]*(v-eL);
+	}
+
+	t=[]; V=[]; m=[]; h=[]; n=[]; ina=[]; ik=[]; il=[]; itt=[];
+	curinj=[]; curinjt=[]; curinj2=[]; curinjt2=[]; fina=[]; fik=[];
+	vDend=[]; md=[]; hd=[]; nd=[]; inad=[]; ikd=[]; ild=[];
+	for(var seg=0; seg<nSegments; seg++) {
+		vDend.push([]); md.push([]); hd.push([]); nd.push([]);
+		inad.push([]); ikd.push([]); ild.push([]);
+	}
+
+	function storeState(timeMs, inputOn) {
+		t.push(timeMs);
+		V.push(volts[0]); m.push(gatesM[0]); h.push(gatesH[0]); n.push(gatesN[0]);
+		var somaNa = gNa*Math.pow(gatesM[0],3)*gatesH[0]*(volts[0]-eNa);
+		var somaK = gK*Math.pow(gatesN[0],4)*(volts[0]-eK);
+		var somaLeak = gL*(volts[0]-eL);
+		ina.push(somaNa); ik.push(somaK); il.push(somaLeak); itt.push(somaNa+somaK+somaLeak);
+		for(var s=0; s<nSegments; s++) {
+			var index=s+1;
+			vDend[s].push(volts[index]); md[s].push(gatesM[index]); hd[s].push(gatesH[index]); nd[s].push(gatesN[index]);
+			inad[s].push(gNad*Math.pow(gatesM[index],3)*gatesH[index]*(volts[index]-eNa));
+			ikd[s].push(gKd*Math.pow(gatesN[index],4)*(volts[index]-eK));
+			ild[s].push(gLd*(volts[index]-eL));
+		}
+		if(inputOn) { curinjt.push(timeMs); curinj.push(currentinj); }
+	}
+
+	storeState(0,false);
+	for(var step=1; step<=totalSteps; step++) {
+		var timeMs=step*internalDt;
+		var inputOn=timeMs>=inputStart && timeMs<inputStart+durationD;
+		for(node=0; node<nodeCount; node++) {
+			var voltage=volts[node];
+			var ionic=sodiumDensities[node]*Math.pow(gatesM[node],3)*gatesH[node]*(voltage-eNa)
+				+ potassiumDensities[node]*Math.pow(gatesN[node],4)*(voltage-eK)
+				+ leakDensities[node]*(voltage-eL);
+			var axial=0;
+			if(node>0) axial += edgeConductance[node-1]*(volts[node-1]-voltage)/areas[node];
+			if(node<nodeCount-1) axial += edgeConductance[node]*(volts[node+1]-voltage)/areas[node];
+			// The control is an absolute current in nA. Convert it to the
+			// density scale used by this HH implementation (conductances and
+			// capacitance are both scaled to 1/100 of the conventional values).
+			var injected=(inputOn && node===synLoc) ? currentinj*1e-3/(areas[node]*100) : 0;
+			nextVolts[node]=voltage+internalDt/capacitances[node]*(injected+axial+holdingCurrent[node]-ionic);
+			nextM[node]=gatesM[node]+internalDt*(alphaM(voltage)*(1-gatesM[node])-betaM(voltage)*gatesM[node]);
+			nextH[node]=gatesH[node]+internalDt*(alphaH(voltage)*(1-gatesH[node])-betaH(voltage)*gatesH[node]);
+			nextN[node]=gatesN[node]+internalDt*(alphaN(voltage)*(1-gatesN[node])-betaN(voltage)*gatesN[node]);
+			nextM[node]=Math.max(0,Math.min(1,nextM[node]));
+			nextH[node]=Math.max(0,Math.min(1,nextH[node]));
+			nextN[node]=Math.max(0,Math.min(1,nextN[node]));
+		}
+		var swap=volts; volts=nextVolts; nextVolts=swap;
+		swap=gatesM; gatesM=nextM; nextM=swap;
+		swap=gatesH; gatesH=nextH; nextH=swap;
+		swap=gatesN; gatesN=nextN; nextN=swap;
+		if(step%outputEvery===0) storeState(timeMs,inputOn);
+	}
+	for(var sample=0; sample<ina.length; sample++) { fina.push(-ina[sample]); fik.push(-ik[sample]); }
 }
 
 function hhrun() {
+	offset = Math.ceil(currentStart/dt);
 	if(userDendrite.checked){
 		curd=durationD;
 	}
@@ -868,7 +1126,7 @@ function hhrun() {
 		n.push(alphaN(v)/(alphaN(v)+betaN(v))); 
 		for(var i=0; i<nSegments; i++){
 			(md[i]).push(alphaM(v)/(alphaM(v)+betaM(v)));
-			(hd[i]).push(alphaM(v)/(alphaM(v)+betaM(v)));
+			(hd[i]).push(alphaH(v)/(alphaH(v)+betaH(v)));
 			(nd[i]).push(alphaN(v)/(alphaN(v)+betaN(v))); 
 		}
 		usermi.value = m[0]; 
@@ -1055,8 +1313,176 @@ for (var i = 0; i < ina.length; i++) {
 }
 
 
+function dendriteTraceColour(segmentIndex) {
+	var fraction = (segmentIndex + 1) / nSegments;
+	var red = Math.round(219 + (51 - 219) * fraction);
+	var green = Math.round(64 + (181 - 64) * fraction);
+	var blue = Math.round(82 + (229 - 82) * fraction);
+	return "rgb(" + red + ", " + green + ", " + blue + ")";
+}
+
+function setDendriteDisplayMode(enabled) {
+	dendriteAnimationControls.classList.toggle("hidden", !enabled);
+	document.getElementById("dendriteGeometryCard").classList.toggle("hidden", !enabled);
+	document.getElementById("dendriteSpatialPlot").classList.toggle("hidden", !enabled);
+	document.getElementById("myDiv2").classList.toggle("hidden", enabled);
+	document.getElementById("myDiv4").classList.toggle("hidden", enabled);
+	if (!enabled) {
+		layout.shapes = [];
+		layout.annotations = [];
+	}
+}
+
+function renderDendriteGeometry() {
+	if (!userDendrite.checked) return;
+	var traces = [{
+		x:[0], y:[0], type:"scatter", mode:"markers",
+		marker:{color:"rgb(219, 64, 82)", size:28, symbol:"circle"},
+		hovertemplate:"Soma<extra></extra>", showlegend:false
+	}];
+	for (var segment = 0; segment < nSegments; segment++) {
+		traces.push({
+			x:[segment*l_seg, (segment+1)*l_seg], y:[0,0], type:"scatter", mode:"lines",
+			line:{color:dendriteTraceColour(segment), width:13},
+			hovertemplate:"Dendrite "+Math.round((segment+1)*l_seg)+" µm<extra></extra>",
+			showlegend:false
+		});
+	}
+	var fontSize = Number(document.getElementById("axisFontSize").value);
+	var geometryLayout = {
+		title:{text:"<b>Stick Dendrite</b>", font:{size:fontSize}, y:.95},
+		height:165,
+		margin:{l:58+fontSize, r:28, t:42, b:28, pad:0},
+		paper_bgcolor:"#ffffff", plot_bgcolor:"#ffffff",
+		font:{family:"Arial, Helvetica, sans-serif", color:"#24323a", size:fontSize},
+		xaxis:{title:{text:""}, showticklabels:false, ticks:"", range:[-.03*l_dend,1.03*l_dend], gridcolor:"#edf1f0", zeroline:false, fixedrange:true},
+		yaxis:{visible:false, range:[-.35,.48], fixedrange:true},
+		annotations:[{
+			x:synLoc*l_seg, y:0, text:"Input", showarrow:true,
+			arrowhead:2, arrowsize:1.25, arrowwidth:1.5, arrowcolor:"#c86516",
+			standoff:18, ax:0, ay:-54, font:{size:Math.max(12,fontSize-3), color:"#c86516"},
+			bgcolor:"rgba(255,255,255,.8)", borderpad:1
+		}],
+		hovermode:"closest", hoverdistance:16, showlegend:false
+	};
+	Plotly.react("dendriteGeometryPlot", traces, geometryLayout, {responsive:true, displayModeBar:false});
+}
+
+function stopDendriteAnimation() {
+	if (dendriteAnimationFrame !== null) cancelAnimationFrame(dendriteAnimationFrame);
+	dendriteAnimationFrame = null;
+	dendriteAnimationPreviousTime = null;
+	dendriteAnimationRunning = false;
+	if (dendriteAnimationButton) dendriteAnimationButton.value = "Animate";
+}
+
+function prepareDendriteAnimation() {
+	dendriteSnapshotIndex = 0;
+	var finalTime = t.length ? t[t.length - 1] : 0;
+	var sampleStep = t.length > 1 ? t[1] - t[0] : 0.1;
+	dendriteTimeRange.min = dendriteTimeNumber.min = 0;
+	dendriteTimeRange.max = dendriteTimeNumber.max = finalTime;
+	dendriteTimeRange.step = dendriteTimeNumber.step = sampleStep;
+	dendriteTimeRange.value = dendriteTimeNumber.value = 0;
+
+	var minimum = Infinity;
+	var maximum = -Infinity;
+	[V].concat(vDend).forEach(function(trace) {
+		for (var i = 0; i < trace.length; i++) {
+			if (trace[i] < minimum) minimum = trace[i];
+			if (trace[i] > maximum) maximum = trace[i];
+		}
+	});
+	var padding = Math.max(1, (maximum - minimum) * 0.05);
+	layoutSpatial.yaxis.range = [minimum - padding, maximum + padding];
+	layoutSpatial.xaxis.range = [-0.03 * l_dend, 1.03 * l_dend];
+}
+
+function setDendriteSnapshotFromTime(timeValue) {
+	if (!t.length || !isFinite(timeValue)) return;
+	var clamped = Math.max(t[0], Math.min(t[t.length - 1], timeValue));
+	var fraction = (clamped - t[0]) / Math.max(1e-12, t[t.length - 1] - t[0]);
+	dendriteSnapshotIndex = Math.max(0, Math.min(t.length - 1, Math.round(fraction * (t.length - 1))));
+	var selectedTime = t[dendriteSnapshotIndex];
+	dendriteTimeRange.value = selectedTime;
+	dendriteTimeNumber.value = selectedTime.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+	renderDendriteSnapshot();
+}
+
+function renderDendriteSnapshot() {
+	if (!userDendrite.checked || !t.length) return;
+	var selectedTime = t[dendriteSnapshotIndex];
+	var positions = [0];
+	var profile = [V[dendriteSnapshotIndex]];
+	for (var segment = 0; segment < nSegments; segment++) {
+		positions.push((segment + 1) * l_seg);
+		profile.push(vDend[segment][dendriteSnapshotIndex]);
+	}
+
+	layoutSpatial.title.text = "<b>Spatial Profile at " + selectedTime.toFixed(1) + " ms</b>";
+	layoutSpatial.shapes = [
+		{type:"line", x0:0, x1:l_dend, y0:v, y1:v, line:{color:"#8c9896", width:1, dash:"dash"}}
+	];
+	layoutSpatial.annotations = [{
+		x:positions[synLoc], y:profile[synLoc], text:"Input", showarrow:true,
+		arrowhead:2, arrowsize:1.25, arrowwidth:1.5, arrowcolor:"#c86516",
+		standoff:10, ax:0, ay:-44, font:{size:Math.max(12,Number(document.getElementById("axisFontSize").value)-3),color:"#c86516"},
+		bgcolor:"rgba(255,255,255,.82)", borderpad:1
+	}];
+	var traces = [{
+		x:[positions[0]], y:[profile[0]], type:"scatter", mode:"markers",
+		marker:{color:"rgb(219, 64, 82)",size:8},
+		hovertemplate:"Soma<br>Distance: 0 µm<br>V<sub>m</sub>: %{y:.2f} mV<extra></extra>",
+		showlegend:false
+	}];
+	for (var profileSegment=0; profileSegment<nSegments; profileSegment++) {
+		traces.push({
+			x:[positions[profileSegment],positions[profileSegment+1]],
+			y:[profile[profileSegment],profile[profileSegment+1]],
+			type:"scatter", mode:"lines+markers",
+			line:{color:dendriteTraceColour(profileSegment),width:3},
+			marker:{color:dendriteTraceColour(profileSegment),size:6},
+			hovertemplate:"Distance: %{x:.0f} µm<br>V<sub>m</sub>: %{y:.2f} mV<extra></extra>",
+			showlegend:false
+		});
+	}
+	Plotly.react("dendriteSpatialPlot", traces, layoutSpatial, config);
+	Plotly.relayout("myDiv1", {
+		shapes: [{type:"line", x0:selectedTime, x1:selectedTime, yref:"paper", y0:0, y1:1, line:{color:"#37474f", width:2}}]
+	});
+}
+
+function dendriteAnimationTick(timestamp) {
+	if (!dendriteAnimationRunning) return;
+	if (dendriteAnimationPreviousTime === null) dendriteAnimationPreviousTime = timestamp;
+	var elapsed = timestamp - dendriteAnimationPreviousTime;
+	dendriteAnimationPreviousTime = timestamp;
+	var selectedTime = t[dendriteSnapshotIndex] + elapsed * t[t.length - 1] / 7000;
+	setDendriteSnapshotFromTime(selectedTime);
+	if (dendriteSnapshotIndex >= t.length - 1) {
+		stopDendriteAnimation();
+		return;
+	}
+	dendriteAnimationFrame = requestAnimationFrame(dendriteAnimationTick);
+}
+
+function toggleDendriteAnimation() {
+	if (dendriteAnimationRunning) {
+		stopDendriteAnimation();
+		return;
+	}
+	if (!t.length) return;
+	if (dendriteSnapshotIndex >= t.length - 1) setDendriteSnapshotFromTime(0);
+	dendriteAnimationRunning = true;
+	dendriteAnimationPreviousTime = null;
+	dendriteAnimationButton.value = "Pause";
+	dendriteAnimationFrame = requestAnimationFrame(dendriteAnimationTick);
+}
+
+
 function draw() {
 	setTimeAxisRange();
+	setDendriteDisplayMode(userDendrite.checked);
 
 	if(!userDendrite.checked){
 	var Vt = {
@@ -1075,21 +1501,24 @@ else{
 		x: t,
 		y: V,
 		type: 'scatter', 
-		name: 'V<sub>membrane</sub>', 
+		name: 'Soma', 
+		hovertemplate: 'Soma<br>Time: %{x:.2f} ms<br>V<sub>m</sub>: %{y:.2f} mV<extra></extra>',
 		line: {
 		  color: 'rgb(219, 64, 82)',
 		  width: 2
 	  }
 	}; 
+	var legendStride = Math.max(1, Math.round(nSegments/4));
 	for(var i=0; i<nSegments; i++){
-		var value = 100-i*5
 	var Vtt = {
 		x: t,
 		y: vDend[i],
 		type: 'scatter', 
-		name: 'V<sub>m</sub>'+i, 
+		name: 'Dendrite '+Math.round((i+1)*l_seg)+' µm', 
+		showlegend: i===0 || i===nSegments-1 || (i+1)%legendStride===0,
+		hovertemplate: 'Dendrite '+Math.round((i+1)*l_seg)+' µm<br>Time: %{x:.2f} ms<br>V<sub>m</sub>: %{y:.2f} mV<extra></extra>',
 		line: {
-		  color: `rgb(${128+(nSegments-i-1)*10}, ${128+(nSegments-i-1)*10}, ${128+(nSegments-i-1)*10})`,
+		  color: dendriteTraceColour(i),
 		  width: 2
 	  }
 	}; 
@@ -1269,6 +1698,20 @@ else{
     	}
   	};
 
+	if (userDendrite.checked) {
+		var dendriteTraces = [Vt, curinjm];
+		for (var dendriteIndex = 0; dendriteIndex < nSegments; dendriteIndex++) {
+			dendriteTraces.push(window["V" + dendriteIndex]);
+		}
+		layout.shapes = [];
+		layout.annotations = [];
+		Plotly.newPlot("myDiv1", dendriteTraces, layout, config);
+		renderDendriteGeometry();
+		prepareDendriteAnimation();
+		renderDendriteSnapshot();
+		return;
+	}
+
   	if (userlast10Flag.checked) {
   		var oldtraces = preparettQ(ittQ); 
   		oldtraces.push(Itt); 
@@ -1345,6 +1788,8 @@ function VCsubmit(event) {
   	v = parseFloat(userrv.value); 
   	clampv = parseFloat(userclampV.value); 
   	restv = parseFloat(userrestV.value); 
+	vcStart = Math.max(0, Math.min(tspan, parseFloat(userstartV.value)));
+	userstartV.value = vcStart;
 	clamptime = parseFloat(userclamptime.value);
 
   	
@@ -1381,14 +1826,11 @@ function buildVC() {
 function vcrun() {
 	curd=parseFloat(userdurationV.value);
 	var loop = Math.ceil(tspan/dt); // no. of iterations of euler 
-	var loop1 = Math.ceil(curd/dt); 
-	var loop2=0;
-	var loop3=0;
-	if(VC2.checked){
-		loop1=curd/dt;
-		loop2 = (clamptime+curd)/dt;
-		loop3 = loop2+(curd)/dt;
-	}
+	var commandStart = Math.ceil(vcStart/dt);
+	var commandDuration = Math.ceil(curd/dt);
+	var commandEnd = commandStart + commandDuration;
+	var secondCommandStart = commandEnd + Math.ceil(clamptime/dt);
+	var secondCommandEnd = secondCommandStart + commandDuration;
 	
 	t.push(-vcoffset*dt); 
 	V.push(restv); 
@@ -1429,27 +1871,12 @@ function vcrun() {
 	for (var i = 0; i < loop; i++) {
 		t.push(tspan*i/loop); 
 
-		if(VC2.checked){
-			if (i < loop1) {
-				V.push(clampv);
-			} else if (i>=loop1 && i<loop2){
-				V.push(restv); 
-			}
-			else if(i>loop3){
-				V.push(restv);
-			}
-			else if(i=>loop2 && i<=loop3){
-				V.push(clampv2); 
-			}
-		}
-		else if(!VC2.checked){
-			if(i<loop1){
-				V.push(clampv);
-			}
-			else{
-				V.push(restv);
-			}
-
+		if (VC2.checked) {
+			if (i >= commandStart && i < commandEnd) V.push(clampv);
+			else if (i >= secondCommandStart && i < secondCommandEnd) V.push(clampv2);
+			else V.push(restv);
+		} else {
+			V.push(i >= commandStart && i < commandEnd ? clampv : restv);
 		}
 		m.push(m[i+vcoffset-1] + dt*(alphaM(V[i+vcoffset-1])*(1-m[i+vcoffset-1]) - betaM(V[i+vcoffset-1])*m[i+vcoffset-1])); 
 		h.push(h[i+vcoffset-1] + dt*(alphaH(V[i+vcoffset-1])*(1-h[i+vcoffset-1]) - betaH(V[i+vcoffset-1])*h[i+vcoffset-1])); 
@@ -1463,7 +1890,6 @@ function vcrun() {
 
 
 
-	loop1 =  Math.ceil(curd/dt);
 	for (var i = 0; i < ina.length; i++) {
 		fik.push(-ik[i]); 
 		fina.push(-ina[i]); 
@@ -1912,11 +2338,11 @@ function buildTraceDownload() {
 }
 
 document.getElementById('downloadTraces').addEventListener('click', function() {
-  var blob = new Blob([buildTraceDownload()], {type: 'text/plain;charset=utf-8'});
+  var blob = new Blob([buildTraceDownload()], {type: 'text/csv;charset=utf-8'});
   var url = URL.createObjectURL(blob);
   var link = document.createElement('a');
   link.href = url;
-  link.download = 'HH_traces.txt';
+  link.download = 'HH_traces.csv';
   document.body.appendChild(link);
   link.click();
   link.remove();

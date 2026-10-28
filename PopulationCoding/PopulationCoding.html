@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Population Coding and Decoding</title>
+    <link rel="stylesheet" href="styles.css?v=subtitle-1" />
+  </head>
+  <body>
+    <header>
+      <h1>Population Coding and Decoding</h1>
+      <p>How distributed neural activity encodes and reconstructs a stimulus</p>
+    </header>
+
+    <main>
+      <aside>
+        <section>
+          <label for="font">Graph text size <output id="fontValue">18 px</output></label>
+          <input id="font" type="range" min="12" max="30" value="18" />
+          <div class="button-row">
+            <button id="reset">Reset</button>
+            <button id="download">Download data</button>
+          </div>
+        </section>
+
+        <section>
+          <h2 title="The direction presented to the population. Direction is circular: 0° and 360° are identical.">Stimulus direction (°)</h2>
+          <div class="control">
+            <input id="stimulus" aria-label="Stimulus direction in degrees" type="number" min="0" max="359" step="1" value="70" />
+            <input id="stimulusRange" type="range" aria-label="Stimulus direction" min="0" max="359" step="1" value="70" />
+          </div>
+        </section>
+
+        <section>
+          <h2 title="Neurons have evenly spaced preferred directions and identical circular tuning curves.">Neural population</h2>
+          <div class="control-pair">
+            <div class="control">
+              <label for="neurons"># of neurons</label>
+              <input id="neurons" type="number" min="4" max="72" step="1" value="12" />
+              <input id="neuronsRange" type="range" aria-label="Number of neurons" min="4" max="72" step="1" value="12" />
+            </div>
+            <div class="control">
+              <label for="width">Tuning hw (°)</label>
+              <input id="width" type="number" min="10" max="120" step="1" value="50" />
+              <input id="widthRange" type="range" aria-label="Tuning half-width" min="10" max="120" step="1" value="50" />
+            </div>
+          </div>
+          <div class="control-pair">
+            <div class="control">
+              <label for="baseline">Baseline (Hz)</label>
+              <input id="baseline" type="number" min="0" max="50" step="1" value="5" />
+              <input id="baselineRange" type="range" aria-label="Baseline firing rate" min="0" max="50" step="1" value="5" />
+            </div>
+            <div class="control">
+              <label for="amplitude">Amplitude (Hz)</label>
+              <input id="amplitude" type="number" min="1" max="100" step="1" value="40" />
+              <input id="amplitudeRange" type="range" aria-label="Tuning amplitude" min="1" max="100" step="1" value="40" />
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2 title="Expected rates are noiseless. Stochastic modes draw independent Poisson spike counts; the many-trial mode compares decoder accuracy across repetitions.">Response sampling</h2>
+          <div class="mode-row">
+            <select id="responseMode" aria-label="Displayed response">
+              <option value="deterministic">Expected</option>
+              <option value="stochastic" selected>One trial</option>
+              <option value="many">Many trials</option>
+            </select>
+            <button id="newTrial">Rerun</button>
+          </div>
+          <div id="trialControls">
+            <div id="timingControls" class="control-pair">
+              <div class="control">
+                <label for="duration">Observation (ms)</label>
+                <input id="duration" type="number" min="20" max="2000" step="10" value="500" />
+                <input id="durationRange" type="range" aria-label="Observation time" min="20" max="2000" step="10" value="500" />
+              </div>
+              <div id="manyControls" class="control" hidden>
+                <label for="trialCount">Number of trials</label>
+                <input id="trialCount" type="number" min="20" max="1000" step="10" value="300" />
+                <input id="trialCountRange" type="range" aria-label="Number of repeated trials" min="20" max="1000" step="10" value="300" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="readout" aria-live="polite">
+          <h2 id="estimateHeading">Decoder estimates</h2>
+          <dl>
+            <div><dt>Presented</dt><dd id="presented">70.0°</dd></div>
+            <div><dt>Population vector</dt><dd id="decoded">70.0°</dd></div>
+            <div><dt>PV error</dt><dd id="error">0.0°</dd></div>
+            <div><dt>Maximum likelihood</dt><dd id="mlDecoded">70.0°</dd></div>
+            <div><dt>ML error</dt><dd id="mlError">0.0°</dd></div>
+            <div id="spikeRow"><dt>Total spikes</dt><dd id="totalSpikes">0</dd></div>
+          </dl>
+        </section>
+        <section id="accuracySummary" class="readout" hidden aria-live="polite">
+          <h2>Accuracy across trials</h2>
+          <dl>
+            <div><dt>PV mean |error|</dt><dd id="pvMae">0.0°</dd></div>
+            <div><dt>ML mean |error|</dt><dd id="mlMae">0.0°</dd></div>
+            <div><dt>PV bias</dt><dd id="pvBias">0.0°</dd></div>
+            <div><dt>ML bias</dt><dd id="mlBias">0.0°</dd></div>
+          </dl>
+        </section>
+        <p id="status" role="status"></p>
+      </aside>
+
+      <article>
+        <div class="top-plots">
+          <div class="plot-with-nav">
+            <div id="neuronPlotNav" class="plot-nav neuron-nav">
+              <button id="previousNeuron" title="Highlight the previous neuron">◀</button>
+              <output id="neuronLabel">Neuron 1 of 12</output>
+              <button id="nextNeuron" title="Highlight the next neuron">▶</button>
+            </div>
+            <div id="tuningPlot" class="plot"></div>
+          </div>
+          <div id="responsePlot" class="plot"></div>
+        </div>
+        <div id="rasterPanel" class="plot-with-nav raster-panel" hidden>
+          <div id="trialPlotNav" class="plot-nav" hidden>
+            <button id="previousTrial" title="Show the previous example trial">◀</button>
+            <output id="trialLabel">Trial 1 of 300</output>
+            <button id="nextTrial" title="Show the next example trial">▶</button>
+          </div>
+          <div id="rasterPlot" class="plot raster-plot"></div>
+        </div>
+        <div class="bottom-plots">
+          <div id="vectorPlot" class="plot vector-plot"></div>
+          <div id="accuracyPlot" class="plot vector-plot" hidden></div>
+        </div>
+        <p class="hint">
+          Move the stimulus through the population. Click a tuning curve or response bar to highlight
+          one neuron; hover over graphs for numerical values.
+        </p>
+        <details>
+          <summary>How to use this simulation</summary>
+          <p>
+            Each neuron responds most strongly to its preferred direction. The tuning-curves graph
+            shows expected firing rates across all possible directions; the vertical line marks the
+            presented stimulus. Use its arrow buttons, or click a curve, to highlight a neuron. The
+            population-response graph samples those curves at the presented direction.
+          </p>
+          <p>
+            Tuning curves are non-negative von Mises functions. The displayed half-width is the
+            angular distance from the preferred direction at which the stimulus-driven response is
+            half its maximum. All neurons share the same baseline, amplitude and width, and their
+            preferred directions are evenly spaced.
+          </p>
+          <p>
+            The population vector adds each neuron's preferred-direction vector, weighted by its
+            response. Its angle is the decoded direction. With a dense, symmetric population of
+            expected responses it closely matches the stimulus; sparse populations and narrow
+            tuning can produce discretization errors.
+          </p>
+          <p>
+            <strong>Expected rates</strong> shows deterministic encoding. <strong>One stochastic
+            trial</strong> independently draws each neuron's spike count from a Poisson distribution
+            whose mean is its expected rate multiplied by the observation time. The bars show the
+            resulting spike counts expressed as rates; the overlaid points show their expectations.
+            Adjusting a model parameter generates a fresh random sample, as does <strong>Rerun</strong>.
+            Display-only changes, such as graph text size, preserve the current
+            sample.
+          </p>
+          <p>
+            Stochastic modes automatically display a spike raster with 250 ms of baseline activity,
+            the stimulus interval, and 250 ms after the stimulus. Baseline spikes use the baseline firing-rate
+            setting. During the shaded stimulus interval, the raster contains exactly the sampled
+            spike counts used for decoding; only these stimulus-period counts enter the decoders.
+            Conditional on a count, spike times are placed independently and uniformly within the
+            period, as expected for a stationary Poisson process. Timing carries no additional
+            information in this rate-code model, and firing rates change instantaneously at stimulus
+            onset and offset.
+          </p>
+          <p>
+            <strong>Many stochastic trials</strong> repeats the same stimulus and compares two
+            decoders. The population vector sums preferred-direction vectors weighted by neuronal
+            responses. The maximum-likelihood decoder tests every whole-degree direction and chooses
+            the one that makes the observed Poisson spike counts most probable. The polar plot shows
+            one example trial; the accuracy graph summarizes all trials as signed circular errors.
+          </p>
+          <p>
+            Mean absolute error reports typical error size. Bias is the circular mean of the signed
+            errors: values near zero indicate that over- and underestimates balance. These measures
+            describe simulated performance under this model; they are not measurements from a
+            biological population.
+          </p>
+          <p>
+            In many-trial mode, the arrow buttons select which trial is shown in the response,
+            raster, decoder and example-statistics displays. The lower raster panel pools the
+            highlighted neuron's spikes across every trial into a peri-stimulus time histogram
+            (PSTH). Its expected-rate line shows the baseline and stimulus rates used by the model.
+          </p>
+          <h3>Try this</h3>
+          <ul>
+            <li>Reduce the population to four neurons and narrow the tuning curves.</li>
+            <li>Increase the number of neurons and watch the decoded direction approach the stimulus.</li>
+            <li>Generate repeated trials without changing the stimulus and compare their decoding errors.</li>
+            <li>Shorten the observation time and examine why fewer spikes make the estimate less reliable.</li>
+            <li>Increase baseline firing and see how stimulus-independent spikes add uncertainty.</li>
+            <li>Compare population-vector and maximum-likelihood decoding with sparse, narrowly tuned populations.</li>
+            <li>Run more trials and observe how the estimated error distribution becomes smoother.</li>
+          </ul>
+          <h3>Model basis</h3>
+          <ul class="references">
+            <li><a href="https://doi.org/10.1126/science.3749885" target="_blank" rel="noopener">Georgopoulos, Schwartz &amp; Kettner (1986)</a>: directional tuning and population-vector coding.</li>
+            <li><a href="https://doi.org/10.1073/pnas.90.22.10749" target="_blank" rel="noopener">Seung &amp; Sompolinsky (1993)</a>: population-vector and maximum-likelihood decoding models.</li>
+            <li><a href="https://doi.org/10.1038/nn1691" target="_blank" rel="noopener">Jazayeri &amp; Movshon (2006)</a>: likelihood-based decoding of sensory population responses.</li>
+            <li><a href="https://doi.org/10.1038/nn1790" target="_blank" rel="noopener">Ma et al. (2006)</a>: Poisson-like variability and probabilistic population codes.</li>
+          </ul>
+        </details>
+      </article>
+    </main>
+
+    <footer>
+      <p><strong>Neuroscience teaching tools</strong></p>
+      <nav aria-label="Further information">
+        <a href="../index.html" target="_blank" rel="noopener">Main menu</a>
+        <a href="http://plasticity.muhc.mcgill.ca/index.html" target="_blank" rel="noopener">Sjöström Lab</a>
+        <a href="https://github.com/sjostromlab/SjostromLab.github.io" target="_blank" rel="noopener">GitHub source</a>
+      </nav>
+    </footer>
+
+    <script src="plotly-latest.min.js"></script>
+    <script src="PopulationCoding.js"></script>
+  </body>
+</html>

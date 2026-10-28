@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Nernst and Goldman Potentials</title>
+    <link rel="stylesheet" href="styles.css?v=subtitle-1" />
+  </head>
+  <body>
+    <header>
+      <h1>Nernst and Goldman Potentials</h1>
+      <p>How ion gradients and permeability set membrane voltage</p>
+    </header>
+
+    <main>
+      <aside>
+        <section>
+          <label for="font">Graph text size <output id="fontValue">18 px</output></label>
+          <input id="font" type="range" min="12" max="30" value="18" />
+          <div class="button-row">
+            <button id="reset">Reset</button>
+            <button id="download">Download data</button>
+          </div>
+        </section>
+
+        <section>
+          <h2 title="Nernst mode considers one ion at equilibrium. Goldman mode combines the permeabilities of K+, Na+, and Cl−.">Teaching mode</h2>
+          <select id="mode" aria-label="Teaching mode">
+            <option value="nernst">Nernst: one ion</option>
+            <option value="goldman">Goldman: mixed ions</option>
+          </select>
+        </section>
+
+        <section>
+          <h2 title="Temperature changes RT/F and therefore changes the voltage associated with a concentration ratio.">Temperature (°C)</h2>
+          <input id="temperature" type="number" min="0" max="50" step="1" value="37" aria-label="Temperature in degrees Celsius" />
+          <input id="temperatureRange" type="range" min="0" max="50" step="1" value="37" aria-label="Temperature" />
+        </section>
+
+        <section id="nernstControls">
+          <h2 title="The Nernst equation gives the voltage at which the selected ion has no net electrochemical driving force.">Single-ion settings</h2>
+          <label for="ion">Ion</label>
+          <select id="ion">
+            <option value="K">K⁺</option>
+            <option value="Na">Na⁺</option>
+            <option value="Cl">Cl⁻</option>
+            <option value="Ca">Ca²⁺</option>
+          </select>
+          <div class="control-pair">
+            <div class="control">
+              <label for="singleInside">Inside (mM)</label>
+              <input id="singleInside" type="number" min="0.000001" max="1000" step="any" value="140" />
+              <input id="singleInsideRange" type="range" min="-6" max="3" step="0.01" value="2.1461" aria-label="Logarithmic internal concentration" />
+            </div>
+            <div class="control">
+              <label for="singleOutside">Outside (mM)</label>
+              <input id="singleOutside" type="number" min="0.000001" max="1000" step="any" value="4" />
+              <input id="singleOutsideRange" type="range" min="-6" max="3" step="0.01" value="0.6021" aria-label="Logarithmic external concentration" />
+            </div>
+          </div>
+          <label for="testVoltage">Test V<sub>m</sub> (mV)</label>
+          <input id="testVoltage" type="number" min="-180" max="150" step="1" value="-65" />
+          <input id="testVoltageRange" type="range" min="-180" max="150" step="1" value="-65" aria-label="Test membrane voltage" />
+        </section>
+
+        <section id="goldmanControls" hidden>
+          <h2 title="Presets change concentrations and relative permeabilities together. You can then edit any value.">Mixed-ion settings</h2>
+          <label for="preset">Preset</label>
+          <select id="preset">
+            <option value="rest">Typical resting neuron</option>
+            <option value="highK">High extracellular K⁺</option>
+            <option value="highNaP">Increased Na⁺ permeability</option>
+            <option value="highClP">Increased Cl⁻ permeability</option>
+            <option value="equalCations">Equal Na⁺ and K⁺ permeability</option>
+            <option value="custom">Custom</option>
+          </select>
+          <div class="ion-table" aria-label="Ion concentrations and relative permeabilities">
+            <div class="ion-head"><span>Ion</span><span>Inside</span><span>Outside</span><span>Rel. P</span></div>
+            <div class="ion-row" data-ion="K">
+              <strong>K⁺</strong>
+              <div><input id="kIn" type="number" min="0.000001" max="1000" step="any" value="140" aria-label="Internal potassium concentration" /><input id="kInRange" type="range" min="-6" max="3" step="0.01" value="2.1461" aria-label="Logarithmic internal potassium concentration" /></div>
+              <div><input id="kOut" type="number" min="0.000001" max="1000" step="any" value="4" aria-label="External potassium concentration" /><input id="kOutRange" type="range" min="-6" max="3" step="0.01" value="0.6021" aria-label="Logarithmic external potassium concentration" /></div>
+              <div><input id="kP" type="number" min="0" max="5" step="0.01" value="1" aria-label="Relative potassium permeability" /><input id="kPRange" type="range" min="0" max="5" step="0.01" value="1" aria-label="Relative potassium permeability" /></div>
+            </div>
+            <div class="ion-row" data-ion="Na">
+              <strong>Na⁺</strong>
+              <div><input id="naIn" type="number" min="0.000001" max="1000" step="any" value="15" aria-label="Internal sodium concentration" /><input id="naInRange" type="range" min="-6" max="3" step="0.01" value="1.1761" aria-label="Logarithmic internal sodium concentration" /></div>
+              <div><input id="naOut" type="number" min="0.000001" max="1000" step="any" value="145" aria-label="External sodium concentration" /><input id="naOutRange" type="range" min="-6" max="3" step="0.01" value="2.1614" aria-label="Logarithmic external sodium concentration" /></div>
+              <div><input id="naP" type="number" min="0" max="5" step="0.01" value="0.04" aria-label="Relative sodium permeability" /><input id="naPRange" type="range" min="0" max="5" step="0.01" value="0.04" aria-label="Relative sodium permeability" /></div>
+            </div>
+            <div class="ion-row" data-ion="Cl">
+              <strong>Cl⁻</strong>
+              <div><input id="clIn" type="number" min="0.000001" max="1000" step="any" value="10" aria-label="Internal chloride concentration" /><input id="clInRange" type="range" min="-6" max="3" step="0.01" value="1" aria-label="Logarithmic internal chloride concentration" /></div>
+              <div><input id="clOut" type="number" min="0.000001" max="1000" step="any" value="120" aria-label="External chloride concentration" /><input id="clOutRange" type="range" min="-6" max="3" step="0.01" value="2.0792" aria-label="Logarithmic external chloride concentration" /></div>
+              <div><input id="clP" type="number" min="0" max="5" step="0.01" value="0.45" aria-label="Relative chloride permeability" /><input id="clPRange" type="range" min="0" max="5" step="0.01" value="0.45" aria-label="Relative chloride permeability" /></div>
+            </div>
+          </div>
+          <p class="units-note">Concentrations are in mM; permeability is relative.</p>
+        </section>
+
+        <section class="readout" aria-live="polite">
+          <h2 id="readoutHeading">Nernst result</h2>
+          <dl>
+            <div><dt id="primaryLabel">E<sub>K</sub></dt><dd id="primaryValue">−94.8 mV</dd></div>
+            <div><dt id="secondaryLabel">Driving force</dt><dd id="secondaryValue">29.8 mV</dd></div>
+            <div><dt id="tertiaryLabel">Current</dt><dd id="tertiaryValue">Outward</dd></div>
+          </dl>
+          <p id="movementText"></p>
+        </section>
+        <p id="status" role="status"></p>
+      </aside>
+
+      <article>
+        <section class="concept-banner" aria-live="polite">
+          <strong id="conceptTitle">One ion, one equilibrium potential</strong>
+          <span id="conceptText">The Nernst potential is where electrical and concentration forces balance for K⁺.</span>
+        </section>
+        <div class="plots">
+          <div id="potentialPlot" class="plot"></div>
+          <div id="currentPlot" class="plot"></div>
+        </div>
+        <p class="hint">Adjust a concentration or permeability and watch both the voltage markers and current balance move. Hover over graphs for numerical values.</p>
+
+        <details>
+          <summary>How to use this simulation</summary>
+          <p>
+            <strong>Nernst mode</strong> asks where a single ion would be at electrochemical equilibrium.
+            Choose an ion, adjust its concentrations, and compare its equilibrium potential with the
+            test membrane voltage. The current graph shows the driving force
+            <em>V</em><sub>m</sub> − <em>E</em><sub>ion</sub>. Positive current is outward by electrophysiological
+            convention. An anion such as Cl⁻ moves opposite to the direction of conventional current.
+          </p>
+          <p class="equation">
+            E<sub>ion</sub> = RT/(zF) ln([ion]<sub>out</sub>/[ion]<sub>in</sub>)
+          </p>
+          <p>
+            A tenfold concentration ratio produces about 61.5 mV at 37 °C for a monovalent ion.
+            Ca²⁺ has twice the charge, so the same ratio produces half the voltage change. The sign
+            reverses for Cl⁻ because its valence is negative.
+          </p>
+          <p>
+            <strong>Goldman mode</strong> describes a membrane simultaneously permeable to K⁺, Na⁺,
+            and Cl⁻. The Goldman voltage is the zero-total-current voltage under the constant-field
+            assumptions. It is influenced by both concentration gradients and relative permeabilities;
+            it is not a simple arithmetic mean of the three Nernst potentials.
+          </p>
+          <p class="equation">
+            V<sub>GHK</sub> = RT/F ln[(P<sub>K</sub>[K]<sub>out</sub> + P<sub>Na</sub>[Na]<sub>out</sub> + P<sub>Cl</sub>[Cl]<sub>in</sub>) /
+            (P<sub>K</sub>[K]<sub>in</sub> + P<sub>Na</sub>[Na]<sub>in</sub> + P<sub>Cl</sub>[Cl]<sub>out</sub>)]
+          </p>
+          <p>
+            Chloride concentrations appear in the opposite orientation because Cl⁻ is negatively
+            charged. The current graph uses the constant-field current equation for each ion. At
+            V<sub>GHK</sub>, the individual currents can be substantial and opposite, while their sum
+            is zero. The voltage is therefore a steady-state zero-current potential, not equilibrium
+            for every ion. Pumps and transporters are needed to maintain the concentration gradients.
+          </p>
+          <h3>Try this</h3>
+          <ul>
+            <li>In Nernst mode, increase external K⁺ tenfold and predict the change in E<sub>K</sub> before moving the slider.</li>
+            <li>Compare Na⁺ and Cl⁻ with the same inside-to-outside concentration ratio.</li>
+            <li>Compare a monovalent ion with Ca²⁺ to see the effect of valence.</li>
+            <li>Use the resting-neuron preset, then raise extracellular K⁺ to model hyperkalaemia.</li>
+            <li>Increase P<sub>Na</sub> and watch V<sub>GHK</sub> move toward E<sub>Na</sub>.</li>
+            <li>Increase P<sub>Cl</sub> and ask whether the effect is depolarizing, hyperpolarizing, or mainly stabilizing.</li>
+            <li>Set equal Na⁺ and K⁺ permeability and explain why the resulting voltage is not halfway between E<sub>Na</sub> and E<sub>K</sub>.</li>
+          </ul>
+          <h3>Scope and assumptions</h3>
+          <p>
+            The Goldman calculation here is limited to the monovalent ions K⁺, Na⁺, and Cl⁻ and
+            assumes a constant electric field, fixed concentrations, and independent passive ion
+            movement. Relative permeabilities set scale ratios rather than absolute current density.
+            Ca²⁺ is included only in the single-ion Nernst mode. Channel gating, electrogenic pumps,
+            ion accumulation, and concentration changes over time are outside this model.
+          </p>
+          <h3>Model basis</h3>
+          <ul class="references">
+            <li><a href="https://doi.org/10.1085/jgp.27.1.37" target="_blank" rel="noopener">Goldman (1943)</a>: the constant-field treatment of membrane potential, impedance, and rectification.</li>
+            <li><a href="https://doi.org/10.1113/jphysiol.1949.sp004310" target="_blank" rel="noopener">Hodgkin &amp; Katz (1949)</a>: application of ionic concentration and permeability ideas to the squid giant axon.</li>
+          </ul>
+        </details>
+      </article>
+    </main>
+
+    <footer>
+      <p><strong>Neuroscience teaching tools</strong></p>
+      <nav aria-label="Further information">
+        <a href="../index.html" target="_blank" rel="noopener">Main menu</a>
+        <a href="http://plasticity.muhc.mcgill.ca/index.html" target="_blank" rel="noopener">Sjöström Lab</a>
+        <a href="https://github.com/sjostromlab/SjostromLab.github.io" target="_blank" rel="noopener">GitHub source</a>
+      </nav>
+    </footer>
+
+    <script src="plotly-latest.min.js"></script>
+    <script src="NernstGoldman.js"></script>
+  </body>
+</html>

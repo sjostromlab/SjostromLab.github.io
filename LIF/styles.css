@@ -105,6 +105,21 @@ input[type=checkbox]
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 }
 
+.header h1 { margin: 0.55em 0 0.12em; }
+.header p {
+  margin: 0 0 0.65em;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
 .footer {
   background-color: #4CAF50;
   color: #ffffff;
@@ -267,3 +282,33 @@ input[type=checkbox]
 .compact-value-slider { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; vertical-align: middle; }
 .compact-value-slider input[type=text], .compact-value-slider input[type=text]:focus { width: 64px; }
 .compact-value-slider input[type=range] { width: 76px; min-width: 48px; margin: 0 4px 0 0; accent-color: #9933cc; }
+
+/* Expandable teaching notes below the simulation. */
+.simulation-help {
+  clear: both;
+  margin: 18px 4px 12px;
+  padding: 18px 22px;
+  background: #fff;
+  color: #263238;
+  border: 1px solid #d6dfe3;
+  border-radius: 8px;
+  font-size: 17px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.simulation-help summary { cursor: pointer; font-size: 20px; font-weight: bold; }
+.simulation-help summary:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+.simulation-help h3 { margin: 20px 0 8px; font-size: 18px; }
+.simulation-help p {
+  margin: 10px 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  line-height: 1.6;
+}
+.simulation-help ol { padding-left: 1.5em; }
+.simulation-help li { margin: 8px 0; }
+.simulation-help a { color: inherit; text-underline-offset: 3px; }
+

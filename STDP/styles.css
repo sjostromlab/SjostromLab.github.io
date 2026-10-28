@@ -88,7 +88,7 @@ button:disabled {
 /* Subtitle text styling */
 .subtitle {
     color: #ffffff;
-    margin-bottom: 5px;
+    margin: 4px 0 5px;
 }
 
 /* Version number styling */
@@ -362,3 +362,33 @@ button:disabled {
         grid-template-columns: 1fr;
     }
 }
+
+/* Expandable teaching notes below the simulation. */
+.simulation-help {
+  clear: both;
+  margin: 18px 4px 12px;
+  padding: 18px 22px;
+  background: #fff;
+  color: #263238;
+  border: 1px solid #d6dfe3;
+  border-radius: 8px;
+  font-size: 17px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.simulation-help summary { cursor: pointer; font-size: 20px; font-weight: bold; }
+.simulation-help summary:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+.simulation-help h3 { margin: 20px 0 8px; font-size: 18px; }
+.simulation-help p {
+  margin: 10px 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  line-height: 1.6;
+}
+.simulation-help ol { padding-left: 1.5em; }
+.simulation-help li { margin: 8px 0; }
+.simulation-help a { color: inherit; text-underline-offset: 3px; }
+

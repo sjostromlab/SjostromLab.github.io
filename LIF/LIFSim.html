@@ -4,13 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge"> 
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=subtitle-2">
   <title>LIF Simulation</title>
 </head>
 <body>
 
 <div class="header">
 	<h1>Leaky Integrate-and-Fire Neuron Model</h1>
+	<p>How synaptic input is integrated into spikes</p>
 </div>
 
 <div class="row">
@@ -138,7 +139,7 @@
 		<option value="pulse_summation">pulse_summation</option>
 		<option value="exponential">exponential</option>
 		<option value="NMJ">NMJ</option>
-	</select> <input type="button" value="Download traces" id="downloadTraces" title="Download all plotted traces as comma-delimited text"> </p>
+	</select> <input type="button" value="Download traces" id="downloadTraces" title="Download all plotted traces as CSV"> </p>
 	
   </div>
   <div class="col-9 col-s-12 col-d-12 col-h-9">
@@ -151,12 +152,33 @@
   </div>
 </div>
 
+<details class="simulation-help">
+  <summary>How to use this simulation</summary>
+  <h3>The model</h3>
+  <p>The leaky integrate-and-fire neuron treats the membrane as a resistor-capacitor circuit. Current drives the membrane potential toward threshold while the leak pulls it toward E<sub>leak</sub>. On crossing threshold, the model draws an action-potential peak and resets the voltage. The peak and reset make spikes easy to see, but they do not represent voltage-gated Na<sup>+</sup> and K<sup>+</sup> currents.</p>
+
+  <h3>Explore integration and firing</h3>
+  <p>Use <b>Current injection</b> to see how input resistance, capacitance, and the membrane time constant control the rate and extent of voltage change. Then enable the <b>Synapse</b> and an <b>Externally defined train</b>. Change synaptic conductance, reversal potential, pulse frequency, and threshold to test when separate responses summate enough to trigger spikes.</p>
+  <p>The lower plots show the depression and facilitation variables. After each presynaptic pulse, <b>d</b> multiplies the available synaptic efficacy, so smaller values produce stronger depression, while <b>f</b> adds facilitation. The corresponding time constants set recovery toward baseline. These are phenomenological variables: they reproduce useful short-term dynamics without explicitly modelling vesicle pools or presynaptic Ca<sup>2+</sup>.</p>
+
+  <h3>Try it</h3>
+  <ol>
+    <li>Inject the same current while changing R<sub>input</sub> or C<sub>M</sub>. Compare the steady voltage change and charging speed.</li>
+    <li>With a synaptic train, raise the frequency until temporal summation crosses threshold.</li>
+    <li>Compare depressing, facilitating, and no-plasticity settings. Ask whether the first or later inputs dominate spike generation.</li>
+    <li>Use <b>Keep last sweep</b> to compare one parameter change at a time.</li>
+  </ol>
+
+  <h3>References</h3>
+  <p>For the history and interpretation of the integrate-and-fire model, see <a href="https://doi.org/10.1007/s00422-007-0190-0" target="_blank" rel="noopener">Brunel &amp; van Rossum (2007), <em>Lapicque’s 1907 paper: from frogs to integrate-and-fire</em></a>. The short-term-plasticity controls are related to phenomenological descriptions by <a href="https://doi.org/10.1523/JNEUROSCI.17-20-07926.1997" target="_blank" rel="noopener">Varela et al. (1997), <em>A Quantitative Description of Short-Term Plasticity at Excitatory Synapses in Layer 2/3 of Rat Primary Visual Cortex</em></a>, and <a href="https://doi.org/10.1073/pnas.94.2.719" target="_blank" rel="noopener">Tsodyks &amp; Markram (1997), <em>The neural code between neocortical pyramidal neurons depends on neurotransmitter release probability</em></a>.</p>
+</details>
+
 <footer class="footer">
   <p><strong>Neuroscience teaching tools</strong></p>
   <nav aria-label="Further information">
-        <a href="../index.html" target="neuroscienceTeachingToolsMenu">Main menu</a>
-    <a href="http://plasticity.muhc.mcgill.ca/index.html">Sjöström Lab</a>
-    <a href="https://github.com/sjostromlab/SjostromLab.github.io">GitHub source</a>
+        <a href="../index.html" target="_blank" rel="noopener">Main menu</a>
+    <a href="http://plasticity.muhc.mcgill.ca/index.html" target="_blank" rel="noopener">Sjöström Lab</a>
+    <a href="https://github.com/sjostromlab/SjostromLab.github.io" target="_blank" rel="noopener">GitHub source</a>
   </nav>
 </footer>
 
