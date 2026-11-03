@@ -39,7 +39,7 @@
     <header>
       <p class="eyebrow">Sjöström Lab · McGill University</p>
       <h1>Interactive Neuroscience Simulations</h1>
-      <p class="intro">Explore channels, synapses, neurons, and learning.</p>
+      <p class="intro">Explore how neurons signal, adapt, encode information, and are recorded.</p>
     </header>
     <main>
       <section class="simulation-group" aria-labelledby="membrane-heading">
@@ -51,14 +51,11 @@
           <a class="card" target="ivCurvesSimulation" href="IVCurves/IVCurves.html" style="--accent: #167b87">
             <div><h2>Channel Currents &amp; I–V Curves</h2><p>Compare population currents and current–voltage relationships across channel types.</p></div><span class="arrow" aria-hidden="true">↗</span>
           </a>
-          <a class="card" target="hhSimulation" href="HH/HH.html" style="--accent: #33b5e5">
-            <div><h2>Hodgkin–Huxley</h2><p>Examine action potentials and ionic currents with current and voltage clamp.</p></div><span class="arrow" aria-hidden="true">↗</span>
-          </a>
-          <a class="card" target="lifSimulation" href="LIF/LIFSim.html" style="--accent: #4caf50">
-            <div><h2>Integrate-and-Fire</h2><p>Investigate temporal integration, spiking, and short-term synaptic plasticity.</p></div><span class="arrow" aria-hidden="true">↗</span>
-          </a>
           <a class="card" target="passiveDendriteSimulation" href="PassiveDendrite/PassiveDendrite.html" style="--accent: #267d73">
             <div><h2>Passive Dendrites</h2><p>Explore how cable properties attenuate, delay, and broaden signals as they spread through a dendrite.</p></div><span class="arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="card" target="hhSimulation" href="HH/HH.html" style="--accent: #33b5e5">
+            <div><h2>Hodgkin–Huxley</h2><p>Examine action potentials and ionic currents with current and voltage clamp.</p></div><span class="arrow" aria-hidden="true">↗</span>
           </a>
         </nav>
       </section>
@@ -70,13 +67,16 @@
             <div><h2>Single-Channel Activity</h2><p>Explore random channel openings and the currents they produce.</p></div><span class="arrow" aria-hidden="true">↗</span>
           </a>
           <a class="card" target="quantalReleaseSimulation" href="QuantalRelease/BinomSim.html" style="--accent: #9933cc">
-            <div><h2>Quantal Release</h2><p>Explore a binomial model of how release-site number, release probability, and quantal amplitude shape responses.</p></div><span class="arrow" aria-hidden="true">↗</span>
+            <div><h2>Quantal Release</h2><p>Explore how release-site number, release probability, and quantal amplitude shape binomial responses.</p></div><span class="arrow" aria-hidden="true">↗</span>
           </a>
           <a class="card" target="heterogeneousReleaseSimulation" href="HeterogeneousRelease/HeterogeneousSimulation.html" style="--accent: #2176ff">
             <div><h2>Heterogeneous Release</h2><p>Explore non-binomial release arising from different release probabilities or quantal amplitudes.</p></div><span class="arrow" aria-hidden="true">↗</span>
           </a>
+          <a class="card" target="lifSimulation" href="LIF/LIFSim.html" style="--accent: #4caf50">
+            <div><h2>Short-Term Synaptic Plasticity</h2><p>Explore depressing and facilitating synapses using a leaky integrate-and-fire neuron as the postsynaptic readout.</p></div><span class="arrow" aria-hidden="true">↗</span>
+          </a>
           <a class="card" target="cvAnalysisSimulation" href="CVAnalysis/CVAnalysis.html" style="--accent: #a86812">
-            <div><h2>CV Analysis</h2><p>Use changes in response mean and variability to explore the locus of synaptic plasticity and the importance of sample size.</p></div><span class="arrow" aria-hidden="true">↗</span>
+            <div><h2>CV Analysis</h2><p>Use changes in response mean and variability to explore the locus of long-term synaptic plasticity.</p></div><span class="arrow" aria-hidden="true">↗</span>
           </a>
           <a class="card" target="stdpSimulation" href="STDP/STDPSim.html" style="--accent: #26a69a">
             <div><h2>STDP</h2><p>Discover how spike timing changes synaptic strength and input selectivity.</p></div><span class="arrow" aria-hidden="true">↗</span>
@@ -103,14 +103,14 @@
             <div><h2>Series Resistance in Current Clamp</h2><p>Explore how electrode resistance and capacitance distort passive responses, action potentials, and EPSPs.</p></div><span class="arrow" aria-hidden="true">↗</span>
           </a>
           <a class="card" target="voltageClampRsSimulation" href="VoltageClampRs/index.html" style="--accent: #76506f">
-            <div><h2>Series Resistance in Voltage Clamp</h2><p>Explore clamp error, current measurement, compensation, and post-hoc correction of I–V relations.</p></div><span class="arrow" aria-hidden="true">↗</span>
+            <div><h2>Series Resistance in Voltage Clamp</h2><p>Explore clamp error, current measurement, compensation, and post hoc correction of I–V relations.</p></div><span class="arrow" aria-hidden="true">↗</span>
           </a>
         </nav>
       </section>
       <details id="help">
         <summary>How to use these simulations</summary>
         <p>Choose a simulation to open it in a new tab, then adjust its controls to explore how the model behaves. This menu stays open in its original tab, so you can return here to choose another simulation.</p>
-        <p>Selected simulations offer adjustable graph text and data downloads. Use a graph’s camera button to save a PNG image for notes or teaching materials.</p>
+        <p>Selected simulations offer adjustable graph text and CSV data export. Use a graph’s camera button to save a PNG image for notes or teaching materials.</p>
       </details>
     </main>
     <footer>
