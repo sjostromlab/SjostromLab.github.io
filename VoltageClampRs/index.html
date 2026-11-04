@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="styles.css?v=20261028c">
   <script src="plotly-latest.min.js"></script>
 </head>
-<body>
+<body data-window-name="voltageClampRsSimulation">
   <header class="page-header">
     <h1>Series Resistance in Voltage Clamp</h1>
     <p>How access resistance limits voltage control and distorts measured currents</p>
@@ -203,6 +203,7 @@
 
           <h3>The shared voltage-clamp model</h3>
           <p>The amplifier controls the membrane through series resistance R<sub>s</sub>. With outward-positive current, actual membrane voltage is V<sub>m</sub> = V<sub>command</sub> − IR<sub>s</sub>. The effective clamp speed also depends on C<sub>m</sub>. The compensation control is an intentionally idealized reduction of effective R<sub>s</sub>; real amplifier compensation can introduce ringing or instability, which is outside this simulation.</p>
+          <p>Unlike current-clamp bridge balance, voltage-clamp R<sub>s</sub> compensation acts within the feedback experiment and changes actual V<sub>m</sub> and current. At 0% it is inactive; increasing it therefore simulates a different recording condition rather than revealing an alternative display of the same trace.</p>
 
           <h3>1. Voltage step: settling and capacitive current</h3>
           <p>Compare V<sub>command</sub> with actual V<sub>m</sub>. A finite R<sub>s</sub> prevents an instantaneous voltage change, producing a capacitive current that decays as the membrane approaches its steady voltage. Increase R<sub>s</sub> or C<sub>m</sub> to slow the clamp. The dashed current is the ideal steady membrane current and deliberately excludes an instantaneous ideal capacitive impulse.</p>
@@ -235,11 +236,12 @@
   <footer>
     <p><strong>Neuroscience teaching tools</strong></p>
     <nav aria-label="Further information">
-      <a href="../index.html" target="_blank" rel="noopener">Main menu</a>
+      <a href="../index.html" target="neuroscienceTeachingToolsMenu" data-window-nav>Main menu</a>
       <a href="http://plasticity.muhc.mcgill.ca/index.html" target="_blank" rel="noopener">Sjöström Lab</a>
       <a href="https://github.com/sjostromlab/SjostromLab.github.io" target="_blank" rel="noopener">GitHub source</a>
     </nav>
   </footer>
   <script src="VoltageClampRs.js?v=20261028c"></script>
+  <script src="../navigation.js"></script>
 </body>
 </html>

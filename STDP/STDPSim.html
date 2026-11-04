@@ -15,7 +15,7 @@
     <!-- Load Plotly graphing library from CDN -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
-<body>
+<body data-window-name="stdpSimulation">
 
     <!-- Header section with title, subtitle, and tab buttons -->
     <div class="header">
@@ -219,7 +219,7 @@
 <footer class="footer">
     <p><strong>Neuroscience teaching tools</strong></p>
     <nav aria-label="Further information">
-        <a href="../index.html" target="_blank" rel="noopener">Main menu</a>
+        <a href="../index.html" target="neuroscienceTeachingToolsMenu" data-window-nav>Main menu</a>
         <a href="http://plasticity.muhc.mcgill.ca/index.html" target="_blank" rel="noopener">Sjöström Lab</a>
         <a href="https://github.com/sjostromlab/SjostromLab.github.io" target="_blank" rel="noopener">GitHub source</a>
     </nav>
@@ -228,5 +228,6 @@
 <!-- Load the simulation JavaScript file (?v=7 forces browser to use latest version) -->
 <script src="./STDP_simulation.js?v=8"></script>
 
+  <script src="../navigation.js"></script>
 </body>
 </html>

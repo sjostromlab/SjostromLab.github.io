@@ -22,6 +22,9 @@ body { margin:0; color:var(--ink); background:var(--paper); font-family:Arial,He
 .control-card h2 { margin:0 0 6px; font-size:1.1rem; }
 .electrode-card,.shared-settings-card { border-left:7px solid var(--accent); }
 .two-column { display:grid; grid-template-columns:1fr 1fr; gap:6px 12px; }
+.compensation-grid { position:relative; margin-top:6px; padding-left:23px; }
+.trace-toggle { position:absolute; z-index:2; top:27px; left:0; width:15px; height:15px; cursor:pointer; }
+.trace-toggle input { width:15px; height:15px; margin:0; accent-color:var(--corrected); cursor:pointer; }
 .three-column { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px 10px; }
 .parameter,.range-field { display:flex; min-width:0; flex-direction:column; gap:2px; font-size:.9rem; }
 .parameter span { min-height:1.2em; line-height:1.05; }

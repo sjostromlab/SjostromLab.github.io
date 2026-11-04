@@ -122,6 +122,7 @@ function readParameters() {
     cp: finiteNumber(byId('cpNumber').value, DEFAULTS.cp),
     bridge: finiteNumber(byId('bridgeNumber').value, DEFAULTS.bridge),
     neutral: finiteNumber(byId('neutralNumber').value, DEFAULTS.neutral),
+    showCompensated: byId('showCompensated').checked,
     rm: finiteNumber(byId('rmNumber').value, DEFAULTS.rm),
     cm: finiteNumber(byId('cmNumber').value, DEFAULTS.cm),
     rest: finiteNumber(byId('restNumber').value, DEFAULTS.rest),
@@ -144,16 +145,22 @@ function electrodeTau(p) {
 }
 
 function filterElectrode(vm, currentPA, dt, p) {
-  const tau = electrodeTau(p);
-  const alpha = tau > 0 ? Math.exp(-dt / tau) : 0;
+  const rawTau = p.rs * p.cp / 1000;
+  const compensatedTau = electrodeTau(p);
+  const rawAlpha = rawTau > 0 ? Math.exp(-dt / rawTau) : 0;
+  const compensatedAlpha = compensatedTau > 0 ? Math.exp(-dt / compensatedTau) : 0;
   const raw = new Array(vm.length);
+  const compensatedElectrode = new Array(vm.length);
   const corrected = new Array(vm.length);
-  raw[0] = vm[0] + currentPA[0] * p.rs / 1000;
-  corrected[0] = raw[0] - currentPA[0] * p.rs * p.bridge / 100000;
+  const initialTarget = vm[0] + currentPA[0] * p.rs / 1000;
+  raw[0] = initialTarget;
+  compensatedElectrode[0] = initialTarget;
+  corrected[0] = compensatedElectrode[0] - currentPA[0] * p.rs * p.bridge / 100000;
   for (let i = 1; i < vm.length; i += 1) {
     const target = vm[i] + currentPA[i] * p.rs / 1000;
-    raw[i] = target + (raw[i - 1] - target) * alpha;
-    corrected[i] = raw[i] - currentPA[i] * p.rs * p.bridge / 100000;
+    raw[i] = target + (raw[i - 1] - target) * rawAlpha;
+    compensatedElectrode[i] = target + (compensatedElectrode[i - 1] - target) * compensatedAlpha;
+    corrected[i] = compensatedElectrode[i] - currentPA[i] * p.rs * p.bridge / 100000;
   }
   return { raw, corrected };
 }
@@ -369,12 +376,15 @@ function baseLayout(title, p, options = {}) {
   };
 }
 
-function voltageTraces(data, names = {}) {
-  return [
+function voltageTraces(data, names = {}, showCompensated = true) {
+  const traces = [
     { x: data.time, y: data.vm, type: 'scatter', mode: 'lines', name: names.ideal || 'Membrane V<sub>m</sub>', line: { color: '#222', width: 2.2 }, hovertemplate: '%{y:.2f} mV<extra></extra>' },
-    { x: data.time, y: data.raw, type: 'scatter', mode: 'lines', name: names.raw || 'Recorded voltage', line: { color: '#2476aa', width: 2.4 }, hovertemplate: '%{y:.2f} mV<extra></extra>' },
-    { x: data.time, y: data.corrected, type: 'scatter', mode: 'lines', name: names.corrected || 'Bridge balance', line: { color: '#c56a2d', width: 2, dash: 'dash' }, hovertemplate: '%{y:.2f} mV<extra></extra>' }
+    { x: data.time, y: data.raw, type: 'scatter', mode: 'lines', name: names.raw || 'Recorded voltage', line: { color: '#2476aa', width: 2.4 }, hovertemplate: '%{y:.2f} mV<extra></extra>' }
   ];
+  if (showCompensated) traces.push(
+    { x: data.time, y: data.corrected, type: 'scatter', mode: 'lines', name: names.corrected || 'Compensated voltage', line: { color: '#c56a2d', width: 2, dash: 'dash' }, hovertemplate: '%{y:.2f} mV<extra></extra>' }
+  );
+  return traces;
 }
 
 function drawPlots(p, step, epsp, spike) {
@@ -383,9 +393,9 @@ function drawPlots(p, step, epsp, spike) {
   const spikeCurrent = { x: spike.time, y: spike.current.map(value => value / 1000), type: 'scatter', mode: 'lines', name: 'Injected current', yaxis: 'y2', showlegend: false, fill: 'tozeroy', fillcolor: 'rgba(63,111,145,.12)', line: { color: '#263238', width: 2, shape: 'hv' }, hovertemplate: '%{y:.3f} nA<extra>Injected current</extra>' };
 
   return Promise.all([
-    Plotly.react('stepPlot', [...voltageTraces(step), stepCurrent], baseLayout('1. Passive step', p, { currentTitle: 'I<sub>inj</sub> (nA)', uirevision: 'step' }), plotConfig),
-    Plotly.react('epspPlot', [...voltageTraces(epsp).slice(0, 2), epspCurrent], baseLayout('3. EPSP', p, { currentTitle: 'I<sub>syn</sub> (nA)', uirevision: 'epsp' }), plotConfig),
-    Plotly.react('spikePlot', [...voltageTraces(spike), spikeCurrent], baseLayout('2. Action potential', p, { currentTitle: 'I<sub>inj</sub> (nA)', uirevision: 'spike' }), plotConfig)
+    Plotly.react('stepPlot', [...voltageTraces(step, {}, p.showCompensated), stepCurrent], baseLayout('1. Passive step', p, { currentTitle: 'I<sub>inj</sub> (nA)', uirevision: 'step' }), plotConfig),
+    Plotly.react('epspPlot', [...voltageTraces(epsp, {}, p.showCompensated), epspCurrent], baseLayout('3. EPSP', p, { currentTitle: 'I<sub>syn</sub> (nA)', uirevision: 'epsp' }), plotConfig),
+    Plotly.react('spikePlot', [...voltageTraces(spike, {}, p.showCompensated), spikeCurrent], baseLayout('2. Action potential', p, { currentTitle: 'I<sub>inj</sub> (nA)', uirevision: 'spike' }), plotConfig)
   ]);
 }
 
@@ -531,6 +541,7 @@ function reset() {
     byId(numberId).value = DEFAULTS[key];
     byId(rangeId).value = DEFAULTS[key];
   }
+  byId('showCompensated').checked = false;
   setView('passive', false);
   update();
 }
@@ -561,11 +572,14 @@ function downloadData() {
 
 for (const [numberId, rangeId, key] of CONTROL_PAIRS) bindPair(numberId, rangeId, key);
 byId('fontSize').addEventListener('input', scheduleUpdate);
+byId('showCompensated').addEventListener('change', scheduleUpdate);
 byId('resetButton').addEventListener('click', reset);
 byId('downloadButton').addEventListener('click', downloadData);
 byId('viewSelect').addEventListener('change', event => setView(event.target.value));
 byId('previousViewButton').addEventListener('click', () => stepView(-1));
 byId('nextViewButton').addEventListener('click', () => stepView(1));
+
+
 window.addEventListener('resize', queuePlotResize);
 if ('ResizeObserver' in window) {
   let previousWidth = 0;
