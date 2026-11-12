@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<!-- Vibe coding by Jesper Sjöström with help from ChatGPT Codex. Updated 2026-11-10. Standalone Optics Lab teaching simulation. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Optics Lab · Polarization and Beam Splitters</title><script defer
+                                                                       src="navigation.js?course"></script>
+    <style>
+      :root {
+        --ink: #193540;
+        --muted: #60767d;
+        --line: #d4e0dc;
+        --teal: #087f79;
+        --navy: #102e3a;
+        --gold: #edbd68
+      }
+
+      * {
+        box-sizing: border-box
+      }
+
+      body {
+        margin: 0;
+        background: #f2f5f4;
+        color: var(--ink);
+        font: 15px/1.45 system-ui, -apple-system, sans-serif
+      }
+
+      header {
+        background: var(--navy);
+        color: white;
+        padding: 17px 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px
+      }
+
+      header small {
+        color: #a5c7cc;
+        letter-spacing: .15em;
+        font-size: 11px
+      }
+
+      h1 {
+        font-size: 24px;
+        margin: 4px 0
+      }
+
+      h2 {
+        font-size: 16px;
+        margin: 0 0 9px
+      }
+
+      h3 {
+        font-size: 13px;
+        margin: 12px 0 6px
+      }
+
+      p {
+        margin: 6px 0 12px
+      }
+
+      main {
+        max-width: 1450px;
+        margin: auto;
+        padding: 20px 24px 85px
+      }
+
+      button,
+      input,
+      select {
+        font: inherit
+      }
+
+      button,
+      select {
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 8px 12px;
+        background: white;
+        color: var(--ink)
+      }
+
+      button {
+        cursor: pointer
+      }
+
+      button:hover {
+        border-color: var(--teal)
+      }
+
+      button:focus-visible,
+      input:focus-visible,
+      select:focus-visible,
+      a:focus-visible,
+      summary:focus-visible {
+        outline: 3px solid #d09332;
+        outline-offset: 3px
+      }
+
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 14px
+      }
+
+      .steps button {
+        text-align: left
+      }
+
+      .steps strong {
+        display: block;
+        font-size: 14px
+      }
+
+      .steps small {
+        font-size: 12px;
+        color: var(--muted)
+      }
+
+      .steps button.active {
+        background: #e6f4ee;
+        border: 2px solid var(--teal);
+        padding: 7px 11px
+      }
+
+      .intro {
+        background: #e6f3ee;
+        border-left: 4px solid var(--teal);
+        padding: 12px 16px;
+        border-radius: 0 7px 7px 0;
+        margin-bottom: 16px
+      }
+
+      .intro p {
+        font-size: 13px;
+        margin: 3px 0
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 290px minmax(0, 1fr);
+        gap: 16px
+      }
+
+      .panel {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 16px
+      }
+
+      .workspace {
+        display: flex;
+        flex-direction: column;
+        gap: 14px
+      }
+
+      .group {
+        padding-bottom: 12px;
+        margin-bottom: 12px;
+        border-bottom: 1px solid var(--line)
+      }
+
+      .control {
+        margin: 12px 0
+      }
+
+      .control label {
+        font-size: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 5px
+      }
+
+      .value {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--muted)
+      }
+
+      input[type=number] {
+        width: 67px;
+        padding: 4px;
+        border: 1px solid #ccd9d5;
+        border-radius: 4px;
+        text-align: right
+      }
+
+      input[type=range] {
+        width: 100%;
+        accent-color: var(--teal);
+        cursor: pointer
+      }
+
+      .note {
+        font-size: 12px;
+        color: var(--muted)
+      }
+
+      .row {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap
+      }
+
+      .actions {
+        display: flex;
+        gap: 7px;
+        flex-wrap: wrap
+      }
+
+      .actions button {
+        font-size: 12px
+      }
+
+      .primary {
+        background: var(--teal);
+        color: white;
+        border-color: var(--teal)
+      }
+
+      .badge {
+        font-size: 11px;
+        padding: 3px 6px;
+        border-radius: 4px;
+        background: #e7eeeb
+      }
+
+      .bench {
+        background: var(--navy);
+        border-radius: 7px;
+        overflow: hidden
+      }
+
+      svg {
+        width: 100%;
+        height: auto;
+        display: block
+      }
+
+      .views {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px
+      }
+
+      .metric {
+        padding: 11px;
+        background: #edf3ef;
+        border-radius: 7px
+      }
+
+      .metric span {
+        display: block;
+        font-size: 11px;
+        color: var(--muted)
+      }
+
+      .metric strong {
+        font-size: 20px
+      }
+
+      .metric small {
+        display: block;
+        font-size: 11px
+      }
+
+      .legend {
+        color: var(--muted);
+        font-size: 11px;
+        margin-top: 8px
+      }
+
+      .formula {
+        font: 13px/1.8 ui-monospace, monospace;
+        background: #edf3ef;
+        padding: 10px;
+        border-radius: 6px
+      }
+
+      details {
+        border-top: 1px solid var(--line);
+        padding-top: 12px;
+        margin-top: 12px;
+        font-size: 13px
+      }
+
+      summary {
+        cursor: pointer;
+        font-weight: 600
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 8px;
+        border-bottom: 1px solid var(--line)
+      }
+
+      .home {
+        position: fixed;
+        bottom: 16px;
+        right: 18px;
+        background: var(--navy);
+        color: white;
+        text-decoration: none;
+        border: 1px solid #51717a;
+        border-radius: 7px;
+        padding: 10px 16px;
+        box-shadow: 0 3px 12px #0002;
+        z-index: 10;
+        font-size: 13px
+      }
+
+      .status {
+        font-size: 13px;
+        min-height: 40px;
+        margin-top: 8px
+      }
+
+      footer {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 20px
+      }
+
+      [hidden] {
+        display: none !important
+      }
+
+      @media(max-width:1000px) {
+        .layout {
+          grid-template-columns: 260px minmax(0, 1fr)
+        }
+
+        .views {
+          grid-template-columns: 1fr
+        }
+      }
+
+      @media(max-width:720px) {
+        main {
+          padding: 12px 12px 80px
+        }
+
+        .layout {
+          grid-template-columns: 1fr
+        }
+
+        header {
+          padding: 15px
+        }
+
+        h1 {
+          font-size: 20px
+        }
+
+        .steps {
+          gap: 5px
+        }
+
+        .steps button {
+          padding: 7px
+        }
+
+        .steps button.active {
+          padding: 6px
+        }
+
+        .steps small {
+          font-size: 10px
+        }
+
+        .metrics {
+          grid-template-columns: 1fr 1fr
+        }
+
+        .metric:last-child {
+          grid-column: 1/-1
+        }
+      }
+
+      /* Compact desktop presentation: 16% smaller in both dimensions, preserving diagram proportions. */
+      @media(min-width:900px) {
+        body {
+          zoom: .84
+        }
+
+        main {
+          padding-top: 14px
+        }
+
+        header {
+          padding-top: 14px;
+          padding-bottom: 14px
+        }
+      }
+
+      @media(max-width:899px) {
+        header {
+          padding-top: 12px;
+          padding-bottom: 12px
+        }
+
+        .panel {
+          padding: 12px;
+          margin-bottom: 10px
+        }
+
+        .control {
+          margin: 8px 0
+        }
+
+        .row,
+        .layout {
+          gap: 10px
+        }
+
+        p {
+          margin-top: 5px;
+          margin-bottom: 7px
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <small>OPTICS LAB / OPTICAL COMPONENTS</small>
+        <h1>Polarization and beam splitters</h1>
+      </div>
+    </header>
+    <main>
+      <nav class="steps" aria-label="Learning stages">
+        <button id="stage1" class="active" aria-pressed="true"><strong>01 · What is polarization?</strong><small>See the field direction</small></button><button id="stage2" aria-pressed="false"><strong>02 · Rotating polarizer</strong><small>Less power, changing polarization</small></button><button id="stage3" aria-pressed="false"><strong>03 · Wave plate + PBS</strong><small>Less power, fixed output polarization</small></button>
+      </nav>
+      <div class="intro">
+        <b id="instruction"></b>
+        <p id="explanation"></p>
+      </div>
+      <div class="layout">
+        <aside class="panel">
+          <h2>Optical controls</h2>
+          <div class="group">
+            <h3>Incident light</h3>
+            <div id="sourceControls"></div>
+            <div id="generalSource">
+              <label for="kind"
+                     class="note">Polarization state</label><select id="kind"
+                                                                    style="width:100%;
+                                                                           margin-top:6px">
+                <option value="linear">Linear</option>
+                <option value="circular">Circular</option>
+                <option value="elliptical">Elliptical</option>
+              </select>
+              <p class="note">Circular and elliptical examples have a 90° phase difference between field components. The ellipse has a 2:1 amplitude ratio.</p>
+            </div>
+            <p id="linearNote" class="note" hidden>The attenuation exercises use linearly polarized laser light. θ is measured from the fixed horizontal reference.</p>
+          </div>
+          <div id="filterGroup" class="group" hidden>
+            <h3>Rotating polarizing filter</h3>
+            <div id="filterControls"></div>
+            <p class="note">φ is the transmission-axis angle. Rotating the filter changes both transmitted power and its polarization direction.</p>
+          </div>
+          <div id="hwpGroup" class="group" hidden>
+            <h3>Half-wave plate before fixed PBS</h3>
+            <div id="hwpControls"></div>
+            <p class="note">α is the wave-plate fast-axis angle. The cube stays fixed: transmitted P is horizontal; reflected S is perpendicular to the bench plane.</p>
+          </div>
+          <div class="actions">
+            <button id="animate">Pause field animation</button><button id="reset">Reset simulation</button><button id="half"
+                                                                                                                     hidden>Compare at 50% power</button>
+          </div>
+          <p class="note"
+             style="margin-top:12px">The field animation is greatly slowed down. Polarization angles have 180° symmetry.</p>
+          <div id="probe" hidden>
+            <h3>Virtual analyzer on selected output</h3>
+            <label id="portWrap"
+                   class="note"
+                   for="port"
+                   hidden>Selected PBS output</label><select id="port"
+                                                             hidden
+                                                             style="width:100%;
+                                                                    margin:6px 0 10px">
+              <option value="T">Transmitted P</option>
+              <option value="R">Reflected S</option>
+            </select>
+            <div id="analyzerControls"></div>
+            <p id="analyzerRead" class="note"></p>
+            <p class="note">The analyzer is drawn directly on the selected beam. Rotate it to test the output polarization.</p>
+          </div>
+        </aside>
+        <section class="workspace">
+          <div class="panel">
+            <div class="row">
+              <h2 id="benchTitle">Light travels forward; the field oscillates sideways</h2>
+              <span class="badge">IDEAL OPTICS</span>
+            </div>
+            <div class="bench">
+              <svg id="bench"
+                   viewBox="0 0 1000 310"
+                   role="img"
+                   aria-label="Optical path with incident beam, polarization element, and output power meters">
+              </svg>
+            </div>
+            <p class="legend">Beam paths show propagation. Polarization glyphs show electric-field orientation in a plane perpendicular to each beam. Line thickness varies with relative power.</p>
+          </div>
+          <div class="metrics">
+            <div class="metric"><span id="powerLabel">INCIDENT POWER</span><strong id="powerRead"></strong><small id="fraction"></small></div>
+            <div class="metric"><span id="orientationLabel">POLARIZATION</span><strong id="orientation"></strong><small id="orientationNote"></small></div>
+            <div class="metric"><span id="thirdLabel">FIELD MOTION</span><strong id="third"></strong><small id="thirdNote"></small></div>
+          </div>
+          <div class="views" id="views">
+            <div class="panel">
+              <h2 id="fieldTitle">Looking straight into the beam</h2>
+              <svg id="field"
+                   viewBox="0 0 460 290"
+                   role="img"
+                   aria-label="Electric-field direction viewed toward the oncoming beam">
+              </svg>
+              <p class="legend">Gold arrow: electric field at this instant. Teal line or curve: all positions reached by the arrow tip during one optical cycle. This is not the path of the light beam.</p>
+              <p id="fieldStatus" class="status"></p>
+            </div>
+            <div class="panel" id="plotPanel">
+              <h2 id="plotTitle">Power versus adjustment angle</h2>
+              <svg id="plot"
+                   viewBox="0 0 460 290"
+                   role="img"
+                   aria-label="Transmitted power plotted against optical element angle">
+              </svg>
+              <p id="plotStatus" class="status"></p>
+            </div>
+          </div>
+          <div class="panel" id="comparison" hidden>
+            <div class="row">
+              <h2>Same incident light, two attenuators</h2>
+              <span class="badge">LIVE COMPARISON</span>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Measurement</th>
+                  <th>Rotating filter</th>
+                  <th>Wave plate + fixed PBS</th>
+                </tr>
+              </thead>
+              <tbody id="comparisonRows">
+              </tbody>
+            </table>
+            <p class="note">“Compare at 50% power” sets θ = 0°, φ = 45° and α = 22.5°. Each system then delivers half the input power, but their selected outputs have different polarization directions.</p>
+          </div>
+          <div class="panel">
+            <h2>Try it</h2>
+            <p id="exercise"></p>
+            <details>
+              <summary>How the optics work</summary>
+              <p>A linear polarizer transmits the component of the electric field along its transmission axis. For a linearly polarized input, rotating that axis changes the transmitted power according to Malus’s law. The transmitted field lies along the filter axis. The beam still travels in its original direction in this ideal model.</p>
+              <div class="formula">
+                Rotating filter: Pout / Pin = cos²(φ − θ)
+                <br>
+                Half-wave plate: θafter = 2α − θ (modulo 180°)
+                <br>
+                Fixed PBS transmitted port: PT / Pin = cos²(2α − θ)
+                <br>
+                Fixed PBS reflected port: PR / Pin = sin²(2α − θ)
+              </div>
+              <p>The wave plate rotates the incident linear polarization without attenuating it in this ideal model. The fixed PBS then separates it into two fixed, orthogonal output polarizations. Changing α changes how much power goes to each port. The transmitted beam follows the straight path; the reflected beam leaves at 90°. Those paths do not move when the wave plate rotates.</p>
+              <p>A fixed PBS alone is not an adjustable attenuator for a fixed input polarization. The half-wave plate supplies the adjustment. Rotating the PBS itself would change its polarization basis and can change the optical geometry.</p>
+            </details>
+            <details>
+              <summary>Assumptions and terminology</summary>
+              <p>All powers are time-averaged. The polarizer is modelled as an ideal absorptive filter; the rejected fraction is labelled absorbed. Real polarizers can reject light by other mechanisms. The half-wave plate is ideal at its operating wavelength and the PBS is lossless with perfect extinction. Real losses, finite extinction, wavelength dependence, beam walk-off and coatings are not included.</p>
+              <p>P and S are defined relative to the cube’s plane of incidence, not universally relative to the room. In the illustrated horizontal bench plane, P is in that plane and S is perpendicular to it. Output field plots use local transverse coordinates. At zero power no transmitted polarization can be measured; the display labels only the port or filter axis.</p>
+              <p>The introductory circular and elliptical examples are fully polarized. Unpolarized light is a different case and is not modelled here. End-on drawings represent electric-field motion, not a mechanical motion of the beam.</p>
+            </details>
+            <details>
+              <summary>Teaching reference</summary>
+              <p>Based on the supplied “LabMeet20260105 v1” presentation: polarization and wave plates (slides 30–37), polarizing filters (slide 41), half-wave plate and beamsplitting prism power control (slides 46–48), and polarizing beam splitters in the laboratory path (slide 59). This simulation uses independently drawn diagrams and an ideal polarization model.</p>
+            </details>
+          </div>
+        </section>
+      </div>
+      <footer>
+        Optics Lab · Polarization and Beam Splitters · Standalone · No external dependencies
+      </footer>
+    </main>
+    <a class="home" href="index.html">← Back to main menu</a>
+    <script>
+      'use strict';
+      // Shared state for the three progressively more detailed teaching tabs.
+      const DEFAULTS = {
+        power: 100,
+        theta: 0,
+        filter: 30,
+        hwp: 15,
+        analyzer: 0
+      };
+      let s = {
+          ...DEFAULTS
+        },
+        stage = 1,
+        kind = 'linear',
+        port = 'T',
+        animate = true,
+        phase = 0,
+        last = 0;
+      const $ = id => document.getElementById(id),
+        RAD = Math.PI / 180;
+      const specs = [
+        ['power', 'Incident power', 1, 200, 1, 'mW', 'sourceControls'],
+        ['theta', 'Input linear angle · θ', -90, 90, 1, '°', 'sourceControls'],
+        ['filter', 'Filter axis · φ', -90, 90, 1, '°', 'filterControls'],
+        ['hwp', 'Wave-plate axis · α', -45, 90, .5, '°', 'hwpControls'],
+        ['analyzer', 'Analyzer transmission axis', -90, 90, 1, '°', 'analyzerControls']
+      ];
+      for (const [k, label, min, max, step, unit, group] of specs) {
+        $(group).insertAdjacentHTML('beforeend', `<div class="control" id="${k}Control"><label for="${k}">${label}<span class="value"><input type="number" id="${k}Number" min="${min}" max="${max}" step="${step}" value="${s[k]}" aria-label="${label}, ${unit}">${unit}</span></label><input type="range" id="${k}" min="${min}" max="${max}" step="${step}" value="${s[k]}" aria-label="${label}"></div>`);
+        $(k).addEventListener('input', e => update(k, Number(e.target.value)));
+        $(k + 'Number').addEventListener('input', e => {
+          const v = Number(e.target.value);
+          if (e.target.value !== '' && v >= min && v <= max) update(k, v);
+        });
+        $(k + 'Number').addEventListener('blur', () => sync());
+      }
+
+      function update(k, v) {
+        if (!Number.isFinite(v)) return;
+        const spec = specs.find(x => x[0] === k);
+        s[k] = Math.max(spec[2], Math.min(spec[3], v));
+        sync();
+        render();
+      }
+
+      function sync() {
+        for (const [k] of specs) {
+          $(k).value = s[k];
+          if (document.activeElement !== $(k + 'Number')) $(k + 'Number').value = s[k];
+        }
+      }
+
+      function norm(a) {
+        return ((a + 90) % 180 + 180) % 180 - 90;
+      }
+
+      // Apply Malus' law, half-wave-plate rotation, and PBS port splitting.
+      function model(st = s) {
+        const F = Math.cos((st.filter - st.theta) * RAD) ** 2,
+          T = Math.cos((2 * st.hwp - st.theta) * RAD) ** 2;
+        return {
+          F: F < 1e-12 ? 0 : F,
+          T: T < 1e-12 ? 0 : T,
+          R: 1 - T,
+          beta: norm(2 * st.hwp - st.theta),
+          filterAnalyzer: F * Math.cos((st.analyzer - st.filter) * RAD) ** 2,
+          pbsAnalyzer: T * Math.cos(st.analyzer * RAD) ** 2,
+          pbsRAnalyzer: (1 - T) * Math.sin(st.analyzer * RAD) ** 2
+        };
+      }
+
+      function fmt(v, n = 1) {
+        return (Math.abs(v) < 1e-9 ? 0 : v).toFixed(n);
+      }
+
+      function txt(x, y, t, c = '#c6d9de', size = 12, anchor = 'middle') {
+        return `<text x="${x}" y="${y}" fill="${c}" font-size="${size}" text-anchor="${anchor}" font-family="system-ui,sans-serif">${t}</text>`;
+      }
+
+      function line(x, y, a, b, c, w = 1, dash = '') {
+        return `<line x1="${x}" y1="${y}" x2="${a}" y2="${b}" stroke="${c}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+      }
+
+      function glyph(x, y, a, r = 22, c = '#efbf67') {
+        const dx = r * Math.cos(a * RAD),
+          dy = -r * Math.sin(a * RAD);
+        return `<circle cx="${x}" cy="${y}" r="${r+4}" fill="#173e49" stroke="#537783"/>` + line(x - dx, y - dy, x + dx, y + dy, c, 3);
+      }
+
+      function beam(x, y, a, b, p = 1) {
+        return line(x, y, a, b, '#edbd68', 2 + 6 * p) + `<circle cx="${a}" cy="${b}" r="4" fill="#edbd68"/>`;
+      }
+
+      function analyzerGlyph(x, y, a, power, labelSide = 'below') {
+        const dx = 20 * Math.cos(a * RAD),
+          dy = -20 * Math.sin(a * RAD),
+          ly = labelSide === 'below' ? y + 42 : y - 38;
+        return '<circle cx="' + x + '" cy="' + y + '" r="24" fill="#102e3a" stroke="#6cd0c6" stroke-width="3"/>' + line(x - dx, y - dy, x + dx, y + dy, '#6cd0c6', 3) + txt(x, ly, 'Observation 3 · analyzer β ' + fmt(a) + '° · ' + fmt(power) + ' mW', '#fff', 11)
+      }
+
+      // Draw polarization glyphs at successive observation points along the beam.
+      function drawBench(m) {
+        let o = '';
+        if (stage === 1) {
+          o += beam(75, 145, 920, 145, .7) + txt(920, 175, 'Propagation →', '#fff', 13, 'end');
+          for (let i = 0; i < 3; i++) {
+            const x = 220 + i * 260;
+            const a = kind === 'linear' ? s.theta : phase / RAD - i * 35;
+            o += line(x, 92, x, 198, '#4d707b', 1, '3 4') + glyph(x, 145, a, 32) + txt(x, 220, 'Observation point ' + (i + 1), '#c6d9de', 12) + txt(x, 239, 'same beam · transverse view', '#a9cbd0', 10);
+          }
+          o += txt(500, 48, 'The electric field is perpendicular to the direction of travel.', '#fff', 16) + txt(500, 275, 'These are three observation planes along one beam; the light does not trace the polarization glyph.', '#a9cbd0', 13);
+        } else if (stage === 2) {
+          o += beam(65, 145, 490, 145, 1);
+          if (m.F > 1e-10) o += beam(510, 145, 920, 145, m.F);
+          o += glyph(220, 145, s.theta, 28) + txt(220, 205, 'Observation 1 · before filter') + txt(220, 224, `Input θ = ${fmt(s.theta)}°`, '#a9cbd0', 11);
+          o += glyph(500, 145, s.filter, 60, '#6cd0c6') + txt(500, 48, 'Rotating polarizing filter', '#fff', 16) + txt(500, 255, `Absorbed: ${fmt(s.power*(1-m.F))} mW`);
+          if (m.F > 1e-10) o += glyph(760, 145, s.filter, 28);
+          o += txt(760, 205, 'Observation 2 · after filter') + txt(760, 224, `Output axis φ = ${fmt(norm(s.filter))}°`, '#a9cbd0', 11) + txt(900, 100, `${fmt(s.power*m.F)} mW`, '#fff', 15) + analyzerGlyph(875, 145, s.analyzer, s.power * m.filterAnalyzer) + txt(500, 287, 'Propagation stays straight. Transmitted polarization follows the filter axis.', '#a9cbd0', 13);
+        } else {
+          o += beam(45, 190, 515, 190, 1);
+          o += glyph(140, 190, s.theta, 24) + txt(140, 245, 'Observation 1 · input') + txt(140, 264, `θ = ${fmt(s.theta)}°`, '#a9cbd0', 11);
+          o += glyph(310, 190, s.hwp, 43, '#6cd0c6') + txt(310, 110, 'Half-wave plate', '#fff', 14) + txt(310, 130, `Axis α = ${fmt(s.hwp)}°`);
+          o += glyph(435, 190, m.beta, 22) + txt(435, 245, 'Observation 2 · after wave plate') + txt(435, 264, `θ = ${fmt(m.beta)}°`, '#a9cbd0', 11);
+          o += '<rect x="515" y="155" width="70" height="70" fill="#70b8cc33" stroke="#9ecbd7" stroke-width="2"/>' + line(515, 225, 585, 155, '#b6dce2', 2) + txt(550, 262, 'Fixed PBS cube', '#fff', 14);
+          if (m.T > 1e-10) o += beam(585, 190, 940, 190, m.T);
+          if (m.R > 1e-10) o += beam(550, 155, 550, 35, m.R);
+          o += txt(800, 146, `Transmitted P: ${fmt(s.power*m.T)} mW`, '#fff', 15) + txt(800, 244, 'Fixed P polarization · toward microscope', '#a9cbd0', 12);
+          if (m.T > 1e-10) o += glyph(760, 190, 0, 24);
+          o += txt(590, 45, `Reflected S: ${fmt(s.power*m.R)} mW`, '#fff', 14, 'start') + txt(590, 66, 'Fixed orthogonal polarization · second port', '#a9cbd0', 11, 'start');
+          if (port === 'T') o += analyzerGlyph(850, 190, s.analyzer, s.power * m.T * Math.cos(s.analyzer * RAD) ** 2);
+          else o += analyzerGlyph(550, 95, s.analyzer, s.power * m.R * Math.sin(s.analyzer * RAD) ** 2);
+          o += txt(500, 292, 'The wave plate changes the split. The fixed cube keeps both output polarization axes fixed.', '#a9cbd0', 12);
+        }
+        $('bench').innerHTML = o;
+      }
+
+      function fieldVector(t) {
+        if (stage === 1 && kind !== 'linear') {
+          const a = kind === 'circular' ? Math.SQRT1_2 : 2 / Math.sqrt(5),
+            b = kind === 'circular' ? Math.SQRT1_2 : 1 / Math.sqrt(5);
+          return [a * Math.cos(t), b * Math.sin(t)];
+        }
+        const m = model(),
+          power = stage === 1 ? 1 : stage === 2 ? m.F : port === 'T' ? m.T : m.R,
+          a = (stage === 1 ? s.theta : stage === 2 ? s.filter : port === 'T' ? 0 : 90) * RAD;
+        return [Math.sqrt(power) * Math.cos(a) * Math.cos(t), Math.sqrt(power) * Math.sin(a) * Math.cos(t)];
+      }
+
+      function drawField() {
+        let o = '<rect width="460" height="290" rx="7" fill="#102e3a"/>';
+        o += line(60, 145, 400, 145, '#4d707b', 1, '4 5') + line(230, 25, 230, 265, '#4d707b', 1, '4 5') + txt(405, 161, 'horizontal', '#a8c7ce', 11) + txt(245, 25, 'vertical', '#a8c7ce', 11, 'start') + txt(230, 281, 'Beam travels toward you ⊙', '#b8d2d8', 11);
+        const points = [];
+        for (let i = 0; i <= 120; i++) {
+          const [x, y] = fieldVector(i / 120 * 2 * Math.PI);
+          points.push(`${230+x*105},${145-y*105}`);
+        }
+        o += `<polyline points="${points.join(' ')}" fill="none" stroke="#6bc8c0" stroke-width="2"/>`;
+        const [x, y] = fieldVector(phase);
+        o += line(230, 145, 230 + x * 105, 145 - y * 105, '#f2c36d', 3) + `<circle cx="${230+x*105}" cy="${145-y*105}" r="5" fill="#f2c36d"/>` + txt(445, 275, 'Relative field amplitude', '#b8d2d8', 10, 'end');
+        $('field').innerHTML = o;
+      }
+
+      function drawPlot(m) {
+        const x0 = 48,
+          y0 = 236,
+          W = 386,
+          H = 190;
+        let o = '';
+        if (stage === 1) {
+          const Y = v => 140 - v * 90;
+          for (const v of [-1, 0, 1]) o += line(x0, Y(v), 434, Y(v), '#dce5e1') + txt(38, Y(v) + 4, v, '#60767d', 11, 'end');
+          for (let axis = 0; axis < 2; axis++) {
+            let pts = [];
+            for (let i = 0; i <= 120; i++) {
+              const v = fieldVector(i / 120 * 2 * Math.PI)[axis];
+              pts.push(`${x0+W*i/120},${Y(v)}`);
+            }
+            o += `<polyline points="${pts.join(' ')}" fill="none" stroke="${axis===0?'#aa6b17':'#087f79'}" stroke-width="2" ${axis===1?'stroke-dasharray="5 4"':''}/>`;
+          }
+          o += txt(240, 278, 'Time over one optical cycle', '#60767d', 12) + txt(80, 22, 'Ex', '#aa6b17', 12) + txt(130, 22, 'Ey (dashed)', '#087f79', 12);
+          const cursor = x0 + W * (phase % (2 * Math.PI)) / (2 * Math.PI);
+          o += line(cursor, 38, cursor, 240, '#8ba5a9', 1, '3 3');
+        } else {
+          for (const v of [0, 25, 50, 75, 100]) o += line(x0, y0 - v / 100 * H, 434, y0 - v / 100 * H, '#dce5e1') + txt(38, y0 - v / 100 * H + 4, v + '%', '#60767d', 10, 'end');
+          let points = [],
+            reflected = [];
+          const min = stage === 2 ? -90 : -45,
+            max = 90;
+          for (let i = 0; i <= 180; i++) {
+            const a = min + (max - min) * i / 180,
+              ratio = Math.cos(((stage === 2 ? a : 2 * a) - s.theta) * RAD) ** 2;
+            points.push(`${x0+W*i/180},${y0-ratio*H}`);
+            reflected.push(`${x0+W*i/180},${y0-(1-ratio)*H}`);
+          }
+          o += `<polyline points="${points.join(' ')}" fill="none" stroke="#aa6b17" stroke-width="2.5"/>`;
+          if (stage === 3) o += `<polyline points="${reflected.join(' ')}" fill="none" stroke="#087f79" stroke-dasharray="5 4" stroke-width="2"/>`;
+          for (const a of stage === 2 ? [-90, -45, 0, 45, 90] : [-45, 0, 45, 90]) o += txt(x0 + W * (a - min) / (max - min), 255, a + '°', '#60767d', 11);
+          const a = stage === 2 ? s.filter : s.hwp,
+            ratio = stage === 2 ? m.F : m.T;
+          o += `<circle cx="${x0+W*(a-min)/(max-min)}" cy="${y0-ratio*H}" r="5" fill="#aa6b17"/>`;
+          o += txt(240, 280, stage === 2 ? 'Filter angle φ' : 'Half-wave plate axis angle α', '#60767d', 12) + txt(240, 22, stage === 2 ? 'Transmitted fraction' : 'Gold: transmitted P · dashed teal: reflected S', '#60767d', 11);
+        }
+        $('plot').innerHTML = o;
+      }
+
+      function updateAnalyzerRead(m) {
+        if (stage === 1) return;
+        const before = stage === 2 ? s.power * m.F : port === 'T' ? s.power * m.T : s.power * m.R,
+          after = stage === 2 ? s.power * m.filterAnalyzer : port === 'T' ? s.power * m.pbsAnalyzer : s.power * m.pbsRAnalyzer,
+          name = stage === 2 ? 'After rotating filter' : port === 'T' ? 'Transmitted P output' : 'Reflected S output';
+        $('analyzerRead').textContent = name + ': ' + fmt(before) + ' mW before analyzer → ' + fmt(after) + ' mW after analyzer.'
+      }
+
+      // Refresh the bench, field view, plots, and numerical readouts together.
+      function render() {
+        const m = model(),
+          ratio = stage === 1 ? 1 : stage === 2 ? m.F : port === 'T' ? m.T : m.R;
+        $('powerLabel').textContent = stage === 1 ? 'INCIDENT POWER' : stage === 2 ? 'AFTER POLARIZER' : port === 'T' ? 'TRANSMITTED PBS PORT' : 'REFLECTED PBS PORT';
+        $('powerRead').textContent = fmt(s.power * ratio) + ' mW';
+        $('fraction').textContent = fmt(ratio * 100) + '% of input';
+        $('orientation').textContent = stage === 1 ? (kind === 'linear' ? fmt(norm(s.theta)) + '°' : kind) : ratio < 1e-10 ? 'No light' : stage === 2 ? fmt(norm(s.filter)) + '°' : port === 'T' ? 'Fixed P' : 'Fixed S';
+        $('orientationNote').textContent = stage === 1 ? 'Electric-field orientation' : stage === 2 ? 'Follows filter transmission axis' : 'Set by the fixed cube';
+        $('thirdLabel').textContent = stage === 1 ? 'FIELD MOTION' : stage === 2 ? 'ABSORBED AT FILTER' : port === 'T' ? 'REFLECTED PBS PORT' : 'TRANSMITTED PBS PORT';
+        $('third').textContent = stage === 1 ? (kind === 'linear' ? 'Back and forth' : 'Rotating') : fmt(s.power * (1 - ratio)) + ' mW';
+        $('thirdNote').textContent = stage === 1 ? 'Not a rotation of the beam path' : stage === 2 ? 'Ideal absorptive polarizer' : port === 'T' ? 'Fixed S polarization' : 'Fixed P polarization';
+        $('fieldTitle').textContent = stage === 1 ? 'Looking straight into the incident beam' : 'Looking straight into the selected output beam';
+        $('fieldStatus').textContent = stage === 1 ? (kind === 'linear' ? 'Linear polarization: the field oscillates along a fixed line.' : kind === 'circular' ? 'Circular polarization: equal perpendicular components in quadrature give a circular trajectory.' : 'Elliptical polarization: unequal perpendicular components in quadrature give an ellipse.') : (ratio < 1e-10 ? 'The selected output is dark. An axis exists, but there is no nonzero field to observe.' : stage === 2 ? 'The output field follows the rotating filter axis. Its amplitude decreases as power is reduced.' : port === 'T' ? 'The transmitted field stays along P while the wave plate changes its amplitude.' : 'The reflected field stays along S while the wave plate changes its amplitude.');
+        $('plotTitle').textContent = stage === 1 ? 'Four moments in one optical cycle' : 'Power versus adjustment angle';
+        $('plotStatus').textContent = stage === 1 ? 'Compare the four arrows: linear polarization reverses along one line, while circular and elliptical polarization turn around the centre.' : stage === 2 ? 'A crossed filter extinguishes the ideal linear input; intermediate settings also rotate its output polarization.' : 'Turning the wave plate by 22.5° rotates a horizontal input to 45°, giving a 50:50 split.';
+        $('comparisonRows').innerHTML = `<tr><td>Adjustment angle</td><td>φ = ${fmt(s.filter)}°</td><td>α = ${fmt(s.hwp)}°</td></tr><tr><td>Selected output power</td><td>${fmt(s.power*m.F)} mW</td><td>${fmt(s.power*(port==='T'?m.T:m.R))} mW</td></tr><tr><td>Output polarization</td><td>${m.F<1e-10?'No light':fmt(norm(s.filter))+'°'}</td><td>${ratio<1e-10?'No light':port==='T'?'Fixed P (0°)':'Fixed S (90°)'}</td></tr><tr><td>After ${fmt(s.analyzer)}° test analyzer</td><td>${fmt(s.power*m.filterAnalyzer)} mW</td><td>${fmt(s.power*(port==='T'?m.pbsAnalyzer:m.pbsRAnalyzer))} mW</td></tr>`;
+        updateAnalyzerRead(m);
+        drawBench(m);
+        drawField();
+        drawPlot(m);
+      }
+
+      function setStage(n) {
+        stage = n;
+        for (let i = 1; i <= 3; i++) {
+          $('stage' + i).classList.toggle('active', i === n);
+          $('stage' + i).setAttribute('aria-pressed', String(i === n));
+        }
+        $('generalSource').hidden = n !== 1;
+        $('linearNote').hidden = n === 1;
+        $('filterGroup').hidden = n !== 2;
+        $('hwpGroup').hidden = n !== 3;
+        $('comparison').hidden = n === 1;
+        $('plotPanel').hidden = n === 1;
+        $('views').style.gridTemplateColumns = n === 1 ? '1fr' : '1fr 1fr';
+        $('probe').hidden = n === 1;
+        $('portWrap').hidden = n !== 3;
+        $('port').hidden = n !== 3;
+        $('half').hidden = n === 1;
+        $('thetaControl').hidden = n === 1 && kind !== 'linear';
+        $('instruction').textContent = ['', 'Polarization describes the electric field, not the direction the beam travels.', 'A rotating polarizer attenuates and changes the transmitted polarization.', 'A half-wave plate and a fixed PBS vary power while preserving each output polarization.'][n];
+        $('explanation').textContent = ['', 'Choose linear, circular, or elliptical light. The three transverse circles are successive observation points along the same propagating beam.', 'Compare observation points before and after the rotating filter, then test the output with the analyzer.', 'Follow the same beam before the wave plate, after the wave plate, and into either fixed PBS output.'][n];
+        $('benchTitle').textContent = ['', 'Light travels forward; the field oscillates sideways', 'Straight beam path, rotating transmitted polarization', 'Variable power split, fixed output directions and polarizations'][n];
+        $('exercise').textContent = ['', 'Start with linear light at 0°. Rotate it to 45°. Then compare circular and elliptical states: which field components differ in amplitude, and which differ in phase?', 'Set a horizontal input and turn the polarizer to 45°. Predict the transmitted power and its polarization. Now select “Compare at 50% power” and compare the downstream analyzer readings.', 'Set θ = 0°. Try wave-plate angles of 0°, 22.5° and 45°. Predict both output powers before looking. Confirm that the transmitted polarization stays P whenever the port is illuminated.'][n];
+        render();
+      }
+      $('port').onchange = e => {
+        port = e.target.value;
+        render()
+      };
+      for (let i = 1; i <= 3; i++) $('stage' + i).onclick = () => setStage(i);
+      $('kind').onchange = e => {
+        kind = e.target.value;
+        setStage(stage);
+      };
+      $('half').onclick = () => {
+        s.theta = 0;
+        s.filter = 45;
+        s.hwp = 22.5;
+        sync();
+        render();
+      };
+      $('animate').onclick = () => {
+        animate = !animate;
+        last = 0;
+        $('animate').textContent = animate ? 'Pause field animation' : 'Resume field animation';
+      };
+      $('reset').onclick = () => {
+        s = {
+          ...DEFAULTS
+        };
+        kind = 'linear';
+        port = 'T';
+        $('kind').value = 'linear';
+        $('port').value = 'T';
+        phase = 0;
+        animate = true;
+        $('animate').textContent = 'Pause field animation';
+        sync();
+        setStage(1);
+      };
+
+      function tick(t) {
+        if (animate) {
+          if (last) phase += Math.min((t - last) / 1000, .1) * 2;
+          last = t;
+          drawField();
+          if (stage === 1) {
+            drawPlot(model());
+            drawBench(model());
+          }
+        } else last = 0;
+        requestAnimationFrame(tick);
+      }
+      sync();
+      setStage(1);
+      requestAnimationFrame(tick);
+    </script>
+  </body>
+</html>

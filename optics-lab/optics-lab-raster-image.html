@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<!-- Vibe coding by Jesper Sjöström with help from ChatGPT Codex. Updated 2026-11-10. Standalone Optics Lab teaching simulation. -->
+<html lang="en">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Optics Lab · From a focus to a scanned image</title><script defer
+                                                                     src="navigation.js?course"></script>
+  <style>
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      background: #f1f5f4;
+      color: #193540;
+      font: 14px/1.5 system-ui, -apple-system, sans-serif
+    }
+
+    header {
+      background: #102e3a;
+      color: white;
+      padding: 22px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between
+    }
+
+    header small {
+      color: #a5c7cc;
+      letter-spacing: .1em
+    }
+
+    h1 {
+      font-size: 26px;
+      margin: 5px 0
+    }
+
+    main {
+      max-width: 1400px;
+      margin: auto;
+      padding: 18px 22px 85px
+    }
+
+    .intro {
+      max-width: 950px;
+      margin: 0 0 16px;
+      color: #526e76
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      gap: 16px
+    }
+
+    .panel {
+      background: white;
+      border: 1px solid #d5e2df;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 14px
+    }
+
+    h2 {
+      font-size: 17px;
+      margin: 0 0 10px
+    }
+
+    .image-panel h2 {
+      text-align: center
+    }
+
+    p {
+      margin: 8px 0
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 14px
+    }
+
+    .stat {
+      background: #e4efed;
+      border-radius: 7px;
+      padding: 12px;
+      font-size: 12px
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 23px;
+      color: #087f79
+    }
+
+    .control {
+      margin: 13px 0
+    }
+
+    .control label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      gap: 8px
+    }
+
+    .control output {
+      font-weight: 650;
+      white-space: nowrap
+    }
+
+    input[type=range] {
+      width: 100%;
+      accent-color: #087f79
+    }
+
+    button,
+    select {
+      font: inherit;
+      color: #193540;
+      background: white;
+      border: 1px solid #b8cccb;
+      border-radius: 5px;
+      padding: 8px;
+      cursor: pointer
+    }
+
+    button:hover {
+      background: #e4efed
+    }
+
+    button.primary {
+      background: #087f79;
+      color: white
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px
+    }
+
+    .legend {
+      font-size: 12px;
+      color: #607981
+    }
+
+    .note {
+      font-size: 12px;
+      padding: 10px;
+      border-radius: 5px;
+      background: #fff2d9
+    }
+
+    .good {
+      background: #e3f2ec
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 650;
+      padding: 4px 0
+    }
+
+    svg {
+      width: 100%;
+      display: block
+    }
+
+    svg text {
+      font: 12px system-ui, sans-serif
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      max-width: 400px;
+      margin: auto;
+      border-radius: 6px
+    }
+
+    .dark {
+      background: #102e3a;
+      color: #c8dfe3;
+      border-radius: 6px
+    }
+
+    .home {
+      position: fixed;
+      right: 18px;
+      bottom: 14px;
+      background: #087f79;
+      color: white;
+      padding: 11px 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      box-shadow: 0 3px 12px #1234
+    }
+
+    a {
+      color: #087f79
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    a:focus-visible {
+      outline: 3px solid #cc9233;
+      outline-offset: 3px
+    }
+
+    .wide {
+      grid-column: 1/-1
+    }
+
+    .linkrow {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      margin-top: 14px
+    }
+
+    footer {
+      font-size: 12px;
+      color: #607981;
+      margin-top: 15px
+    }
+
+    @media(max-width:850px) {
+      .layout {
+        grid-template-columns: 1fr
+      }
+
+      aside {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px
+      }
+
+      .stats {
+        grid-template-columns: repeat(3, 1fr)
+      }
+    }
+
+    @media(max-width:550px) {
+
+      .row,
+      aside {
+        grid-template-columns: 1fr
+      }
+
+      .stats {
+        gap: 5px
+      }
+
+      .stat {
+        padding: 8px
+      }
+
+      .stat strong {
+        font-size: 18px
+      }
+
+      main {
+        padding: 12px 12px 80px
+      }
+
+      header {
+        padding: 16px
+      }
+
+      h1 {
+        font-size: 22px
+      }
+    }
+
+    /* Compact desktop presentation: 16% smaller in both dimensions, preserving diagram proportions. */
+    @media(min-width:900px) {
+      body {
+        zoom: .84
+      }
+
+      main {
+        padding-top: 14px
+      }
+
+      header {
+        padding-top: 14px;
+        padding-bottom: 14px
+      }
+    }
+
+    @media(max-width:899px) {
+      header {
+        padding-top: 12px;
+        padding-bottom: 12px
+      }
+
+      .panel {
+        padding: 12px;
+        margin-bottom: 10px
+      }
+
+      .control {
+        margin: 8px 0
+      }
+
+      .row,
+      .layout {
+        gap: 10px
+      }
+
+      p {
+        margin-top: 5px;
+        margin-bottom: 7px
+      }
+    }
+  </style>
+  <header>
+    <div>
+      <small>OPTICS LAB / SCANNING FOCUS</small>
+      <h1>From a focus to a scanned image</h1>
+    </div>
+  </header>
+  <main>
+    <p class="intro">Learn how a raster scan turns one continuously changing PMT signal into a two-dimensional image: each signal value is assigned to the beam's known X–Y position.</p>
+    <div class="layout">
+      <aside>
+        <section class="panel">
+          <h2>Steer the focus</h2>
+          <div id="opticsControls"></div>
+          <div id="pivotControls"></div>
+          <p class="legend">Angles are optical deflections leaving the galvos. A 3× beam-expanding relay reduces those angles by 3× at the objective.</p>
+          <button id="centre">Centre beam</button>
+        </section>
+        <section class="panel">
+          <h2>Build an image</h2>
+          <label for="pixels">Pixels per line and lines per frame</label><select id="pixels">
+            <option>32</option>
+            <option>64</option>
+            <option selected>128</option>
+            <option>256</option>
+            <option>512</option>
+          </select>
+          <div id="timeControls"></div>
+          <label>
+            <input type="checkbox" id="noise">
+            Include photon shot noise
+          </label>
+          <div id="photonControls"></div>
+          <div class="buttons">
+            <button id="acquire" class="primary">Acquire frame</button><button id="reset">Reset</button>
+          </div>
+          <p class="legend">Acquisition is animated over about 4 seconds for teaching. Physical timing is calculated separately.</p>
+        </section>
+        <section class="panel">
+          <details>
+            <summary>Try a comparison</summary>
+            <div class="buttons">
+              <button id="coarse">Coarse pixels</button><button id="fine">Fine pixels + zoom</button><button id="short">Short dwell + noise</button><button id="long">Long dwell + noise</button>
+            </div>
+          </details>
+        </section>
+      </aside>
+      <div>
+        <p id="importNote" class="note" hidden></p>
+        <div class="stats">
+          <div class="stat">Field of view<strong id="fieldStat"></strong>square specimen field</div>
+          <div class="stat">Pixel pitch<strong id="pixelStat"></strong>centre-to-centre spacing</div>
+          <div class="stat">Physical frame rate<strong id="rateStat"></strong>including configured overhead</div>
+        </div>
+        <div class="row">
+          <section class="panel image-panel">
+            <h2>Synthetic fluorescent specimen and beam position</h2>
+            <canvas id="specimen"
+                    width="400"
+                    height="400"
+                    role="img"
+                    aria-label="Synthetic fluorescent structures with movable beam marker"></canvas>
+            <p id="positionText"></p>
+            <p class="legend">The diagonal bands are simulated fluorescent fibres—not the scan path. The crosshair marks the beam centre; the circle shows the selected two-photon FWHM.</p>
+          </section>
+          <section class="panel image-panel">
+            <h2>Sampled image</h2>
+            <canvas id="image"
+                    width="400"
+                    height="400"
+                    role="img"
+                    aria-label="Pixelated sampled fluorescence image"></canvas>
+            <p id="imageText"></p>
+            <p class="legend">Fixed display gain. Pixels are shown without interpolation. The Gaussian excitation profile blurs the specimen before sampling; shot noise is optional.</p>
+          </section>
+        </div>
+        <section class="panel">
+          <h2>What this simulation teaches</h2>
+          <p class="note">The galvos steer the focus in X and Y. The PMT supplies one brightness value at a time. The computer combines each value with the known beam position to build the image. More pixels improve sampling, not the optical resolution; longer dwell collects more photons but slows the frame.</p>
+          <h2>From galvo angle to specimen position</h2>
+          <svg id="path"
+               viewBox="0 0 850 130"
+               role="img"
+               aria-label="Galvo optical angle reduced by relay and mapped to a specimen position">
+          </svg>
+          <p id="angleText"></p>
+        </section>
+        <section class="panel">
+          <h2>Sampling and timing</h2>
+          <p id="sampling" class="note"></p>
+          <div class="stats">
+            <div class="stat">Active pixel dwell<strong id="dwellStat"></strong>per pixel</div>
+            <div class="stat">Physical frame duration<strong id="durationStat"></strong>one complete square raster</div>
+            <div class="stat">Bright-feature photons<strong id="photonStat"></strong>expected per pixel at signal = 1</div>
+          </div>
+          <p id="timingText"></p>
+          <p class="legend">Smaller pixels improve sampling, not optical resolution. Longer dwell increases expected photons per pixel, but slows acquisition. This ideal timing model does not guarantee that a real galvo can follow the requested waveform.</p>
+        </section>
+        <section class="panel">
+          <details>
+            <summary>How to explore</summary>
+            <ol>
+              <li>Move X and Y manually. Observe beam position before starting a raster.</li>
+              <li>Change scan amplitude: field size and pixel spacing change together at fixed pixel count.</li>
+              <li>Compare coarse and fine pixels. Check thin fibres and the close pair of bright points near the centre.</li>
+              <li>Acquire a frame and follow the line-by-line scan. A single PMT signal is assigned to successive pixel positions.</li>
+              <li>Enable shot noise and compare short with long dwell. The image gain stays fixed, while count uncertainty changes.</li>
+            </ol>
+          </details>
+        </section>
+        <section class="panel">
+          <details>
+            <summary>Model, formulas &amp; references</summary>
+            <p>A centred, correctly aligned paraxial relay with magnification M maps galvo optical angle θ to pupil angle −θ/M. Focal-plane position x = fθ<sub>pupil</sub>. The full square field is 2fθ<sub>max</sub>/M. Pixel centres are spaced FOV/N apart; the first and last are half a pixel inside the field boundary. This page isolates image formation; return to the scanner page for separated-galvo back-aperture walk and clipping.</p>
+            <p>The synthetic specimen is a sum of Gaussian beads, soma-like objects, and straight Gaussian fibres. Optical blur is calculated analytically by convolution with a normalized Gaussian two-photon excitation PSF. The FWHM can be imported from the back-aperture page, but rings and axial structure of that page’s diffraction PSF are not transferred. The model uses point samples at pixel centres, without intra-pixel motion blur.</p>
+            <p>Physical frame time = N² × dwell / (1 − overhead fraction); overhead accounts collectively for flyback and other inactive time. The animation is deliberately slowed, and does not model real galvo acceleration, settling, bidirectional errors, or resonant scanning.</p>
+            <p>Optional photon counts follow a Poisson distribution with mean = local blurred specimen signal × bright-feature count rate × dwell. Count rate is an illustrative detected rate at fixed excitation and detection conditions, not a prediction from laser power. No background, electronic noise, bleaching, or photodamage is modelled. The half-FWHM pixel criterion is a teaching sampling heuristic, not an exact Nyquist criterion for every object or PSF.</p>
+            <p>Reading: Tsai et al., <a href="https://neurophysics.ucsd.edu/publications/tsai_book_chapter_crc_2002.pdf">Principles, Design, and Construction of a Two-Photon Laser-Scanning Microscope</a>; <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4863715/">A pragmatic guide to multiphoton microscope design</a>.</p>
+          </details>
+        </section>
+        <div class="buttons">
+          <button id="export">Download sampled image (CSV)</button><a href="optics-lab-pupil-focus.html">← Explore back-aperture illumination and focus</a>
+        </div>
+      </div>
+    </div>
+    <footer>
+      Optics Lab · Standalone teaching simulation
+    </footer>
+  </main>
+  <a class="home" href="index.html">← Back to main menu</a><script>
+    'use strict';
+    // Shared plotting and control helpers.
+    const $ = id => document.getElementById(id);
+    const RAD = Math.PI / 180;
+
+    function controls(specs, parent) {
+      for (const [key, label, min, max, step, unit] of specs) {
+        const div = document.createElement('div');
+        div.className = 'control';
+        div.innerHTML = `<label for="${key}">${label}<output id="${key}Out"></output></label><input id="${key}" type="range" min="${min}" max="${max}" step="${step}">`;
+        $(parent).appendChild(div);
+        $(key).addEventListener('input', () => {
+          s[key] = +$(key).value;
+          changed(key);
+        });
+      }
+    }
+
+    function sync(specs) {
+      for (const [k, l, min, max, step, u] of specs) {
+        $(k).value = s[k];
+        $(k + 'Out').textContent = Number(s[k].toFixed(3)) + ' ' + u;
+      }
+    }
+    const tx = (x, y, t, c = '#607981', anchor = 'start') => `<text x="${x}" y="${y}" fill="${c}" text-anchor="${anchor}">${t}</text>`;
+
+    function plot(id, xs, series, xLabel, xMax, yMax = 1) {
+      const X = x => 45 + 370 * x / xMax,
+        Y = y => 155 - 125 * y / yMax;
+      let v = `<path d="M45 20V155H415" stroke="#a5bcbf" fill="none"/>` + tx(42, 174, '0') + tx(415, 174, xMax.toFixed(2), '#607981', 'end') + tx(230, 197, xLabel, '#607981', 'middle') + tx(40, 25, yMax.toFixed(1), '#607981', 'end');
+      for (const [ys, c] of series) v += `<polyline fill="none" stroke="${c}" stroke-width="2" points="${ys.map((y,i)=>`${X(xs[i])},${Y(y)}`).join(' ')}"/>`;
+      $(id).innerHTML = v;
+    }
+
+    function download(name, rows) {
+      const url = URL.createObjectURL(new Blob([rows.join('\n')], {
+          type: 'text/csv'
+        })),
+        a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    // Scanner, objective, sampling, and photon-budget state.
+    const defaults = {
+      focal: 4.5,
+      mag: 3,
+      amp: 5.7,
+      fwhm: .5,
+      ax: 0,
+      ay: 0,
+      dwell: 2,
+      overhead: 20,
+      rate: 300,
+      pixels: 128
+    };
+    let s = {
+        ...defaults
+      },
+      noise = false,
+      running = false,
+      progress = 1,
+      start = 0,
+      seed = 1,
+      frame = 0,
+      data = [],
+      truth;
+    const optics = [
+        ['amp', 'Galvo optical scan half-angle', .2, 20, .1, '°'],
+        ['mag', 'Relay beam magnification', 1, 6, .1, '×'],
+        ['focal', 'Objective focal length', 1, 40, .1, 'mm'],
+        ['fwhm', 'Two-photon lateral FWHM', .05, 30, .01, 'µm']
+      ],
+      pivots = [
+        ['ax', 'X optical deflection', -5, 5, .01, '°'],
+        ['ay', 'Y optical deflection', -5, 5, .01, '°']
+      ],
+      times = [
+        ['dwell', 'Pixel dwell time', .2, 20, .2, 'µs'],
+        ['overhead', 'Inactive fraction of frame', 0, 60, 1, '%']
+      ],
+      photons = [
+        ['rate', 'Bright-feature detected rate', 50, 2000, 50, 'kcounts/s']
+      ],
+      specs = [...optics, ...pivots, ...times, ...photons];
+    controls(optics, 'opticsControls');
+    controls(pivots, 'pivotControls');
+    controls(times, 'timeControls');
+    controls(photons, 'photonControls');
+    const params = new URLSearchParams(location.search),
+      width = Number(params.get('fwhm')),
+      f = Number(params.get('focal'));
+    if (params.has('fwhm') && width >= .05 && width <= 30 && f >= 1 && f <= 40) {
+      s.fwhm = width;
+      s.focal = f;
+      $('importNote').hidden = false;
+      $('importNote').textContent = `Imported two-photon FWHM ${width.toFixed(3)} µm and equivalent focal length ${f.toFixed(2)} mm from the back-aperture page. The raster uses a Gaussian PSF with that lateral width.`;
+    }
+
+    function metrics() {
+      const field = 2 * s.focal * 1000 * s.amp * RAD / s.mag,
+        pitch = field / s.pixels,
+        duration = s.pixels ** 2 * s.dwell * 1e-6 / (1 - s.overhead / 100);
+      return {
+        field,
+        pitch,
+        duration,
+        fps: 1 / duration,
+        counts: s.rate * s.dwell * .001
+      };
+    }
+    const objects = [
+      [-19, -15, 5, .65],
+      [15, 18, 7, .55],
+      [29, -21, 4, .8],
+      [-24, 23, 3, .55],
+      [-.65, 0, .18, .9],
+      [.65, 0, .18, .9],
+      [5, -6, .35, .85],
+      [-7, 10, .7, .7]
+    ];
+
+    // Synthetic specimen used to compare the underlying scene with the raster image.
+    function specimen(x, y, blur = 0) {
+      let v = 0;
+      for (const [cx, cy, r, a] of objects) {
+        const q = r * r + blur * blur;
+        v += a * r * r / q * Math.exp(-((x - cx) ** 2 + (y - cy) ** 2) / (2 * q));
+      }
+      for (const [offset, width, a] of [
+          [-4, .22, .45],
+          [4, .35, .4]
+        ]) {
+        const d = (y - .35 * x - offset) / Math.hypot(1, .35),
+          q = width * width + blur * blur;
+        v += a * width / Math.sqrt(q) * Math.exp(-d * d / (2 * q));
+      }
+      return v;
+    }
+
+    function random() {
+      seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+      return (seed + .5) / 4294967296;
+    }
+
+    function poisson(mu) {
+      if (mu <= 0) return 0;
+      let k = 0,
+        p = Math.exp(-mu),
+        u = random(),
+        sum = p;
+      while (u > sum) {
+        k++;
+        p *= mu / k;
+        sum += p;
+        if (k > 1000) break;
+      }
+      return k;
+    }
+
+    // Sample the specimen on the requested raster grid with photon noise.
+    function sample() {
+      const m = metrics(),
+        sigma = s.fwhm / (2 * Math.sqrt(2 * Math.log(2)));
+      seed = 12345 + frame * 7919;
+      data = [];
+      for (let j = 0; j < s.pixels; j++)
+        for (let i = 0; i < s.pixels; i++) {
+          const x = -m.field / 2 + (i + .5) * m.pitch,
+            y = m.field / 2 - (j + .5) * m.pitch,
+            v = specimen(x, y, sigma),
+            counts = noise ? poisson(m.counts * v) : m.counts * v;
+          data.push({
+            x,
+            y,
+            signal: v,
+            counts,
+            value: counts / m.counts
+          });
+        }
+    }
+
+    function colour(v) {
+      v = Math.max(0, Math.min(1, v));
+      return [16 + v * 92, 46 + v * 195, 58 + v * 160];
+    }
+
+    function makeTruth() {
+      const m = metrics(),
+        c = $('specimen').getContext('2d');
+      truth = c.createImageData(400, 400);
+      for (let j = 0; j < 400; j++)
+        for (let i = 0; i < 400; i++) {
+          const v = specimen((i / 400 - .5) * m.field, (.5 - j / 400) * m.field),
+            k = 4 * (j * 400 + i),
+            rgb = colour(v);
+          truth.data[k] = rgb[0];
+          truth.data[k + 1] = rgb[1];
+          truth.data[k + 2] = rgb[2];
+          truth.data[k + 3] = 255;
+        }
+    }
+
+    function draw() {
+      const m = metrics(),
+        ctx = $('specimen').getContext('2d'),
+        im = $('image').getContext('2d');
+      ctx.putImageData(truth, 0, 0);
+      const x = -s.focal * 1000 * s.ax * RAD / s.mag,
+        y = -s.focal * 1000 * s.ay * RAD / s.mag,
+        px = 200 + 400 * x / m.field,
+        py = 200 - 400 * y / m.field;
+      ctx.strokeStyle = '#f5c66c';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(px - 9, py);
+      ctx.lineTo(px + 9, py);
+      ctx.moveTo(px, py - 9);
+      ctx.lineTo(px, py + 9);
+      ctx.arc(px, py, Math.max(3, 200 * s.fwhm / m.field), 0, 2 * Math.PI);
+      ctx.stroke();
+      im.fillStyle = '#102e3a';
+      im.fillRect(0, 0, 400, 400);
+      const count = Math.floor(progress * data.length),
+        size = 400 / s.pixels;
+      for (let k = 0; k < count; k++) {
+        const rgb = colour(data[k].value);
+        im.fillStyle = `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
+        im.fillRect(k % s.pixels * size, Math.floor(k / s.pixels) * size, Math.ceil(size), Math.ceil(size));
+      }
+      if (running) {
+        im.strokeStyle = '#f5c66c';
+        const row = Math.floor(count / s.pixels) * size;
+        im.beginPath();
+        im.moveTo(0, row);
+        im.lineTo(400, row);
+        im.stroke();
+      }
+      for (const c of [ctx, im]) {
+        c.fillStyle = 'white';
+        c.font = '12px system-ui';
+        c.fillText(`${m.field.toFixed(1)} µm across`, 12, 385);
+      }
+      $('positionText').textContent = `Focus X ${x.toFixed(2)} µm · Y ${y.toFixed(2)} µm`;
+      $('imageText').textContent = running ? `Acquiring ${(progress*100).toFixed(0)}% · animation slowed to ~4 s` : `${frame?'Completed frame':'Full-frame preview'} · ${s.pixels} × ${s.pixels} pixels · ${noise?'Poisson shot noise':'noise off'}`;
+      $('path').innerHTML = tx(20, 22, 'Galvo optical angle') + tx(20, 55, `${s.ax.toFixed(2)}° X / ${s.ay.toFixed(2)}° Y`) + tx(250, 22, `${s.mag.toFixed(1)}× relay`) + tx(250, 55, 'angle divided by M') + tx(470, 22, 'Back-aperture angle') + tx(470, 55, `${(-s.ax/s.mag).toFixed(3)}° / ${(-s.ay/s.mag).toFixed(3)}°`) + tx(690, 22, 'Specimen focus') + tx(690, 55, `${x.toFixed(1)}, ${y.toFixed(1)} µm`) + `<path d="M25 95H810" stroke="#087f79" stroke-width="2"/><path d="M800 89L810 95L800 101" stroke="#087f79" fill="none"/>`;
+      $('angleText').textContent = 'The back-aperture footprint can remain stationary while its angle changes. That changing angle moves the focus.';
+    }
+
+    function changed(k) {
+      if (k === 'fwhm' || k === 'focal') $('importNote').hidden = true;
+      running = false;
+      progress = 1;
+      frame = 0;
+      if (k === 'ax' || k === 'ay') {
+        s[k] = Math.max(-s.amp, Math.min(s.amp, s[k]));
+        sync(specs);
+        draw();
+        return;
+      }
+      s.ax = Math.max(-s.amp, Math.min(s.amp, s.ax));
+      s.ay = Math.max(-s.amp, Math.min(s.amp, s.ay));
+      sync(specs);
+      sample();
+      makeTruth();
+      render();
+    }
+
+    // Update imaging metrics, warnings, scan graphics, and controls.
+    function render() {
+      const m = metrics();
+      $('fieldStat').textContent = m.field.toFixed(1) + ' µm';
+      $('pixelStat').textContent = m.pitch.toFixed(3) + ' µm';
+      $('rateStat').textContent = m.fps.toFixed(2) + ' Hz';
+      $('dwellStat').textContent = s.dwell.toFixed(1) + ' µs';
+      $('durationStat').textContent = (1000 * m.duration).toFixed(1) + ' ms';
+      $('photonStat').textContent = m.counts.toFixed(2);
+      const fine = m.pitch <= s.fwhm / 2;
+      $('sampling').classList.toggle('good', fine);
+      $('sampling').textContent = `${fine?'Fine sampling by the half-FWHM heuristic.':'Coarse sampling: fine structures may be missed or change with grid position.'} Pixel pitch ${m.pitch.toFixed(3)} µm; half the excitation FWHM is ${(s.fwhm/2).toFixed(3)} µm.`;
+      $('timingText').textContent = `${s.pixels**2} pixels × ${s.dwell.toFixed(1)} µs = ${(s.pixels**2*s.dwell/1000).toFixed(1)} ms active time. ${s.overhead}% of the complete frame is inactive. For the same scene, four times as many pixels requires four times the active frame time.`;
+      draw();
+    }
+    $('pixels').onchange = () => {
+      s.pixels = +$('pixels').value;
+      changed();
+    };
+    $('noise').onchange = () => {
+      noise = $('noise').checked;
+      changed();
+    };
+    $('centre').onclick = () => {
+      s.ax = s.ay = 0;
+      changed('ax');
+    };
+    $('reset').onclick = () => {
+      s = {
+        ...defaults
+      };
+      noise = false;
+      $('noise').checked = false;
+      $('pixels').value = '128';
+      $('importNote').hidden = true;
+      changed();
+    };
+    $('acquire').onclick = () => {
+      frame++;
+      sample();
+      running = true;
+      progress = 0;
+      start = performance.now();
+      draw();
+    };
+    $('coarse').onclick = () => {
+      s.pixels = 32;
+      $('pixels').value = '32';
+      changed();
+    };
+    $('fine').onclick = () => {
+      s.pixels = 256;
+      s.amp = .5;
+      $('pixels').value = '256';
+      changed();
+    };
+    $('short').onclick = () => {
+      noise = true;
+      s.dwell = .2;
+      $('noise').checked = true;
+      changed();
+    };
+    $('long').onclick = () => {
+      noise = true;
+      s.dwell = 10;
+      $('noise').checked = true;
+      changed();
+    };
+    $('export').onclick = () => {
+      const rows = ['row,column,x_um,y_um,expected_signal,detected_or_expected_counts,display_signal'];
+      data.slice(0, Math.floor(progress * data.length)).forEach((p, k) => rows.push([Math.floor(k / s.pixels), k % s.pixels, p.x, p.y, p.signal, p.counts, p.value].join(',')));
+      rows.push('', 'setting,value', 'noise,' + noise, 'fraction_acquired,' + progress);
+      Object.entries(s).forEach(([k, v]) => rows.push(k + ',' + v));
+      download('optics-lab-raster-image.csv', rows);
+    };
+
+    function tick(t) {
+      if (running) {
+        progress = Math.min(1, (t - start) / 4000);
+        const m = metrics(),
+          k = Math.min(data.length - 1, Math.floor(progress * data.length)),
+          p = data[k];
+        s.ax = -p.x / (s.focal * 1000) * s.mag / RAD;
+        s.ay = -p.y / (s.focal * 1000) * s.mag / RAD;
+        if (progress >= 1) running = false;
+        sync(specs);
+        draw();
+      }
+      requestAnimationFrame(tick);
+    }
+    changed();
+    requestAnimationFrame(tick);
+  </script>
+</html>

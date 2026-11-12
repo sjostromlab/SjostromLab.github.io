@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<!-- Vibe coding by Jesper Sjöström with help from ChatGPT Codex. Updated 2026-11-10. Standalone Optics Lab teaching simulation. -->
+<html lang="en">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Optics Lab · From back-aperture illumination to focus</title><script defer
+                                                                              src="navigation.js?course"></script>
+  <style>
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      background: #f1f5f4;
+      color: #193540;
+      font: 14px/1.5 system-ui, -apple-system, sans-serif
+    }
+
+    header {
+      background: #102e3a;
+      color: white;
+      padding: 22px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between
+    }
+
+    header small {
+      color: #a5c7cc;
+      letter-spacing: .1em
+    }
+
+    h1 {
+      font-size: 26px;
+      margin: 5px 0
+    }
+
+    main {
+      max-width: 1400px;
+      margin: auto;
+      padding: 18px 22px 85px
+    }
+
+    .intro {
+      max-width: 950px;
+      margin: 0 0 16px;
+      color: #526e76
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      gap: 16px
+    }
+
+    .panel {
+      background: white;
+      border: 1px solid #d5e2df;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 14px
+    }
+
+    h2 {
+      font-size: 17px;
+      margin: 0 0 10px
+    }
+
+    p {
+      margin: 8px 0
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 14px
+    }
+
+    .stat {
+      background: #e4efed;
+      border-radius: 7px;
+      padding: 12px;
+      font-size: 12px
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 23px;
+      color: #087f79
+    }
+
+    .control {
+      margin: 13px 0
+    }
+
+    .control label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      gap: 8px
+    }
+
+    .control output {
+      font-weight: 650;
+      white-space: nowrap
+    }
+
+    input[type=range] {
+      width: 100%;
+      accent-color: #087f79
+    }
+
+    button,
+    select {
+      font: inherit;
+      color: #193540;
+      background: white;
+      border: 1px solid #b8cccb;
+      border-radius: 5px;
+      padding: 8px;
+      cursor: pointer
+    }
+
+    button:hover {
+      background: #e4efed
+    }
+
+    button.primary {
+      background: #087f79;
+      color: white
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px
+    }
+
+    .legend {
+      font-size: 12px;
+      color: #607981
+    }
+
+    .note {
+      font-size: 12px;
+      padding: 10px;
+      border-radius: 5px;
+      background: #fff2d9
+    }
+
+    .good {
+      background: #e3f2ec
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 650;
+      padding: 4px 0
+    }
+
+    svg {
+      width: 100%;
+      display: block
+    }
+
+    svg text {
+      font: 12px system-ui, sans-serif
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      max-width: 400px;
+      margin: auto;
+      border-radius: 6px
+    }
+
+    .dark {
+      background: #102e3a;
+      color: #c8dfe3;
+      border-radius: 6px
+    }
+
+    .home {
+      position: fixed;
+      right: 18px;
+      bottom: 14px;
+      background: #087f79;
+      color: white;
+      padding: 11px 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      box-shadow: 0 3px 12px #1234
+    }
+
+    a {
+      color: #087f79
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    a:focus-visible {
+      outline: 3px solid #cc9233;
+      outline-offset: 3px
+    }
+
+    .wide {
+      grid-column: 1/-1
+    }
+
+    .linkrow {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      margin-top: 14px
+    }
+
+    footer {
+      font-size: 12px;
+      color: #607981;
+      margin-top: 15px
+    }
+
+    @media(max-width:850px) {
+      .layout {
+        grid-template-columns: 1fr
+      }
+
+      aside {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px
+      }
+
+      .stats {
+        grid-template-columns: repeat(3, 1fr)
+      }
+    }
+
+    @media(max-width:550px) {
+
+      .row,
+      aside {
+        grid-template-columns: 1fr
+      }
+
+      .stats {
+        gap: 5px
+      }
+
+      .stat {
+        padding: 8px
+      }
+
+      .stat strong {
+        font-size: 18px
+      }
+
+      main {
+        padding: 12px 12px 80px
+      }
+
+      header {
+        padding: 16px
+      }
+
+      h1 {
+        font-size: 22px
+      }
+    }
+
+    /* Compact desktop presentation: 16% smaller in both dimensions, preserving diagram proportions. */
+    @media(min-width:900px) {
+      body {
+        zoom: .84
+      }
+
+      main {
+        padding-top: 14px
+      }
+
+      header {
+        padding-top: 14px;
+        padding-bottom: 14px
+      }
+    }
+
+    @media(max-width:899px) {
+      header {
+        padding-top: 12px;
+        padding-bottom: 12px
+      }
+
+      .panel {
+        padding: 12px;
+        margin-bottom: 10px
+      }
+
+      .control {
+        margin: 8px 0
+      }
+
+      .row,
+      .layout {
+        gap: 10px
+      }
+
+      p {
+        margin-top: 5px;
+        margin-bottom: 7px
+      }
+    }
+  </style>
+  <header>
+    <div>
+      <small>OPTICS LAB / SCANNING FOCUS</small>
+      <h1>From back-aperture illumination to focus</h1>
+    </div>
+  </header>
+  <main>
+    <p class="intro">Explore how filling the objective back aperture changes focal confinement, power transmission and local two-photon excitation.</p>
+    <div class="layout">
+      <aside>
+        <section class="panel">
+          <h2>Illuminate the objective</h2>
+          <div id="mainControls"></div>
+          <div class="buttons">
+            <button data-fill="0.45">Underfill</button><button data-fill="1">Match</button><button data-fill="1.5">Overfill</button>
+          </div>
+          <p class="legend">Beam diameter is measured at 1/e² intensity. It is not a hard beam edge.</p>
+        </section>
+        <section class="panel">
+          <h2>What stays constant?</h2>
+          <label for="powerMode">Power comparison</label><select id="powerMode">
+            <option value="incident">Power before the back aperture</option>
+            <option value="delivered">Power through the back aperture</option>
+          </select>
+          <div id="powerControls"></div>
+          <p class="legend">Pulse duration, repetition rate and fluorophore properties stay fixed. The two-photon indicator describes a point-like fluorophore at the focus, not total fluorescence from a cell.</p>
+        </section>
+        <section class="panel">
+          <details>
+            <summary>Objective &amp; wavelength</summary>
+            <div id="objectiveControls"></div>
+            <p class="legend">Defaults are teaching settings, not a verified objective model. NA is constrained below the immersion refractive index. The equivalent focal length follows D/(2 NA), using the sine-condition pupil mapping.</p>
+          </details>
+          <button id="reset">Reset</button>
+        </section>
+      </aside>
+      <div>
+        <div class="stats">
+          <div class="stat">Back-aperture fill ratio<strong id="fillStat"></strong>beam / back-aperture diameter</div>
+          <div class="stat">Two-photon lateral FWHM<strong id="lateralStat"></strong>full width at half maximum</div>
+          <div class="stat">Two-photon axial FWHM<strong id="axialStat"></strong>axial confinement</div>
+        </div>
+        <div class="row">
+          <section class="panel">
+            <h2>Beam at the back aperture</h2>
+            <canvas id="pupilView"
+                    width="360"
+                    height="300"
+                    role="img"
+                    aria-label="Gaussian beam intensity and objective aperture"></canvas>
+            <p id="pupilText"></p>
+            <p class="legend">White circle: clear back aperture. Dashed circle: 1/e² beam contour. Amber light falls outside the back aperture. Colours use a relative display scale.</p>
+          </section>
+          <section class="panel">
+            <h2>Focal spot in the specimen plane (XY)</h2>
+            <canvas id="spot"
+                    width="360"
+                    height="300"
+                    role="img"
+                    aria-label="Two-photon excitation spot on a fixed micrometre scale"></canvas>
+            <p id="naText"></p>
+            <p class="legend">Fixed spatial scale (1 µm bar); brightness is normalized to show shape. The power comparison below shows changes in peak excitation.</p>
+          </section>
+          <section class="panel">
+            <h2>Lateral profile</h2>
+            <svg id="lateral"
+                 viewBox="0 0 440 205"
+                 role="img"
+                 aria-label="Normalized lateral intensity and two-photon excitation">
+            </svg>
+            <p class="legend">Teal: intensity I. Amber: two-photon excitation I². Each is normalized to its own peak.</p>
+          </section>
+          <section class="panel">
+            <h2>Axial profile</h2>
+            <svg id="axial"
+                 viewBox="0 0 440 205"
+                 role="img"
+                 aria-label="Normalized axial intensity and two-photon excitation">
+            </svg>
+            <p class="legend">Distance along the optical axis z from the focal plane; the profile is symmetric about z = 0.</p>
+          </section>
+        </div>
+        <section class="panel">
+          <h2>Power and peak excitation</h2>
+          <div class="stats">
+            <div class="stat">Passes back aperture<strong id="transStat"></strong>of power before the back aperture</div>
+            <div class="stat">Before → through back aperture<strong id="powerStat"></strong>ideal lens transmission</div>
+            <div class="stat">Relative peak two-photon excitation<strong id="signalStat"></strong>matched fill at 10 mW = 1</div>
+          </div>
+          <p id="powerText"></p>
+          <p id="lesson" class="note"></p>
+        </section>
+        <section class="panel">
+          <details>
+            <summary>How to explore</summary>
+            <ol>
+              <li>Start with the back aperture underfilled, then increase the beam diameter. Watch lateral and axial confinement improve.</li>
+              <li>Compare matched fill with overfilling. The focus approaches the uniformly illuminated back-aperture limit, while more incident power misses the aperture.</li>
+              <li>Switch between constant power before and through the back aperture. Maintaining delivered power while overfilling requires more input power.</li>
+              <li>Change wavelength or objective NA. Compare changes in lateral width and axial confinement.</li>
+            </ol>
+          </details>
+        </section>
+        <section class="panel">
+          <details>
+            <summary>Model, formulas &amp; references</summary>
+            <p>Scalar, rotationally symmetric, paraxial diffraction of a centred, unaberrated, truncated Gaussian illumination at the back aperture. With normalized back-aperture radius coordinate ρ and fill ratio t, field amplitude is exp(−ρ²/t²) for 0 ≤ ρ ≤ 1. Lateral amplitude is the integral over the illuminated back aperture times J₀(2π NA rρ/λ)ρ; axial amplitude includes exp(−iπ NA² zρ²/(nλ)). Intensities are squared field magnitudes; unsaturated two-photon excitation is proportional to I² at fixed pulse parameters. FWHM is calculated numerically, not from a hard cutoff at the nominal beam diameter.</p>
+            <p>Power transmission T = 1 − exp(−2/t²). The peak excitation comparison uses the coherent back-aperture integral with correct incident-power normalization; its reference is matched fill, 10 mW, with the same NA, wavelength and selected power mode. “Illumination-weighted NA” is NA × √(2⟨ρ²⟩), weighted by intensity across the back aperture. It is a descriptive measure, not a second objective specification or the formula used for FWHM.</p>
+            <p>This scalar paraxial model illustrates trends. It omits vector polarization effects at high NA, aberrations, refractive-index mismatch, scattering, saturation, bleaching, and aperture decentring. It is not an absolute fluorescence or high-NA PSF calibration.</p>
+            <p>Reading: Tsai et al., <a href="https://neurophysics.ucsd.edu/publications/tsai_book_chapter_crc_2002.pdf">Principles, Design, and Construction of a Two-Photon Laser-Scanning Microscope</a>, §6.3; <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4863715/">A pragmatic guide to multiphoton microscope design</a>; <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10849699/">Standardised Measurements for Monitoring and Comparing Multiphoton Microscope Systems</a>.</p>
+          </details>
+        </section>
+        <div class="buttons">
+          <button id="export">Download focus profiles (CSV)</button><a id="next" href="optics-lab-raster-image.html">Use this focus in the scanning simulation →</a>
+        </div>
+        <div class="linkrow"><a href="optics-lab-scan-relay.html">← Scanner alignment</a></div>
+      </div>
+    </div>
+    <footer>
+      Optics Lab · Standalone teaching simulation
+    </footer>
+  </main>
+  <a class="home" href="index.html">← Back to main menu</a><script>
+    'use strict';
+    // Shared plotting and control helpers.
+    const $ = id => document.getElementById(id);
+    const RAD = Math.PI / 180;
+
+    function controls(specs, parent) {
+      for (const [key, label, min, max, step, unit] of specs) {
+        const div = document.createElement('div');
+        div.className = 'control';
+        div.innerHTML = `<label for="${key}">${label}<output id="${key}Out"></output></label><input id="${key}" type="range" min="${min}" max="${max}" step="${step}">`;
+        $(parent).appendChild(div);
+        $(key).addEventListener('input', () => {
+          s[key] = +$(key).value;
+          changed(key);
+        });
+      }
+    }
+
+    function sync(specs) {
+      for (const [k, l, min, max, step, u] of specs) {
+        $(k).value = s[k];
+        $(k + 'Out').textContent = Number(s[k].toFixed(3)) + ' ' + u;
+      }
+    }
+    const tx = (x, y, t, c = '#607981', anchor = 'start') => `<text x="${x}" y="${y}" fill="${c}" text-anchor="${anchor}">${t}</text>`;
+
+    function plot(id, xs, series, xLabel, xMax, yMax = 1) {
+      const X = x => 45 + 370 * x / xMax,
+        Y = y => 155 - 125 * y / yMax;
+      let v = `<path d="M45 20V155H415" stroke="#a5bcbf" fill="none"/>` + tx(42, 174, '0') + tx(415, 174, xMax.toFixed(2), '#607981', 'end') + tx(230, 197, xLabel, '#607981', 'middle') + tx(40, 25, yMax.toFixed(1), '#607981', 'end');
+      for (const [ys, c] of series) v += `<polyline fill="none" stroke="${c}" stroke-width="2" points="${ys.map((y,i)=>`${X(xs[i])},${Y(y)}`).join(' ')}"/>`;
+      $(id).innerHTML = v;
+    }
+
+    function download(name, rows) {
+      const url = URL.createObjectURL(new Blob([rows.join('\n')], {
+          type: 'text/csv'
+        })),
+        a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    // Optical state: beam filling, objective parameters, power, and wavelength.
+    const defaults = {
+      beam: 3.6,
+      pupil: 8,
+      na: .8,
+      n: 1.33,
+      wavelength: 920,
+      power: 10
+    };
+    let s = {
+        ...defaults
+      },
+      mode = 'incident',
+      result;
+    const mainSpecs = [
+        ['beam', 'Beam 1/e² diameter', 1, 24, .1, 'mm'],
+        ['pupil', 'Back-aperture diameter', 4, 16, .1, 'mm']
+      ],
+      powerSpecs = [
+        ['power', 'Held power', 1, 40, .5, 'mW']
+      ],
+      objSpecs = [
+        ['na', 'Objective NA', .2, 1.2, .01, ''],
+        ['n', 'Immersion refractive index', 1, 1.52, .01, ''],
+        ['wavelength', 'Excitation wavelength', 700, 1100, 10, 'nm']
+      ],
+      specs = [...mainSpecs, ...powerSpecs, ...objSpecs];
+    controls(mainSpecs, 'mainControls');
+    controls(powerSpecs, 'powerControls');
+    controls(objSpecs, 'objectiveControls');
+
+    function j0(x) {
+      x = Math.abs(x);
+      if (x < 8) {
+        const y = x * x;
+        return (57568490574 + y * (-13362590354 + y * (651619640.7 + y * (-11214424.18 + y * (77392.33017 + y * (-184.9052456)))))) / (57568490411 + y * (1029532985 + y * (9494680.718 + y * (59272.64853 + y * (267.8532712 + y)))));
+      }
+      const z = 8 / x,
+        y = z * z,
+        xx = x - .785398164;
+      return Math.sqrt(.636619772 / x) * (Math.cos(xx) * (1 + y * (-.001098628627 + y * (.00002734510407 + y * (-.000002073370639 + y * .0000002093887211)))) - z * Math.sin(xx) * (-.01562499995 + y * (.0001430488765 + y * (-.000006911147651 + y * (.0000007621095161 - y * .0000000934945152)))));
+    }
+
+    // Calculate pupil illumination and the resulting lateral and axial focus profiles.
+    function model(state = s) {
+      const t = state.beam / state.pupil,
+        a = 1 / (t * t),
+        lam = state.wavelength / 1000,
+        b = 2 * a,
+        T = -Math.expm1(-b),
+        normal = -Math.expm1(-a) / (2 * a),
+        N = 256,
+        weights = Array.from({
+          length: N
+        }, (_, i) => {
+          const rho = (i + .5) / N;
+          return [rho, Math.exp(-a * rho * rho) * rho / N];
+        });
+      const lat = r => {
+        let u = 0;
+        for (const [rho, w] of weights) u += w * j0(2 * Math.PI * state.na * r / lam * rho);
+        const u0 = weights.reduce((v, p) => v + p[1], 0);
+        return (u / u0) ** 2;
+      };
+      const axial = z => {
+        const ph = Math.PI * state.na * state.na * z / (state.n * lam),
+          e = Math.exp(-a);
+        return (1 + e * e - 2 * e * Math.cos(ph)) / (4 * (a * a + ph * ph) * normal * normal);
+      };
+
+      function fwhm(fn, scale) {
+        let lo = 0,
+          hi = scale / 40;
+        while (fn(hi) ** 2 > .5 && hi < scale * 100) {
+          lo = hi;
+          hi += scale / 40;
+        }
+        for (let i = 0; i < 30; i++) {
+          const m = (lo + hi) / 2;
+          if (fn(m) ** 2 > .5) lo = m;
+          else hi = m;
+        }
+        return lo + hi;
+      }
+      return {
+        t,
+        T,
+        lat,
+        axial,
+        lateral: fwhm(lat, lam / (state.na * Math.min(t, 1))),
+        axialWidth: fwhm(axial, state.n * lam / (state.na ** 2 * Math.min(t, 1) ** 2)),
+        weightedNA: state.na * Math.sqrt(2 * (1 - (1 + b) * Math.exp(-b)) / (b * T)),
+        coherent: t * t * (-Math.expm1(-a)) ** 2
+      };
+    }
+
+    function changed() {
+      s.na = Math.min(s.na, s.n * .95);
+      sync(specs);
+      render();
+    }
+
+    // Refresh the pupil view, focus image, plots, and safety readouts.
+    function render() {
+      result = model();
+      const m = result,
+        txs = Array.from({
+          length: 181
+        }, (_, i) => i * Math.max(1.5, m.lateral * 2) / 180),
+        zxs = Array.from({
+          length: 181
+        }, (_, i) => i * m.axialWidth * 2 / 180);
+      result.xs = txs;
+      result.zs = zxs;
+      plot('lateral', txs, [
+        [txs.map(m.lat), '#087f79'],
+        [txs.map(x => m.lat(x) ** 2), '#c28b32']
+      ], 'Distance from axis (µm)', txs.at(-1));
+      plot('axial', zxs, [
+        [zxs.map(m.axial), '#087f79'],
+        [zxs.map(x => m.axial(x) ** 2), '#c28b32']
+      ], 'Axial distance z from focus (µm)', zxs.at(-1));
+      $('fillStat').textContent = m.t.toFixed(2) + '×';
+      $('lateralStat').textContent = m.lateral.toFixed(3) + ' µm';
+      $('axialStat').textContent = m.axialWidth.toFixed(2) + ' µm';
+      $('transStat').textContent = (100 * m.T).toFixed(1) + '%';
+      const pin = mode === 'incident' ? s.power : s.power / m.T,
+        pout = pin * m.T,
+        Tref = 1 - Math.exp(-2),
+        refCoherent = (1 - Math.exp(-1)) ** 2,
+        relativeIntensity = (pin / 10) * m.coherent / refCoherent * (mode === 'delivered' ? Tref : 1);
+      $('powerStat').textContent = pin.toFixed(1) + ' → ' + pout.toFixed(1) + ' mW';
+      $('signalStat').textContent = (relativeIntensity ** 2).toFixed(2) + '×';
+      $('powerText').textContent = mode === 'incident' ? 'Input power is held constant. Overfilling discards power; a narrower spot alone does not guarantee higher peak two-photon excitation.' : 'Delivered power is held constant. The input power rises as more light is clipped; this compensation is included in the peak excitation comparison.';
+      $('lesson').textContent = m.t < .8 ? 'Underfilling uses mainly the central back aperture: the focus is broader laterally and especially axially.' : m.t <= 1.1 ? 'Matching the 1/e² diameter to the back aperture transmits about 86.5% at an exact match. The back-aperture illumination is still Gaussian, not uniform.' : 'Overfilling makes illumination across the admitted back aperture more uniform. Spot width approaches a limit, while the fraction of incident power transmitted keeps falling.';
+      $('pupilText').textContent = `${s.beam.toFixed(1)} mm beam / ${s.pupil.toFixed(1)} mm back aperture · ${(100*(1-m.T)).toFixed(1)}% of incident power misses the aperture.`;
+      $('naText').textContent = `Nominal NA ${s.na.toFixed(2)} · illumination-weighted NA ${m.weightedNA.toFixed(2)} · equivalent objective f ${(s.pupil/(2*s.na)).toFixed(2)} mm.`;
+      const pc = $('pupilView').getContext('2d'),
+        sc = $('spot').getContext('2d'),
+        im = pc.createImageData(360, 300),
+        im2 = sc.createImageData(360, 300),
+        extent = Math.max(s.pupil, s.beam) * .65;
+      const lut = Array.from({
+        length: 401
+      }, (_, i) => m.lat(i * 3 / 400) ** 2);
+      for (let y = 0; y < 300; y++)
+        for (let x = 0; x < 360; x++) {
+          let i = 4 * (y * 360 + x),
+            r = Math.hypot(x - 180, y - 150) / 130 * extent,
+            v = Math.exp(-2 * r * r / (s.beam / 2) ** 2),
+            outside = r > s.pupil / 2;
+          im.data[i] = 16 + v * (outside ? 210 : 50);
+          im.data[i + 1] = 46 + v * (outside ? 115 : 160);
+          im.data[i + 2] = 58 + v * (outside ? 20 : 125);
+          im.data[i + 3] = 255;
+          const rr = Math.hypot(x - 180, y - 150) * 4 / 260,
+            u = Math.min(400, rr / 3 * 400),
+            k = Math.floor(u),
+            vv = lut[k] + (lut[Math.min(400, k + 1)] - lut[k]) * (u - k);
+          im2.data[i] = 16 + vv * 90;
+          im2.data[i + 1] = 46 + vv * 195;
+          im2.data[i + 2] = 58 + vv * 160;
+          im2.data[i + 3] = 255;
+        }
+      pc.putImageData(im, 0, 0);
+      sc.putImageData(im2, 0, 0);
+      for (const [r, dash, col] of [
+          [s.pupil / 2, [], 'white'],
+          [s.beam / 2, [5, 4], '#b8d7dd']
+        ]) {
+        pc.setLineDash(dash);
+        pc.strokeStyle = col;
+        pc.beginPath();
+        pc.arc(180, 150, r / extent * 130, 0, Math.PI * 2);
+        pc.stroke();
+      }
+      pc.setLineDash([]);
+      sc.strokeStyle = 'white';
+      sc.beginPath();
+      sc.moveTo(250, 275);
+      sc.lineTo(315, 275);
+      sc.stroke();
+      sc.fillStyle = 'white';
+      sc.font = '12px system-ui';
+      sc.fillText('1 µm', 260, 265);
+      // The lab's Olympus 40× objective uses a 180 mm tube lens, giving f = 4.5 mm.
+      $('next').href = `optics-lab-raster-image.html?fwhm=${m.lateral.toFixed(6)}&focal=4.500000`;
+    }
+    document.querySelectorAll('[data-fill]').forEach(b => b.onclick = () => {
+      s.beam = Math.min(24, Math.max(1, s.pupil * +b.dataset.fill));
+      changed();
+    });
+    $('powerMode').onchange = () => {
+      mode = $('powerMode').value;
+      render();
+    };
+    $('reset').onclick = () => {
+      s = {
+        ...defaults
+      };
+      mode = 'incident';
+      $('powerMode').value = mode;
+      changed();
+    };
+    $('export').onclick = () => {
+      const m = result,
+        rows = ['coordinate,distance_um,intensity_normalized,two_photon_normalized'];
+      m.xs.forEach(x => rows.push(['lateral', x, m.lat(x), m.lat(x) ** 2].join(',')));
+      m.zs.forEach(z => rows.push(['axial', z, m.axial(z), m.axial(z) ** 2].join(',')));
+      rows.push('', 'setting,value', 'power_mode,' + mode);
+      Object.entries(s).forEach(([k, v]) => rows.push(k + ',' + v));
+      download('optics-lab-focus-profiles.csv', rows);
+    };
+    changed();
+  </script>
+</html>

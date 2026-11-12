@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<!-- Vibe coding by Jesper Sjöström with help from ChatGPT Codex. Updated 2026-11-11. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Optics Lab · Pulse chirp and two-photon excitation</title>
+    <script defer src="navigation.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #f1f5f4;
+        color: #193540;
+        font: 14px/1.45 system-ui, sans-serif;
+      }
+
+      header {
+        background: #102e3a;
+        color: white;
+        padding: 18px 26px;
+      }
+
+      header small {
+        color: #a5c7cc;
+        letter-spacing: .12em;
+      }
+
+      h1 {
+        margin: 4px 0;
+        font-size: 26px;
+      }
+
+      main {
+        max-width: 1280px;
+        margin: auto;
+        padding: 18px 22px 80px;
+      }
+
+      .intro {
+        max-width: 980px;
+        color: #526e76;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 15px;
+      }
+
+      .panel {
+        background: white;
+        border: 1px solid #d5e2df;
+        border-radius: 9px;
+        padding: 15px;
+        margin-bottom: 13px;
+      }
+
+      h2 {
+        margin: 0 0 9px;
+        font-size: 17px;
+      }
+
+      h3 {
+        margin: 14px 0 7px;
+        font-size: 13px;
+      }
+
+      .presets {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+
+      .mode-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        margin-top: 5px;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+        padding: 7px;
+        border: 1px solid #b8cccb;
+        border-radius: 5px;
+        background: white;
+      }
+
+      button.active {
+        color: white;
+        background: #087f79;
+        border-color: #087f79;
+      }
+
+      .control {
+        margin: 10px 0;
+      }
+
+      .control label {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 3px;
+        font-size: 12px;
+      }
+
+      .control-hint {
+        display: block;
+        margin-top: 2px;
+        color: #607981;
+        font-size: 10px;
+        line-height: 1.3;
+      }
+
+      .control output {
+        color: #087f79;
+        font-weight: 700;
+      }
+
+      input[type=range] {
+        width: 100%;
+        accent-color: #087f79;
+      }
+
+      input:disabled {
+        opacity: .45;
+      }
+
+      .component-builder {
+        margin: 8px 0;
+        padding: 9px 10px;
+        border-radius: 6px;
+        background: #f2f7f6;
+      }
+
+      .component-builder .control {
+        margin: 7px 0;
+      }
+
+      .component-total {
+        display: flex;
+        justify-content: space-between;
+        padding-top: 7px;
+        border-top: 1px solid #d5e2df;
+        font-size: 12px;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 7px;
+      }
+
+      .buttons button {
+        flex: 1;
+      }
+
+      .note {
+        padding: 10px;
+        border-radius: 6px;
+        background: #fff2d9;
+        font-size: 12px;
+      }
+
+      .good {
+        background: #e3f2ec;
+      }
+
+      .warn {
+        background: #fff0dc;
+      }
+
+      .bad {
+        background: #f7dddd;
+      }
+
+      .diagram {
+        background: #f8fbfa;
+        border: 1px solid #dbe6e2;
+        border-radius: 8px;
+        padding: 6px 8px;
+      }
+
+      .pulse-guide {
+        margin: 6px 0 0;
+        color: #607981;
+        font-size: 11px;
+      }
+
+      svg {
+        width: 100%;
+        display: block;
+      }
+
+      .plot-tabs {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 7px;
+      }
+
+      .plot-tabs button {
+        padding: 5px 12px;
+      }
+
+      .plot-view {
+        display: grid;
+        grid-template-columns: minmax(0, 720px) 1fr;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .plot-view[hidden],
+      .component-builder[hidden],
+      .control[hidden] {
+        display: none;
+      }
+
+      .plot-view .legend {
+        margin: 0;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 9px;
+        margin-bottom: 13px;
+      }
+
+      .stat {
+        min-height: 74px;
+        padding: 10px;
+        border-radius: 7px;
+        background: #e4efed;
+        font-size: 11px;
+      }
+
+      .stat strong {
+        display: block;
+        color: #087f79;
+        font-size: 19px;
+        white-space: nowrap;
+      }
+
+      .risk-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 9px;
+      }
+
+      .risk-card {
+        min-height: 92px;
+        padding: 10px;
+        border-radius: 7px;
+        background: #e3f2ec;
+        font-size: 12px;
+      }
+
+      .risk-card.warn {
+        background: #fff0dc;
+      }
+
+      .risk-card.bad {
+        background: #f7dddd;
+      }
+
+      .risk-card strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 13px;
+      }
+
+      .legend {
+        color: #607981;
+        font-size: 12px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+
+      th,
+      td {
+        padding: 7px;
+        border-bottom: 1px solid #dbe6e2;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        color: #607981;
+      }
+
+      .home {
+        position: fixed;
+        right: 18px;
+        bottom: 14px;
+        padding: 10px 15px;
+        border-radius: 6px;
+        background: #087f79;
+        color: white;
+        text-decoration: none;
+      }
+
+      @media(max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .stats {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media(max-width: 600px) {
+        .plot-view {
+          grid-template-columns: 1fr;
+        }
+
+        .stats {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .risk-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <small>OPTICS LAB / ULTRAFAST EXCITATION</small>
+      <h1>Pulse chirp and two-photon excitation</h1>
+    </header>
+    <main>
+      <p class="intro">Follow a femtosecond pulse from the laser to the specimen. Explore how group-delay dispersion broadens the pulse, lowers its peak power, and reduces two-photon excitation even when average power is unchanged.</p>
+      <div class="layout">
+        <aside>
+          <section class="panel">
+            <h2>Laser and optical path</h2>
+            <h3>Lab laser presets</h3>
+            <div class="presets">
+              <button data-preset="maitai">Mai Tai HP</button>
+              <button data-preset="chameleon">Chameleon Ultra II</button>
+              <button data-preset="nkt">NKT aeroPULSE FS10</button>
+              <button data-preset="mpb">MPB AFML-FEMTO</button>
+            </div>
+
+            <div class="control">
+              <label for="wavelength">
+                Wavelength <output id="wavelengthOut"></output>
+              </label>
+              <input id="wavelength" type="range" min="780" max="1060" step="10">
+            </div>
+            <div class="control">
+              <label for="pulse">
+                Source pulse FWHM <output id="pulseOut"></output>
+              </label>
+              <input id="pulse" type="range" min="60" max="400" step="5"><small class="control-hint">Initially treated as transform limited; a real source may retain residual chirp.</small>
+            </div>
+            <div class="control">
+              <label for="rate">
+                Repetition rate <output id="rateOut"></output>
+              </label>
+              <input id="rate" type="range" min="10" max="100" step="5">
+            </div>
+            <div class="control">
+              <label for="power">
+                Average power at specimen <output id="powerOut"></output>
+              </label>
+              <input id="power" type="range" min="1" max="120" step="1">
+            </div>
+
+            <h3>Build the dispersive path</h3>
+            <div class="mode-buttons">
+              <button data-gdd-mode="manual"
+                      class="active">Manual total</button><button data-gdd-mode="components">From components</button>
+            </div>
+            <div class="control" id="manualGdd">
+              <label for="pathGdd">
+                Optical-path GDD <output id="pathGddOut"></output>
+              </label>
+              <input id="pathGdd" type="range" min="0" max="12000" step="100">
+            </div>
+            <div class="component-builder" id="componentBuilder" hidden>
+              <div class="control">
+                <label for="powerControlGdd">
+                  Power-control optics <output id="powerControlGddOut"></output>
+                </label>
+                <input id="powerControlGdd" type="range" min="0" max="3000" step="100" value="700">
+              </div>
+              <div class="control">
+                <label for="relayGdd">
+                  Relay lenses <output id="relayGddOut"></output>
+                </label>
+                <input id="relayGdd" type="range" min="0" max="3000" step="100" value="1000">
+              </div>
+              <div class="control">
+                <label for="objectiveGdd">
+                  Objective <output id="objectiveGddOut"></output>
+                </label>
+                <input id="objectiveGdd" type="range" min="0" max="5000" step="100" value="1500">
+              </div>
+              <div class="control">
+                <label for="otherGdd">
+                  Windows and filters <output id="otherGddOut"></output>
+                </label>
+                <input id="otherGdd" type="range" min="0" max="2000" step="100" value="300">
+              </div>
+              <div class="component-total"><span>Estimated total</span><strong id="componentTotal"></strong></div>
+            </div>
+            <div class="control">
+              <label for="prechirp">
+                Applied pre-chirp <output id="prechirpOut"></output>
+              </label>
+              <input id="prechirp" type="range" min="-12000" max="3000" step="100">
+            </div>
+
+            <div class="buttons">
+              <button id="compensate">Ideal compensation</button><button id="reset">Reset</button>
+            </div>
+          </section>
+          <p class="note"><b>Preset caution:</b> pulse width varies with wavelength, operating condition, and the individual laser. The presets are useful starting values; enter measured values when available. The lab presets begin with zero pre-chirp because these systems currently have no installed compressor.</p>
+        </aside>
+
+        <div>
+          <section class="panel">
+            <h2>What the pulse encounters</h2>
+            <div class="diagram">
+              <svg id="pathDiagram"
+                   viewBox="0 0 880 190"
+                   role="img"
+                   aria-label="Pulse becoming chirped and broader while traveling through the microscope optics">
+              </svg>
+            </div>
+            <p class="pulse-guide"><span style="color:#3974b8">Blue</span> and <span style="color:#c9554d">red</span> mark the early and late spectral components. Their order reverses for negative chirp.</p>
+            <p id="status" class="note"></p>
+          </section>
+
+          <div class="stats">
+            <div class="stat">Delivered pulse FWHM<strong id="deliveredStat"></strong></div>
+            <div class="stat">Pulse energy<strong id="energyStat"></strong></div>
+            <div class="stat">Peak power<strong id="peakStat"></strong></div>
+            <div class="stat">Chirp efficiency<strong id="chirpStat"></strong>vs this laser unchirped</div>
+            <div class="stat">Relative 2p drive<strong id="twoPStat"></strong>vs reference</div>
+            <div class="stat">Net GDD<strong id="gddStat"></strong></div>
+          </div>
+
+          <section class="panel">
+            <h2>Practical interpretation <span style="font-weight:400;color:#607981">· teaching cues, not safety limits</span></h2>
+            <div class="risk-grid">
+              <div class="risk-card"
+                   id="heatingRisk"><strong>Average-power heating</strong><span></span></div>
+              <div class="risk-card" id="pulseRisk"><strong>Per-pulse stress</strong><span></span></div>
+              <div class="risk-card"
+                   id="nonlinearRisk"><strong>Saturation and nonlinear response</strong><span></span></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="plot-tabs">
+              <button class="active"
+                      data-plot="time">Pulse in time</button><button data-plot="spectrum">Optical spectrum</button>
+            </div>
+            <div class="plot-view" id="timeView">
+              <svg id="timePlot"
+                   viewBox="0 0 620 250"
+                   role="img"
+                   aria-label="Transform-limited and delivered pulse intensity versus time">
+              </svg>
+              <p class="legend">Curves have equal pulse energy. Dispersion makes the delivered pulse lower and wider, reducing peak power.</p>
+            </div>
+            <div class="plot-view" id="spectrumView" hidden>
+              <svg id="spectrumPlot"
+                   viewBox="0 0 620 250"
+                   role="img"
+                   aria-label="Transform-limited optical spectrum">
+              </svg>
+              <p class="legend">Pure second-order dispersion changes spectral phase, not spectral intensity. The spectrum therefore stays the same while the pulse broadens.</p>
+            </div>
+          </section>
+
+          <section class="panel">
+            <details>
+              <summary><b>How to interpret the controls</b></summary>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Quantity</th>
+                    <th>What it changes</th>
+                    <th>What it does not change in this model</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Average power</td>
+                    <td>Pulse energy, peak power and 2p signal</td>
+                    <td>Pulse duration</td>
+                  </tr>
+                  <tr>
+                    <td>Repetition rate</td>
+                    <td>Pulse energy at fixed average power</td>
+                    <td>Duration of each pulse</td>
+                  </tr>
+                  <tr>
+                    <td>Optical-path GDD</td>
+                    <td>Pulse duration and peak power</td>
+                    <td>Pulse energy or spectral intensity</td>
+                  </tr>
+                  <tr>
+                    <td>Pre-chirp</td>
+                    <td>Offsets positive or negative path GDD</td>
+                    <td>Average power in this idealized model</td>
+                  </tr>
+                </tbody>
+              </table>
+            </details>
+          </section>
+
+          <section class="panel">
+            <details open>
+              <summary><b>How to explore</b></summary>
+              <ol>
+                <li>Choose each lab laser at the same specimen power. Chirp efficiency reports only the dispersion penalty; relative 2p drive also responds to repetition rate, pulse duration and power.</li>
+                <li>Switch to <i>From components</i>. Add estimated dispersion from the power-control optics, relay, objective, and other transmissive elements.</li>
+                <li>Increase optical-path GDD while leaving average power unchanged. Pulse energy stays fixed, but peak power and chirp efficiency fall.</li>
+                <li>Select <i>Ideal compensation</i>. It applies equal and opposite GDD, recovering the starting pulse in this idealized model.</li>
+                <li>Compare the heating, per-pulse, and nonlinear-response cues for the 80 MHz and 25 MHz lasers.</li>
+              </ol>
+            </details>
+            <details style="margin-top:10px">
+              <summary><b>Model, limitations &amp; formulae</b></summary>
+              <p>For a transform-limited Gaussian pulse with intensity FWHM τ₀ and net group-delay dispersion φ″, the delivered duration is τ = τ₀√[1 + (4 ln2 φ″/τ₀²)²]. Pulse energy is average power divided by repetition rate. Gaussian peak power is approximately 0.94 times pulse energy divided by pulse FWHM.</p>
+              <p><b>Chirp efficiency</b> is τ₀/τ: the retained two-photon excitation relative to the same source without added dispersion. <b>Relative 2p drive</b> scales as P²/(fτ) and is normalized to an unchirped 20 mW, 80 MHz, 140 fs reference. It is a comparison index, not a prediction of fluorescence counts.</p>
+              <p>The component GDD values are user-adjustable teaching estimates, not a parts database. The model includes only second-order dispersion and omits focal area, third-order dispersion, spectral clipping, nonlinear propagation, wavelength-dependent transmission, fluorophore saturation, photodamage, and the detailed pulse shape of a real laser.</p>
+            </details>
+          </section>
+        </div>
+      </div>
+    </main>
+    <a class="home" href="index.html">← Back to main menu</a>
+
+    <script>
+      'use strict';
+      // Laser presets and editable optical-path settings.
+      const $ = id => document.getElementById(id);
+      const presets = {
+        maitai: {
+          wavelength: 820,
+          pulse: 100,
+          rate: 80,
+          power: 20,
+          pathGdd: 3500,
+          prechirp: 0
+        },
+        chameleon: {
+          wavelength: 920,
+          pulse: 140,
+          rate: 80,
+          power: 20,
+          pathGdd: 3500,
+          prechirp: 0
+        },
+        nkt: {
+          wavelength: 1040,
+          pulse: 300,
+          rate: 80,
+          power: 20,
+          pathGdd: 3500,
+          prechirp: 0
+        },
+        mpb: {
+          wavelength: 1040,
+          pulse: 200,
+          rate: 25,
+          power: 20,
+          pathGdd: 3500,
+          prechirp: 0
+        }
+      };
+      let activePreset = 'chameleon';
+      let gddMode = 'manual';
+      const controls = ['wavelength', 'pulse', 'rate', 'power', 'pathGdd', 'prechirp'];
+      const componentIds = ['powerControlGdd', 'relayGdd', 'objectiveGdd', 'otherGdd'];
+      const componentDefaults = [700, 1000, 1500, 300];
+      const referenceDrive = 20 ** 2 / (80 * 140);
+      const gaussian = (x, fwhm) => Math.exp(-4 * Math.log(2) * (x / fwhm) ** 2);
+      const pathFrom = (values, x0, y0, xScale, yScale) => values.map((v, i) => `${i?'L':'M'} ${(x0+i*xScale).toFixed(1)} ${(y0-v*yScale).toFixed(1)}`).join(' ');
+      const componentGdd = () => componentIds.reduce((sum, id) => sum + +$(id).value, 0);
+      const getPathGdd = () => gddMode === 'components' ? componentGdd() : +$('pathGdd').value;
+
+      function updateGddMode() {
+        document.querySelectorAll('[data-gdd-mode]').forEach(button => button.classList.toggle('active', button.dataset.gddMode === gddMode));
+        $('manualGdd').hidden = gddMode !== 'manual';
+        $('componentBuilder').hidden = gddMode !== 'components';
+        render();
+      }
+
+      function setRisk(id, level, text) {
+        const card = $(id);
+        card.className = 'risk-card' + (level === 'good' ? '' : ' ' + level);
+        card.querySelector('span').textContent = text;
+      }
+
+      function setPreset(name) {
+        activePreset = name;
+        Object.entries(presets[name]).forEach(([id, value]) => $(id).value = value);
+        gddMode = 'manual';
+        componentIds.forEach((id, index) => $(id).value = componentDefaults[index]);
+        document.querySelectorAll('[data-preset]').forEach(button => button.classList.toggle('active', button.dataset.preset === name));
+        updateGddMode();
+      }
+
+      // Recalculate pulse broadening, peak intensity, warnings, and plots.
+      function render() {
+        const wavelength = +$('wavelength').value,
+          tau0 = +$('pulse').value,
+          rate = +$('rate').value,
+          power = +$('power').value;
+        const pathGdd = getPathGdd(),
+          prechirp = +$('prechirp').value,
+          netGdd = pathGdd + prechirp;
+        const factor = Math.sqrt(1 + (4 * Math.log(2) * netGdd / (tau0 * tau0)) ** 2),
+          delivered = tau0 * factor;
+        const energyNj = power / rate,
+          peakKw = .9394 * energyNj * 1000 / delivered,
+          chirpEfficiency = tau0 / delivered;
+        const driveIndex = (power * power / (rate * delivered)) / referenceDrive;
+        const bandwidthNm = .441 * (wavelength * wavelength) / (299.792458 * tau0);
+
+        $('wavelengthOut').textContent = wavelength + ' nm';
+        $('pulseOut').textContent = tau0 + ' fs';
+        $('rateOut').textContent = rate + ' MHz';
+        $('powerOut').textContent = power + ' mW';
+        $('pathGddOut').textContent = (+$('pathGdd').value).toLocaleString() + ' fs²';
+        $('prechirpOut').textContent = (prechirp > 0 ? '+' : '') + prechirp.toLocaleString() + ' fs²';
+        componentIds.forEach(id => $(id + 'Out').textContent = (+$(id).value).toLocaleString() + ' fs²');
+        $('componentTotal').textContent = componentGdd().toLocaleString() + ' fs²';
+        $('deliveredStat').textContent = delivered.toFixed(0) + ' fs';
+        $('energyStat').textContent = energyNj.toFixed(2) + ' nJ';
+        $('peakStat').textContent = peakKw.toFixed(2) + ' kW';
+        $('chirpStat').textContent = (chirpEfficiency * 100).toFixed(0) + '%';
+        $('twoPStat').textContent = (driveIndex * 100).toFixed(0) + '%';
+        $('gddStat').textContent = (netGdd > 0 ? '+' : '') + netGdd.toLocaleString() + ' fs²';
+
+        const severity = chirpEfficiency > .9 ? 'good' : chirpEfficiency > .6 ? 'warn' : 'bad';
+        $('status').className = 'note ' + severity;
+        $('status').textContent = Math.abs(netGdd) < 100 ? 'The path GDD is almost exactly compensated. The specimen receives approximately the laser pulse duration.' : `The ${tau0} fs source pulse arrives at approximately ${delivered.toFixed(0)} fs, retaining ${(chirpEfficiency*100).toFixed(0)}% of its unchirped two-photon efficiency.`;
+
+        setRisk('heatingRisk', power < 30 ? 'good' : power < 70 ? 'warn' : 'bad', power < 30 ? 'Lower average-power load in this comparison.' : power < 70 ? 'Moderate average-power load; heating also depends on wavelength, dwell time and preparation.' : 'High average-power load in this teaching range; assess tissue heating empirically.');
+        setRisk('pulseRisk', energyNj < 0.5 ? 'good' : energyNj < 1.5 ? 'warn' : 'bad', `${energyNj.toFixed(2)} nJ per pulse. ${energyNj<0.5?'Relatively low per-pulse energy.':energyNj<1.5?'Per-pulse effects deserve attention.':'Strong per-pulse stress may dominate before average power seems unusual.'}`);
+        setRisk('nonlinearRisk', driveIndex < 1.5 ? 'good' : driveIndex < 3 ? 'warn' : 'bad', driveIndex < 1.5 ? 'The simple quadratic comparison is a reasonable first teaching approximation.' : driveIndex < 3 ? 'Saturation or other nonlinear responses may begin to spoil P² scaling.' : 'Large predicted drive: do not interpret the quadratic index as proportional fluorescence without validation.');
+
+        const preColor = prechirp === 0 ? '#9fb2b5' : '#087f79';
+        const preFactor = Math.sqrt(1 + (4 * Math.log(2) * prechirp / (tau0 * tau0)) ** 2),
+          preDuration = tau0 * preFactor;
+        const pulseWidth = duration => Math.min(62, 18 + 44 * (duration / tau0 - 1) / 2.5);
+        const pulseGlyph = (cx, width, gdd, label, duration) => {
+          const separation = Math.min(13, Math.abs(gdd) / 500),
+            direction = gdd < 0 ? -1 : 1;
+          return `<g><text x="${cx}" y="37" text-anchor="middle" fill="#607981" font-size="11">${label}</text><ellipse cx="${cx}" cy="86" rx="${width/2}" ry="24" fill="#f5d99f" fill-opacity=".48" stroke="#c98e32" stroke-width="2"/><line x1="${cx-direction*separation}" y1="66" x2="${cx-direction*separation}" y2="106" stroke="#3974b8" stroke-width="3"/><line x1="${cx+direction*separation}" y1="66" x2="${cx+direction*separation}" y2="106" stroke="#c9554d" stroke-width="3"/><text x="${cx}" y="125" text-anchor="middle" fill="#193540" font-size="11">${duration.toFixed(0)} fs</text></g>`;
+        };
+        $('pathDiagram').innerHTML = `<rect width="880" height="190" fill="#f8fbfa"/><line x1="80" y1="86" x2="810" y2="86" stroke="#9fb2b5" stroke-width="2"/><rect x="20" y="58" width="88" height="56" rx="7" fill="#163542"/><text x="64" y="82" text-anchor="middle" fill="white" font-weight="700">LASER</text><text x="64" y="100" text-anchor="middle" fill="#b8d6dc" font-size="11">${wavelength} nm</text>${pulseGlyph(155,18,0,'source',tau0)}<rect x="220" y="53" width="122" height="66" rx="7" fill="#e6efed" stroke="#607981"/><text x="281" y="78" text-anchor="middle" fill="#193540" font-weight="700">PRE-CHIRP</text><text x="281" y="100" text-anchor="middle" fill="${preColor}" font-size="12">${prechirp>0?'+':''}${prechirp} fs²</text>${pulseGlyph(398,pulseWidth(preDuration),prechirp,prechirp<0?'negative chirp':prechirp>0?'positive chirp':'unchirped',preDuration)}<rect x="458" y="49" width="142" height="74" rx="7" fill="#e6efed" stroke="#607981"/><text x="529" y="73" text-anchor="middle" fill="#193540" font-weight="700">OPTICAL PATH</text><text x="529" y="94" text-anchor="middle" fill="#b36b2c" font-size="12">+${pathGdd} fs²</text><text x="529" y="111" text-anchor="middle" fill="#607981" font-size="10">${gddMode==='components'?'component estimate':'manual total'}</text>${pulseGlyph(665,pulseWidth(delivered),netGdd,netGdd<0?'negative chirp':netGdd>0?'positive chirp':'recompressed',delivered)}<path d="M758 48h96v76l-16 16h-64l-16-16z" fill="#e8eeee" stroke="#193540" stroke-width="3"/><text x="806" y="80" text-anchor="middle" fill="#193540" font-weight="700">SPECIMEN</text><text x="806" y="100" text-anchor="middle" fill="#087f79" font-size="11">${(chirpEfficiency*100).toFixed(0)}% efficiency</text><text x="440" y="166" text-anchor="middle" fill="#607981" font-size="11">net GDD ${(netGdd>0?'+':'')+netGdd} fs² · colour separation represents spectral timing, not wavelength spread</text>`;
+
+        const span = Math.max(500, delivered * 2.6),
+          samples = 241,
+          times = Array.from({
+            length: samples
+          }, (_, i) => (i / (samples - 1) - .5) * span);
+        const before = times.map(t => gaussian(t, tau0)),
+          after = times.map(t => gaussian(t, delivered) / factor),
+          xScale = 540 / (samples - 1);
+        $('timePlot').innerHTML = `<rect width="620" height="250" fill="white"/><line x1="55" y1="205" x2="595" y2="205" stroke="#9fb2b5"/><line x1="325" y1="30" x2="325" y2="210" stroke="#dbe6e2"/><path d="${pathFrom(before,55,205,xScale,150)}" fill="none" stroke="#087f79" stroke-width="4"/><path d="${pathFrom(after,55,205,xScale,150)}" fill="none" stroke="#d87b68" stroke-width="4"/><text x="70" y="25" fill="#087f79">at laser · ${tau0} fs</text><text x="70" y="45" fill="#b24f3f">at specimen · ${delivered.toFixed(0)} fs</text><text x="55" y="232" fill="#607981">${(-span/2).toFixed(0)} fs</text><text x="325" y="232" text-anchor="middle" fill="#607981">time</text><text x="595" y="232" text-anchor="end" fill="#607981">+${(span/2).toFixed(0)} fs</text>`;
+
+        const spectrum = Array.from({
+          length: 181
+        }, (_, i) => gaussian((i - 90) / 90 * bandwidthNm * 1.8, bandwidthNm));
+        $('spectrumPlot').innerHTML = `<rect width="620" height="250" fill="white"/><line x1="55" y1="205" x2="565" y2="205" stroke="#9fb2b5"/><path d="${pathFrom(spectrum,55,205,510/180,150)}" fill="none" stroke="#8d75b5" stroke-width="4"/><text x="70" y="25" fill="#5e4a83">spectral intensity is unchanged by pure GDD</text><text x="55" y="232" fill="#607981">${(wavelength-bandwidthNm*1.8).toFixed(0)} nm</text><text x="310" y="232" text-anchor="middle" fill="#607981">${wavelength} nm</text><text x="565" y="232" text-anchor="end" fill="#607981">${(wavelength+bandwidthNm*1.8).toFixed(0)} nm</text><text x="310" y="195" text-anchor="middle" fill="#607981" font-size="11">transform-limited bandwidth ≈ ${bandwidthNm.toFixed(1)} nm</text>`;
+      }
+
+      // Wire the controls after the model and renderer are defined.
+      document.querySelectorAll('[data-preset]').forEach(button => button.addEventListener('click', () => setPreset(button.dataset.preset)));
+      controls.forEach(id => $(id).addEventListener('input', () => {
+        activePreset = 'custom';
+        document.querySelectorAll('[data-preset]').forEach(b => b.classList.remove('active'));
+        render();
+      }));
+      componentIds.forEach(id => $(id).addEventListener('input', () => {
+        activePreset = 'custom';
+        document.querySelectorAll('[data-preset]').forEach(b => b.classList.remove('active'));
+        render();
+      }));
+      document.querySelectorAll('[data-gdd-mode]').forEach(button => button.addEventListener('click', () => {
+        gddMode = button.dataset.gddMode;
+        activePreset = 'custom';
+        document.querySelectorAll('[data-preset]').forEach(b => b.classList.remove('active'));
+        updateGddMode();
+      }));
+      document.querySelectorAll('[data-plot]').forEach(button => button.addEventListener('click', () => {
+        const plot = button.dataset.plot;
+        document.querySelectorAll('[data-plot]').forEach(item => item.classList.toggle('active', item === button));
+        $('timeView').hidden = plot !== 'time';
+        $('spectrumView').hidden = plot !== 'spectrum';
+      }));
+      $('compensate').addEventListener('click', () => {
+        $('prechirp').value = -getPathGdd();
+        activePreset = 'custom';
+        document.querySelectorAll('[data-preset]').forEach(b => b.classList.remove('active'));
+        render();
+      });
+      $('reset').addEventListener('click', () => setPreset('chameleon'));
+      setPreset('chameleon');
+    </script>
+  </body>
+</html>

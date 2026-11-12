@@ -1,0 +1,93 @@
+<!doctype html>
+<!--
+  Compatibility redirects for former Sjöström Lab simulation URLs.
+  Place this file at the GitHub Pages repository root.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Page not found · Sjöström Lab Simulations</title>
+
+    <script>
+      // Map each former public path to its new canonical location.
+      const redirects = {
+        "/NernstGoldman/NernstGoldman.html":
+          "/neurosci-sims/NernstGoldman/NernstGoldman.html",
+
+        "/IVCurves/IVCurves.html":
+          "/neurosci-sims/IVCurves/IVCurves.html",
+
+        "/PassiveDendrite/PassiveDendrite.html":
+          "/neurosci-sims/PassiveDendrite/PassiveDendrite.html",
+
+        "/HH/HH.html":
+          "/neurosci-sims/HH/HH.html",
+
+        "/SingleChannel/index.html":
+          "/neurosci-sims/SingleChannel/index.html",
+
+        "/QuantalRelease/BinomSim.html":
+          "/neurosci-sims/QuantalRelease/BinomSim.html",
+
+        "/HeterogeneousRelease/HeterogeneousSimulation.html":
+          "/neurosci-sims/HeterogeneousRelease/HeterogeneousSimulation.html",
+
+        "/LIF/LIFSim.html":
+          "/neurosci-sims/LIF/LIFSim.html",
+
+        "/CVAnalysis/CVAnalysis.html":
+          "/neurosci-sims/CVAnalysis/CVAnalysis.html",
+
+        "/STDP/STDPSim.html":
+          "/neurosci-sims/STDP/STDPSim.html",
+
+        "/PopulationCoding/PopulationCoding.html":
+          "/neurosci-sims/PopulationCoding/PopulationCoding.html",
+
+        "/hopfield/hopfield.html":
+          "/neurosci-sims/hopfield/hopfield.html",
+
+        "/CurrentClampRs/index.html":
+          "/neurosci-sims/CurrentClampRs/index.html",
+
+        "/VoltageClampRs/index.html":
+          "/neurosci-sims/VoltageClampRs/index.html"
+      };
+
+      const destination = redirects[window.location.pathname];
+
+      if (destination) {
+        // Preserve query parameters and page fragments.
+        window.location.replace(
+          destination + window.location.search + window.location.hash
+        );
+      }
+    </script>
+
+    <style>
+      body {
+        max-width: 680px;
+        margin: 80px auto;
+        padding: 0 24px;
+        color: #20313c;
+        background: #f2f5f4;
+        font: 16px/1.6 system-ui, sans-serif;
+      }
+
+      a {
+        color: #087f79;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Page not found</h1>
+
+    <p>
+      The requested page may have moved. Visit the
+      <a href="/">Interactive Teaching Simulations main menu</a>.
+    </p>
+  </body>
+</html>

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<!-- Vibe coding by Jesper Sjöström with help from ChatGPT Codex. Updated 2026-11-11. Standalone Optics Lab teaching simulation. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Optics Lab · Simulation menu</title>
+    <script defer src="navigation.js?course"></script>
+    <style>
+      * {
+        box-sizing: border-box
+      }
+
+      body {
+        margin: 0;
+        background: #f2f5f4;
+        color: #193540;
+        font: 16px/1.5 system-ui, -apple-system, sans-serif
+      }
+
+      header {
+        background: #102e3a;
+        color: white;
+        padding: 50px max(24px, calc((100vw - 1060px)/2))
+      }
+
+      header small {
+        letter-spacing: .18em;
+        color: #a5c7cc;
+        font-size: 12px
+      }
+
+      h1 {
+        font-size: 42px;
+        margin: 10px 0
+      }
+
+      header p {
+        max-width: 650px;
+        color: #c1d7db;
+        margin: 0
+      }
+
+      main {
+        max-width: 1108px;
+        margin: auto;
+        padding: 32px 24px
+      }
+
+      .intro {
+        color: #60767d;
+        font-size: 14px;
+        margin-bottom: 22px
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 22px
+      }
+
+      .simulation-card {
+        background: white;
+        border: 1px solid #d4e0dc;
+        border-radius: 12px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        color: inherit;
+        text-decoration: none;
+        box-shadow: 0 3px 10px #20313c0a;
+        transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease
+      }
+
+      .simulation-card:hover {
+        transform: translateY(-3px);
+        border-color: #087f79;
+        box-shadow: 0 10px 28px #20313c18
+      }
+
+      .art {
+        background: #163542;
+        padding: 20px
+      }
+
+      .art svg {
+        width: 100%;
+        height: 150px;
+        display: block
+      }
+
+      .body {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        flex: 1
+      }
+
+      .eyebrow {
+        font-size: 11px;
+        letter-spacing: .12em;
+        color: #087f79;
+        font-weight: 700
+      }
+
+      h2 {
+        font-size: 24px;
+        margin: 8px 0
+      }
+
+      .simulation-card p {
+        color: #60767d;
+        font-size: 14px
+      }
+
+      ul {
+        font-size: 14px;
+        padding-left: 20px;
+        margin: 5px 0 24px
+      }
+
+      a:focus-visible {
+        outline: 3px solid #ce922f;
+        outline-offset: 4px
+      }
+
+      .version {
+        font-size: 12px;
+        color: #60767d;
+        margin-bottom: 12px
+      }
+
+      footer {
+        font-size: 12px;
+        color: #60767d;
+        margin-top: 28px
+      }
+
+      @media(max-width:700px) {
+        .grid {
+          grid-template-columns: 1fr
+        }
+
+        h1 {
+          font-size: 34px
+        }
+
+        header {
+          padding: 30px 24px
+        }
+
+        main {
+          padding: 24px 16px
+        }
+      }
+
+      header {
+        padding: 16px max(20px, calc((100vw - 1180px)/2))
+      }
+
+      h1 {
+        font-size: 30px;
+        margin: 3px 0
+      }
+
+      main {
+        max-width: 1220px;
+        padding: 16px 20px
+      }
+
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px
+      }
+
+      .art {
+        padding: 10px 8px
+      }
+
+      .art svg {
+        height: 85px
+      }
+
+      .body {
+        padding: 16px 15px 10px
+      }
+
+      .eyebrow {
+        font-size: 10px
+      }
+
+      h2 {
+        font-size: 19px;
+        line-height: 1.2;
+        margin: 6px 0
+      }
+
+      .simulation-card p {
+        font-size: 13px;
+        line-height: 1.35;
+        margin: 5px 0 6px
+      }
+
+      @media(max-width:850px) {
+        .grid {
+          grid-template-columns: 1fr 1fr
+        }
+      }
+
+      @media(max-width:550px) {
+        header {
+          padding: 12px 16px
+        }
+
+        main {
+          padding: 12px
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+          gap: 10px
+        }
+
+        .simulation-card {
+          display: grid;
+          grid-template-columns: 88px 1fr
+        }
+
+        .art {
+          padding: 8px;
+          display: flex;
+          align-items: center
+        }
+
+        .art svg {
+          height: 60px
+        }
+
+        .body {
+          padding: 10px
+        }
+
+        .simulation-card p {
+          margin: 3px 0 8px
+        }
+
+        h2 {
+          font-size: 17px
+        }
+      }
+    </style>
+    <style>
+      .simulation-card.wide {
+        grid-column: 1/-1;
+        display: grid;
+        grid-template-columns: 230px 1fr
+      }
+
+      .wide .art {
+        display: flex;
+        align-items: center
+      }
+
+      .wide .art svg {
+        height: 95px
+      }
+
+      .wide .body {
+        padding: 14px 18px
+      }
+
+      .title-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 5px 0
+      }
+
+      .title-row h2 {
+        flex: 1;
+        margin: 0
+      }
+
+      @media(max-width:550px) {
+        .simulation-card.wide {
+          grid-template-columns: 88px 1fr
+        }
+
+        .wide .art svg {
+          height: 60px
+        }
+
+        .title-row {
+          gap: 8px
+        }
+
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <small>INTERACTIVE OPTICS FOR NEUROSCIENCE</small>
+      <h1>Optics Lab</h1>
+      <p style="font-size:12px">A guided path from polarization and beam delivery to scanning, detection, and troubleshooting.</p>
+    </header>
+    <main>
+      <div class="grid">
+        <a class="simulation-card" href="optics-lab-polarization.html">
+          <div class="art">
+            <svg viewBox="0 0 480 150" aria-hidden="true">
+              <path d="M20 100 H460 M280 100 V15" stroke="#e8ba65" stroke-width="5" fill="none" />
+              <circle cx="150" cy="100" r="30" fill="#163542" stroke="#68c9bf" stroke-width="2" />
+              <path d="M130 120 L170 80" stroke="#68c9bf" stroke-width="3" />
+              <rect x="250" y="70" width="60" height="60" fill="#335e6a" stroke="#a4cfdb" />
+              <path d="M250 130 L310 70" stroke="#a4cfdb" stroke-width="2" />
+            </svg>
+          </div>
+          <div class="body">
+            <span class="eyebrow">OPTICAL COMPONENTS</span>
+            <div class="title-row">
+              <h2>1. Polarization and beam splitters</h2>
+            </div>
+            <p>Explore light polarization and compare two ways to control laser power.</p>
+          </div>
+        </a>
+        <a class="simulation-card" href="optics-lab-scan-relay.html">
+          <div class="art">
+            <svg viewBox="0 0 480 150" aria-hidden="true">
+              <path d="M20 65 L150 65 L320 95 L455 95 M20 85 L150 85 L320 55 L455 55" stroke="#e8ba65" fill="none" stroke-width="2" />
+              <path d="M20 75 H455" stroke="#62c5bf" stroke-dasharray="5 5" />
+              <ellipse cx="150" cy="75" rx="8" ry="48" fill="#78bfd12a" stroke="#8dd0df" stroke-width="2" />
+              <ellipse cx="320" cy="75" rx="8" ry="48" fill="#78bfd12a" stroke="#8dd0df" stroke-width="2" />
+              <path d="M420 20 V48 M420 102 V130" stroke="white" stroke-width="5" />
+            </svg>
+          </div>
+          <div class="body">
+            <span class="eyebrow">EXCITATION PATH</span>
+            <div class="title-row">
+              <h2>2. Aligning the scan relay</h2>
+            </div>
+            <p>Expand a beam with the scan and tube lenses, then explore the compromise of imaging two separated galvos onto one objective back aperture.</p>
+          </div>
+        </a>
+        <a class="simulation-card" href="optics-lab-pupil-focus.html">
+          <div class="art">
+            <svg viewBox="0 0 480 150" aria-hidden="true">
+              <path d="M20 30L160 30L340 75L460 45 M20 120L160 120L340 75L460 105" stroke="#e8ba65" fill="none" stroke-width="2" />
+              <ellipse cx="160" cy="75" rx="8" ry="62" fill="#78bfd12a" stroke="#8dd0df" stroke-width="2" />
+              <circle cx="340" cy="75" r="7" fill="#68c9bf" />
+              <path d="M330 75H350M340 65V85" stroke="white" />
+            </svg>
+          </div>
+          <div class="body">
+            <span class="eyebrow">SCANNING FOCUS · 1</span>
+            <div class="title-row">
+              <h2>3. From back-aperture illumination to focus</h2>
+            </div>
+            <p>Discover how back-aperture filling changes the focused spot and two-photon excitation.</p>
+          </div>
+        </a>
+        <a class="simulation-card" href="optics-lab-chirp.html">
+          <div class="art">
+            <svg viewBox="0 0 480 150" aria-hidden="true">
+              <path d="M25 115H455" stroke="#607981" stroke-width="2" />
+              <path d="M35 115C115 115 145 108 178 30C211 108 241 115 315 115" fill="none" stroke="#68c9bf" stroke-width="5" />
+              <path d="M160 115C205 115 225 100 260 62C295 100 315 115 430 115" fill="none" stroke="#e8ba65" stroke-width="5" />
+              <path d="M178 24V136M260 54V136" stroke="#ffffff55" stroke-dasharray="5 5" />
+            </svg>
+          </div>
+          <div class="body">
+            <span class="eyebrow">ULTRAFAST EXCITATION</span>
+            <div class="title-row">
+              <h2>4. Pulse chirp and dispersion</h2>
+            </div>
+            <p>See how dispersive optics broaden femtosecond pulses, reduce peak power, and weaken two-photon excitation.</p>
+          </div>
+        </a>
+        <a class="simulation-card" href="optics-lab-raster-image.html">
+          <div class="art">
+            <svg viewBox="0 0 480 150" aria-hidden="true">
+              <path d="M45 25H430L45 45H430L45 65H430L45 85H430L45 105H430L45 125H430" stroke="#68c9bf" fill="none" stroke-width="2" />
+              <circle cx="180" cy="65" r="19" fill="#e8ba6577" />
+              <circle cx="310" cy="95" r="25" fill="#e8ba6577" />
+              <circle cx="240" cy="65" r="5" fill="white" />
+            </svg>
+          </div>
+          <div class="body">
+            <span class="eyebrow">SCANNING FOCUS · 2</span>
+            <div class="title-row">
+              <h2>5. From a focus to a scanned image</h2>
+            </div>
+            <p>Turn beam steering and a detector signal into a sampled fluorescence image.</p>
+          </div>
+        </a>
+        <a class="simulation-card" href="optics-lab-pmt-collection.html">
+          <div class="art">
+            <svg viewBox="0 0 480 150" aria-hidden="true">
+              <path d="M40 45 L265 15 L430 85 M40 45 L265 75 L430 85 M40 45 L265 120 L430 85 M40 105 L265 30 L430 65 M40 105 L265 75 L430 65 M40 105 L265 135 L430 65" stroke="#e8ba65" fill="none" stroke-width="1.5" />
+              <path d="M40 42 V108" stroke="#b8d6dc" stroke-width="4" />
+              <ellipse cx="265" cy="75" rx="9" ry="65" fill="#78bfd12a" stroke="#8dd0df" stroke-width="2" />
+              <path d="M430 25 V125" stroke="#536d78" stroke-width="8" />
+              <path d="M430 55 V95" stroke="white" stroke-width="8" />
+            </svg>
+          </div>
+          <div class="body">
+            <span class="eyebrow">FLUORESCENCE DETECTION</span>
+            <div class="title-row">
+              <h2>6. Imaging onto a PMT</h2>
+            </div>
+            <p>Use one or two collection lenses to image the objective back aperture onto the PMT photoactive surface.</p>
+          </div>
+        </a>
+        <a class="simulation-card" href="optics-lab-filters.html">
+          <div class="art">
+            <svg viewBox="0 0 480 150" aria-hidden="true">
+              <path d="M30 75 H185" stroke="#e8ba65" stroke-width="6" />
+              <path d="M185 75 L335 35 M185 75 L335 115" stroke="#68c9bf" stroke-width="5" />
+              <rect x="175" y="25" width="20" height="100" rx="4" fill="#8dd0df55" stroke="#8dd0df" />
+              <rect x="335" y="15" width="18" height="45" fill="#65bfa5" />
+              <rect x="335" y="90" width="18" height="45" fill="#d87b68" />
+            </svg>
+          </div>
+          <div class="body">
+            <span class="eyebrow">FLUORESCENCE DETECTION</span>
+            <div class="title-row">
+              <h2>7. Dichroics and emission filters</h2>
+            </div>
+            <p>Route green and red fluorescence while rejecting two-photon and auxiliary excitation light.</p>
+          </div>
+        </a>
+        <a class="simulation-card" href="optics-lab-image-diagnosis.html">
+          <div class="art">
+            <svg viewBox="0 0 480 150" aria-hidden="true">
+              <rect x="28" y="22" width="185" height="106" rx="5" fill="#214a55" stroke="#8dd0df" />
+              <path d="M40 105Q95 35 205 72M40 45L205 112" fill="none" stroke="#68c9bf" stroke-width="3" />
+              <rect x="270" y="22" width="185" height="106" rx="5" fill="#214a55" stroke="#8dd0df" />
+              <path d="M282 105Q337 35 447 72M282 45L447 112" fill="none" stroke="#e8ba65" stroke-width="3" />
+              <circle cx="395" cy="72" r="28" fill="#102e3a88" />
+              <path d="M224 75H260M248 64L260 75L248 86" stroke="white" stroke-width="3" fill="none" />
+            </svg>
+          </div>
+          <div class="body">
+            <span class="eyebrow">TROUBLESHOOTING · GUIDED CASES</span>
+            <div class="title-row">
+              <h2>8. Diagnosing a bad two-photon image</h2>
+            </div>
+            <p>Distinguish clipping, decentring, underfilling, photon noise, scan distortion, detector image walk, and saturation by combining image symptoms with targeted physical tests.</p>
+          </div>
+        </a>
+      </div>
+    </main>
+  </body>
+</html>

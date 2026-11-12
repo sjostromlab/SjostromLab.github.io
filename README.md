@@ -1,10 +1,13 @@
-# Interactive Neuroscience Simulations
+# Interactive Teaching Simulations
 
-Interactive teaching simulations developed for PHGY 311 and other neuroscience courses at McGill University. The collection explores membrane potentials, ion channels, neuronal excitability, electrophysiological recording, synaptic transmission, plasticity, population coding, and learning.
+Interactive teaching simulations developed at the Sjöström Lab, McGill University. The site contains two independent collections:
+
+- **Neuroscience Teaching Tools** for membrane potentials, ion channels, neuronal excitability, electrophysiological recording, synaptic transmission, plasticity, population coding, and learning.
+- **Optics Lab** for designing, aligning, operating, and troubleshooting custom two-photon microscopes.
 
 **[Launch the simulations](https://sjostromlab.github.io/)**
 
-## Simulations
+## Neuroscience Teaching Tools
 
 ### Membrane Potentials and Excitability
 
@@ -40,14 +43,27 @@ Interactive teaching simulations developed for PHGY 311 and other neuroscience c
 | **Series Resistance in Current Clamp** | How electrode resistance and capacitance distort passive responses and action potentials, why EPSPs are less affected, and what bridge balance can and cannot correct. |
 | **Series Resistance in Voltage Clamp** | Voltage-control error, current distortion, series-resistance compensation, and post-hoc correction of synaptic and I–V measurements. |
 
+## Optics Lab
+
+The optics sequence progresses through:
+
+1. Polarization and beam splitters
+2. Scan-relay alignment
+3. Objective back-aperture illumination and focus
+4. Femtosecond-pulse chirp and dispersion
+5. Raster-scanned image formation
+6. PMT collection optics
+7. Dichroics and emission filters
+8. Image troubleshooting
+
 ## Using the Simulations
 
-Open the website, choose a simulation, and adjust its parameters to explore how the model behaves. Each simulation includes guidance explaining its controls, model assumptions, suggested activities, and relevant references.
+Open the website, choose a collection and simulation, and adjust its parameters to explore how the model behaves. Each simulation includes guidance explaining its controls, model assumptions, suggested activities, and relevant references.
 
 - **Graph text size:** Available in selected simulations to improve readability.
 - **PNG export:** Use a graph’s camera button to save an image.
 - **CSV export:** Applicable simulations include a compact **Download data** button for saving tabular data in a consistent comma-separated format.
-- **Main menu:** Use the footer link to return to the simulation menu.
+- **Navigation:** Use each page’s menu links to return to its collection or the overall simulation menu.
 
 ## Running Locally
 

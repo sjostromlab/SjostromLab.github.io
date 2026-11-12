@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<!-- Vibe coding by Jesper Sjöström with help from ChatGPT Codex. Updated 2026-11-11. Standalone Optics Lab teaching simulation. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Optics Lab · Scan relay</title>
+    <script defer src="navigation.js?course"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #f1f5f4;
+        color: #193540;
+        font:
+          14px/1.45 system-ui,
+          sans-serif;
+      }
+
+      header {
+        background: #102e3a;
+        color: white;
+        padding: 18px 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      h1 {
+        font-size: 24px;
+        margin: 3px 0;
+      }
+
+      small,
+      .muted {
+        color: #637c83;
+      }
+
+      header small {
+        color: #a5c7cc;
+      }
+
+      main {
+        max-width: 1440px;
+        margin: auto;
+        padding: 16px 22px 80px;
+      }
+
+      button,
+      select {
+        font: inherit;
+        border: 1px solid #bccfce;
+        background: white;
+        color: #193540;
+        border-radius: 5px;
+        padding: 7px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #e2f1ee;
+      }
+
+      button.active {
+        background: #087f79;
+        color: white;
+      }
+
+      button:focus-visible,
+      a:focus-visible,
+      input:focus-visible,
+      select:focus-visible {
+        outline: 3px solid #d39b38;
+        outline-offset: 2px;
+      }
+
+      .steps {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .checks {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: #f1f5f4;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .check {
+        border-left: 5px solid #c58b28;
+        background: white;
+        padding: 10px 14px;
+        border-radius: 5px;
+      }
+
+      .check.good {
+        border-color: #087f79;
+      }
+
+      .check b {
+        display: block;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 310px 1fr;
+        gap: 15px;
+      }
+
+      .panel {
+        background: white;
+        border: 1px solid #d5e2df;
+        border-radius: 9px;
+        padding: 14px;
+        margin-bottom: 12px;
+      }
+
+      h2 {
+        font-size: 17px;
+        margin: 0 0 8px;
+      }
+
+      h3 {
+        font-size: 14px;
+        margin: 0 0 8px;
+      }
+
+      p {
+        margin: 7px 0;
+      }
+
+      .control {
+        margin: 10px 0;
+      }
+
+      .control label {
+        display: flex;
+        justify-content: space-between;
+        gap: 6px;
+        font-size: 12px;
+      }
+
+      .control output {
+        font-variant-numeric: tabular-nums;
+        font-weight: 650;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        accent-color: #087f79;
+      }
+
+      summary {
+        cursor: pointer;
+        font-weight: 650;
+        padding: 5px 0;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+      }
+
+      .note {
+        background: #fff4de;
+        border-radius: 5px;
+        padding: 9px;
+        font-size: 12px;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .metric {
+        font-size: 12px;
+        color: #536f76;
+      }
+
+      .metric strong {
+        font-size: 19px;
+        color: #193540;
+      }
+
+      .dark {
+        background: #102e3a;
+        color: #d5e7e9;
+        border-radius: 7px;
+      }
+
+      svg {
+        display: block;
+        width: 100%;
+      }
+
+      svg text {
+        font:
+          12px system-ui,
+          sans-serif;
+      }
+
+      canvas {
+        width: 100%;
+        display: block;
+      }
+
+      #pupilCanvas {
+        max-width: 270px;
+        margin: auto;
+      }
+
+      .legend {
+        font-size: 12px;
+        color: #637c83;
+      }
+
+      .home {
+        position: fixed;
+        bottom: 14px;
+        right: 20px;
+        padding: 11px 16px;
+        background: #087f79;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        box-shadow: 0 3px 12px #1234;
+      }
+
+      .readout {
+        font-variant-numeric: tabular-nums;
+        font-size: 12px;
+      }
+
+      a {
+        color: #087f79;
+      }
+
+      footer {
+        font-size: 12px;
+        color: #637c83;
+      }
+
+      .wide {
+        grid-column: 1/-1;
+      }
+
+      @media (max-width: 850px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .row {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        main {
+          padding: 12px 12px 80px;
+        }
+
+        header {
+          padding: 15px;
+        }
+
+        .checks {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 520px) {
+        .row {
+          grid-template-columns: 1fr;
+        }
+
+        .steps {
+          flex-wrap: wrap;
+        }
+
+        h1 {
+          font-size: 20px;
+        }
+      }
+
+      /* Compact desktop presentation: 16% smaller in both dimensions, preserving diagram proportions. */
+      @media (min-width: 900px) {
+        body {
+          zoom: 0.84;
+        }
+
+        main {
+          padding-top: 14px;
+        }
+
+        header {
+          padding-top: 14px;
+          padding-bottom: 14px;
+        }
+      }
+
+      @media (max-width: 899px) {
+        header {
+          padding-top: 12px;
+          padding-bottom: 12px;
+        }
+
+        .panel {
+          padding: 12px;
+          margin-bottom: 10px;
+        }
+
+        .control {
+          margin: 8px 0;
+        }
+
+        .row,
+        .layout {
+          gap: 10px;
+        }
+
+        p {
+          margin-top: 5px;
+          margin-bottom: 7px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Page title and two-stage workflow -->
+    <header>
+      <div>
+        <small>OPTICS LAB / EXCITATION PATH</small>
+        <h1>Aligning the scan relay</h1>
+      </div>
+    </header>
+    <main>
+      <div class="steps">
+        <button id="stage1" class="active">1 · Align telescope</button><button id="stage2">2 · Image the galvos</button><button id="reset">Reset</button>
+      </div>
+      <div class="checks">
+        <div id="collimation" class="check"></div>
+        <div id="conjugation" class="check"></div>
+      </div>
+      <div class="layout">
+        <aside>
+          <section class="panel">
+            <h2 id="stepTitle">Align without scanning</h2>
+            <p id="instruction"></p>
+            <div id="basicControls"></div>
+            <div class="buttons">
+              <button id="setGap">Set separation to f₁ + f₂</button>
+            </div>
+          </section>
+          <section class="panel" id="scanControls">
+            <h2>Pivot the beam</h2>
+            <div class="buttons">
+              <button id="play">Run scan</button><select id="pattern" aria-label="Scan pattern">
+                <option value="x">X only</option>
+                <option value="y">Y only</option>
+                <option value="circle">Circular scan</option>
+              </select>
+            </div>
+            <div id="angles"></div>
+            <p class="legend">
+              Angles are outgoing optical deflections; mirror rotation is half this value.
+            </p>
+            <h3>Imaging guide</h3>
+            <label class="legend">
+              <input type="checkbox" id="showConjugates" />
+              Show galvo and conjugate-image arrows
+            </label>
+            <p class="legend">
+              Amber X and teal Y arrows mark the two galvo planes and their desired images at the
+              objective back aperture. Dashed rays meet the image arrow only when that galvo is
+              correctly conjugate to the back aperture.
+            </p>
+            <h3>Choose the imaged plane</h3>
+            <div class="buttons">
+              <button data-align="x">X mirror</button><button data-align="mid">Midpoint</button><button data-align="y">Y mirror</button>
+            </div>
+            <p class="legend">These helpers translate the galvo block. No relay images X onto Y.</p>
+          </section>
+          <section class="panel">
+            <details>
+              <summary>Beam, apertures &amp; advanced settings</summary>
+              <div id="advancedControls"></div>
+              <button id="fill">Match 1/e² diameter to back aperture</button>
+              <p class="legend">
+                1.2 mm is a laser-exit reference, not a measurement at the galvos. Enter your
+                measured beam diameter. The default 3 mm setting is the usable beam aperture of the
+                XY block, as specified for this microscope. It is applied once as an equivalent
+                entrance aperture. Y is physically larger to accommodate X-induced beam walk; it is
+                not a second stationary 3 mm opening.
+              </p>
+              <p class="note">
+                6215H block: the 3 mm usable beam aperture is confirmed by the lab. The default 5.82
+                mm nominal pivot spacing is based on the 0.229-inch scanner-axis separation in
+                Cambridge drawing D05613 Rev F (0.229 × 25.4 = 5.8166 mm). The model assumes
+                reflection near the rotation axes; exact reflection-point spacing can differ. Exact
+                Y mirror-edge losses are not calculated.
+              </p>
+            </details>
+          </section>
+          <section class="panel">
+            <details>
+              <summary>Try alignment faults</summary>
+              <div class="buttons">
+                <button id="faultWalk">Collimated, wrong pivot</button><button id="faultGap">X imaged, wrong lens gap</button><button id="ideal">Coincident-pivot reference</button><button id="real">Separated-galvo example</button>
+              </div>
+              <p class="legend">
+                The coincident reference is an ideal comparison, not this microscope’s hardware.
+              </p>
+            </details>
+          </section>
+        </aside>
+        <div>
+          <section class="panel">
+            <h2>Unfolded optical path</h2>
+            <p class="note">
+              6215H · 3 mm usable beam aperture by default. Nominal X–Y spacing defaults to 5.82 mm,
+              based on drawing D05613 Rev F; reflection near the rotation axes is assumed.
+            </p>
+            <p class="legend">
+              The periscope folds are straightened here. Both mirrors remain distinct planes along
+              the optical path.
+            </p>
+            <svg id="bench"
+                 class="dark"
+                 viewBox="0 0 920 235"
+                 role="img"
+                 aria-label="Beam envelope through separated galvos, scan lens, tube lens and objective back aperture">
+            </svg>
+            <div id="geometry" class="readout"></div>
+          </section>
+          <div class="row">
+            <section class="panel">
+              <h2>Viewer card · no-scan envelope</h2>
+              <div id="cardControl"></div>
+              <svg id="profile"
+                   viewBox="0 0 440 160"
+                   role="img"
+                   aria-label="Gaussian beam diameter after tube lens">
+              </svg>
+              <div id="cardReadout" class="readout"></div>
+              <p class="legend">
+                Move the card along the beam axis. Plot spans 50–1500 mm after the tube lens;
+                scanning is excluded from this collimation check.
+              </p>
+            </section>
+            <section class="panel">
+              <h2>Objective back aperture · 8 mm default</h2>
+              <canvas id="pupilCanvas"
+                      width="320"
+                      height="260"
+                      role="img"
+                      aria-label="Objective back-aperture footprint and clipping"></canvas>
+              <div id="pupilReadout" class="readout"></div>
+              <p class="legend">
+                Teal: transmitted samples. Amber: blocked at the back aperture. Dashed contour: untruncated 1/e²
+                envelope, not a hard beam edge.
+              </p>
+            </section>
+            <section class="panel">
+              <h2>Power budget · usable-aperture estimate</h2>
+              <svg id="loss"
+                   viewBox="0 0 440 150"
+                   role="img"
+                   aria-label="Equivalent galvo-aperture loss, back-aperture loss and transmitted power">
+              </svg>
+              <p id="lossReadout" class="readout"></p>
+              <p class="legend">
+                The block estimate applies the usable beam aperture once. It does not predict
+                individual X/Y mirror-edge losses. Back-aperture clipping is calculated after beam
+                propagation. All fractions refer to incident power; aperture diffraction is omitted.
+              </p>
+            </section>
+            <section class="panel">
+              <h2>Stationary footprint ≠ stationary focus</h2>
+              <svg id="focus"
+                   viewBox="0 0 440 180"
+                   role="img"
+                   aria-label="Chief-ray angle at the back aperture and specimen spot movement">
+              </svg>
+              <div id="focusReadout" class="readout"></div>
+              <p class="legend">
+                Paraxial focal-plane position = objective focal length × chief-ray angle at the back aperture. Marker shows
+                the chief-ray intercept; blur from misalignment and diffraction is not shown.
+              </p>
+            </section>
+          </div>
+          <section class="panel">
+            <details>
+              <summary>How to use this simulation</summary>
+              <ol>
+                <li>
+                  Start with scanning off. Set 60 mm and 180 mm focal lengths. Adjust the lens
+                  separation toward 240 mm and compare beam diameters along the viewer-card plot.
+                </li>
+                <li>
+                  Switch to imaging. Scan X only, then Y only. Move the galvo block or objective
+                  objective back aperture to reduce footprint motion. A good telescope alone does not establish
+                  conjugation.
+                </li>
+                <li>
+                  Image X, then Y, then the midpoint. With separated mirrors you cannot make both
+                  footprints perfectly stationary. The midpoint balances the two ideal walk
+                  amplitudes.
+                </li>
+                <li>
+                  Use “Match 1/e² diameter to back aperture” to expose the tradeoff between aperture filling
+                  and clipping. Even a centred Gaussian has tails outside its 1/e² contour.
+                </li>
+                <li>
+                  Watch the specimen marker: the beam must change angle at the back aperture to move the
+                  focus. A stationary footprint does not mean an unchanging beam direction.
+                </li>
+              </ol>
+            </details>
+          </section>
+          <section class="panel">
+            <details>
+              <summary>Model, limitations &amp; references</summary>
+              <p>
+                Paraxial thin lenses in air, a circular Gaussian beam with M² = 1 and a flat
+                wavefront at X, wavelength 920 nm by default. The complex Gaussian beam parameter is
+                propagated by ABCD matrices. Lens apertures are unlimited. Two independent angular
+                kicks occur at separated X and Y mirror planes; there is no relay between them.
+              </p>
+              <p>
+                The beam diameter uses the untruncated Gaussian solution. Power uses 8,192
+                deterministic Gaussian phase-space samples. A circular equivalent aperture at the
+                block entrance represents its usable beam diameter; samples then propagate through
+                both angular kicks to the objective back aperture. There is no second 3 mm clipping stop at
+                Y. The physical Y mirror accommodates X-induced beam walk. This effective-aperture
+                model assumes operation within the block’s supported scan range and near-collimated
+                input; it cannot predict the real scan-dependent mirror-edge losses or transmission
+                of Gaussian tails outside the rated beam envelope. Reported percentages are teaching
+                estimates, not calibrated 6215H throughput. Real mirrors have projected, often
+                noncircular clear apertures. This teaching approximation does not model edge
+                diffraction, high-NA focusing, aberrations, pulse dispersion, or exact manufacturer
+                mirror geometry. Power after clipping and an untruncated Gaussian envelope are
+                deliberately distinct readouts.
+              </p>
+              <p>
+                “Approximately collimated” means less than 5% diameter variation over the displayed
+                50–1500 mm card range. Conjugation is assessed separately using B = 0 for each pivot
+                plane; displayed motion uses the selected scan amplitude even when scanning is
+                paused. A midpoint compromise is not perfect conjugation of either mirror.
+              </p>
+              <p>
+                Hardware documentation: Cambridge Technology 61021503R60, drawing D05613 Rev F,
+                “6215 XY MOUNT, RH, Ø3 mm, 60° OPT,” supplied by the lab. The 0.229-inch
+                scanner-axis separation gives 5.8166 mm, rounded to a 5.82 mm nominal pivot-spacing
+                default. Using this as the optical path assumes reflections close to the rotation
+                axes. Spacing remains adjustable. This mount drawing does not specify the reflecting
+                outline of the installed Y mirror, so exact mirror-edge clipping remains unmodelled.
+              </p>
+              <p>
+                References: Tsai et al.,
+                <i>Principles, Design, and Construction of a Two-Photon Laser-Scanning Microscope</i>
+                (2002), especially §6.3.5–6.3.7, including separated-galvo conjugation;
+                <a href="https://www.edmundoptics.ca/knowledge-center/application-notes/lasers/gaussian-beam-propagation/">Edmund Optics: Gaussian beam propagation</a>;
+                <a href="https://www.coherent.com/content/dam/coherent/site/en/resources/datasheet/lasers/COHR_ChameleonUltra_DS_0119_3.pdf">Coherent Chameleon Ultra specifications</a>;
+                <a href="https://www.spectra-physics.com/medias/sys_master/resources/had/h3c/9954705080350/Mai-Tai-Datasheet/Mai-Tai-Datasheet.pdf">Spectra-Physics Mai Tai specifications</a>. Laser-exit diameters depend on model and conditions and are not automatically the
+                galvo-plane diameter.
+              </p>
+            </details>
+          </section>
+          <button id="export">Download scan data (CSV)</button>
+          <footer>
+            Optics Lab · Teaching model · Distances in mm along the unfolded axis
+          </footer>
+        </div>
+      </div>
+    </main>
+    <a class="home" href="index.html">← Back to main menu</a>
+    <script>
+      "use strict";
+      const $ = (id) => document.getElementById(id),
+        RAD = Math.PI / 180;
+      const defaults = {
+        f1: 60,
+        f2: 180,
+        scan: 200,
+        gap: 255,
+        mid: 100,
+        sep: 5.82,
+        pupil: 700,
+        beam: 1.2,
+        mirror: 3,
+        aperture: 8,
+        wavelength: 920,
+        objective: 4.5,
+        amp: 2,
+        card: 650,
+        ax: 0,
+        ay: 0,
+      };
+      let s = {
+          ...defaults
+        },
+        stage = 1,
+        running = false,
+        showConjugates = false,
+        phase = 0,
+        last = 0;
+      // Optical geometry and Gaussian-beam propagation.
+      const mul = (m, n) => [
+          m[0] * n[0] + m[1] * n[2],
+          m[0] * n[1] + m[1] * n[3],
+          m[2] * n[0] + m[3] * n[2],
+          m[2] * n[1] + m[3] * n[3],
+        ],
+        P = (d) => [1, d, 0, 1],
+        L = (f) => [1, 0, -1 / f, 1];
+      const gx = () => s.mid - s.sep / 2,
+        gy = () => s.mid + s.sep / 2,
+        tube = () => s.scan + s.gap;
+
+      function matrix(origin, end) {
+        let m = [1, 0, 0, 1],
+          p = origin;
+        for (const [z, f] of [
+            [s.scan, s.f1],
+            [tube(), s.f2],
+          ])
+          if (z >= origin && z <= end) {
+            m = mul(L(f), mul(P(z - p), m));
+            p = z;
+          }
+        return mul(P(end - p), m);
+      }
+      // q0 = i*zR at X. Equivalent second-moment form of q'=(Aq+B)/(Cq+D).
+      function radius(z) {
+        const m = matrix(gx(), z),
+          w = s.beam / 2,
+          zr = (Math.PI * w * w) / (s.wavelength * 1e-6);
+        return w * Math.hypot(m[0], m[1] / zr);
+      }
+
+      function chief(z, axis) {
+        const origin = axis === "x" ? gx() : gy();
+        if (z < origin) return [0, 0];
+        const m = matrix(origin, z),
+          a = (stage === 1 ? 0 : s[axis === "x" ? "ax" : "ay"]) * RAD;
+        return [m[1] * a, m[3] * a];
+      }
+
+      function pivotTarget() {
+        const m = matrix(s.scan, s.pupil);
+        return s.scan + m[1] / m[0];
+      }
+
+      function align(which) {
+        const target = pivotTarget();
+        s.mid = target + (which === "x" ? s.sep / 2 : which === "y" ? -s.sep / 2 : 0);
+        bound();
+        sync();
+        render();
+      }
+
+      function bound() {
+        s.mid = Math.max(s.sep / 2, Math.min(s.scan - s.sep / 2 - 5, s.mid));
+        s.pupil = Math.max(tube() + 10, s.pupil);
+      }
+      // Controls and synchronization between model state and the page.
+      const specs = [
+        ["f1", "Scan lens f₁", 30, 120, 1, "mm"],
+        ["f2", "Tube lens f₂", 90, 300, 1, "mm"],
+        ["gap", "Lens separation", 100, 500, 1, "mm"],
+        ["mid", "Galvo block midpoint", 0, 360, 0.1, "mm"],
+        ["pupil", "Objective back-aperture position", 510, 1600, 1, "mm"],
+      ];
+
+      function control(spec, parent) {
+        const [k, label, min, max, step, unit] = spec;
+        const div = document.createElement("div");
+        div.className = "control";
+        div.innerHTML = `<label for="${k}">${label}<output id="${k}Out"></output></label><input id="${k}" type="range" min="${min}" max="${max}" step="${step}">`;
+        $(parent).appendChild(div);
+        $(k).addEventListener("input", () => {
+          s[k] = +$(k).value;
+          if (k === "ax" || k === "ay") running = false;
+          bound();
+          sync();
+          render();
+        });
+      }
+      specs.forEach((x) => control(x, "basicControls"));
+      [
+        ["ax", "X optical deflection", -3, 3, 0.01, "°"],
+        ["ay", "Y optical deflection", -3, 3, 0.01, "°"],
+        ["amp", "Scan amplitude / predicted walk", 0.2, 3, 0.1, "°"],
+      ].forEach((x) => control(x, "angles"));
+      [
+        ["scan", "Scan lens position", 160, 360, 1, "mm"],
+        ["sep", "X → Y optical-path spacing", 0, 30, 0.01, "mm"],
+        ["beam", "Input 1/e² diameter at X", 0.5, 20, 0.01, "mm"],
+        ["mirror", "XY block usable beam aperture", 1, 6, 0.1, "mm"],
+        ["aperture", "Objective back-aperture diameter", 4, 12, 0.1, "mm"],
+        ["wavelength", "Wavelength", 700, 1100, 10, "nm"],
+        ["objective", "Objective focal length (assumed)", 2, 10, 0.1, "mm"],
+      ].forEach((x) => control(x, "advancedControls"));
+      control(["card", "Card distance after tube lens", 50, 1500, 1, "mm"], "cardControl");
+
+      function sync() {
+        document.querySelectorAll("input[type=range]").forEach((el) => {
+          el.value = s[el.id];
+          $(el.id + "Out").textContent =
+            Number(s[el.id].toFixed(2)) +
+            (el.id === "wavelength" ?
+              " nm" :
+              el.id === "ax" || el.id === "ay" || el.id === "amp" ?
+              "°" :
+              " mm");
+        });
+        $("play").textContent = running ? "Pause scan" : "Run scan";
+        $("play").setAttribute("aria-pressed", String(running));
+        $("stage1").classList.toggle("active", stage === 1);
+        $("stage2").classList.toggle("active", stage === 2);
+        $("scanControls").hidden = stage === 1;
+        $("stepTitle").textContent =
+          stage === 1 ? "Align without scanning" : "Image the separated galvos";
+        $("instruction").textContent =
+          stage === 1 ?
+          "Adjust the lens separation, then move the viewer card. The beam should remain nearly the same size." :
+          "Minimize back-aperture walk while scanning each axis. Two separated mirrors cannot both be perfectly conjugate to one back-aperture plane.";
+      }
+      // Deterministic low-discrepancy normal samples of the Gaussian phase-space distribution.
+      function radical(i, b) {
+        let v = 0,
+          f = 1 / b;
+        while (i) {
+          v += (i % b) * f;
+          i = Math.floor(i / b);
+          f /= b;
+        }
+        return v;
+      }
+      const samples = Array.from({
+        length: 8192
+      }, (_, j) => {
+        const i = j + 1,
+          r = Math.sqrt(-2 * Math.log(Math.max(1e-12, radical(i, 2)))),
+          a = 2 * Math.PI * radical(i, 3),
+          r2 = Math.sqrt(-2 * Math.log(Math.max(1e-12, radical(i, 5)))),
+          a2 = 2 * Math.PI * radical(i, 7);
+        return [r * Math.cos(a), r * Math.sin(a), r2 * Math.cos(a2), r2 * Math.sin(a2)];
+      });
+
+      function power(ax, ay, collect = false) {
+        const pos = s.beam / 4,
+          ang = (s.wavelength * 1e-6) / (Math.PI * s.beam),
+          m = matrix(gy(), s.pupil),
+          r2 = (s.mirror / 2) ** 2,
+          p2 = (s.aperture / 2) ** 2,
+          counts = [0, 0, 0],
+          points = [];
+        for (let i = 0; i < samples.length; i++) {
+          const n = samples[i];
+          let x = n[0] * pos,
+            y = n[1] * pos,
+            u = n[2] * ang,
+            v = n[3] * ang;
+          if (x * x + y * y > r2) {
+            counts[0]++;
+            continue;
+          }
+          u += ax * RAD;
+          x += s.sep * u;
+          y += s.sep * v;
+          v += ay * RAD;
+          const px = m[0] * x + m[1] * u,
+            py = m[0] * y + m[1] * v,
+            pass = px * px + py * py <= p2;
+          counts[pass ? 2 : 1]++;
+          if (collect && i < 2048) points.push([px, py, pass]);
+        }
+        return {
+          fractions: counts.map((n) => n / samples.length),
+          points
+        };
+      }
+      const line = (x1, y1, x2, y2, c = "#7ac8c2", width = 2, dash = "") =>
+        `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${width}" ${dash ? `stroke-dasharray="${dash}"` : ""}/>`;
+      const txt = (x, y, t, c = "#607981", anchor = "start") =>
+        `<text x="${x}" y="${y}" fill="${c}" text-anchor="${anchor}">${t}</text>`;
+      // Recalculate the teaching readouts and redraw every diagram.
+      function render() {
+        const mx = matrix(gx(), s.pupil),
+          my = matrix(gy(), s.pupil),
+          wx = 2 * Math.abs(mx[1]) * s.amp * RAD,
+          wy = 2 * Math.abs(my[1]) * s.amp * RAD,
+          ds = Array.from({
+            length: 101
+          }, (_, i) => 2 * radius(tube() + 50 + 14.5 * i)),
+          spread = (Math.max(...ds) - Math.min(...ds)) / ds[0],
+          cx = chief(s.pupil, "x"),
+          cy = chief(s.pupil, "y");
+        $("collimation").classList.toggle("good", spread < 0.05);
+        $("collimation").innerHTML =
+          `<b>1 · ${spread < 0.05 ? "Approximately collimated" : "Collimation needs adjustment"}</b>Diameter variation ${(100 * spread).toFixed(1)}% over the card range · lens gap ${s.gap.toFixed(1)} / f₁+f₂ ${(s.f1 + s.f2).toFixed(1)} mm`;
+        const xi = Math.abs(mx[1]) < 0.05,
+          yi = Math.abs(my[1]) < 0.05;
+        $("conjugation").classList.toggle("good", xi && yi);
+        $("conjugation").innerHTML =
+          `<b>2 · ${xi && yi ? "Both pivots imaged (coincident reference)" : xi ? "X imaged · Y still walks" : yi ? "Y imaged · X still walks" : "Back-aperture walk remains"}</b>Predicted peak-to-peak at ±${s.amp}°: X ${wx.toFixed(3)} mm · Y ${wy.toFixed(3)} mm`;
+        const zmax = s.pupil + 30,
+          X = (z) => 35 + (850 * z) / zmax,
+          Y = (y) => 120 - y * 7;
+        let b = line(25, 120, 900, 120, "#526f79", 1, "4 5");
+        for (const axis of ["x", "y"]) {
+          let upper = [],
+            lower = [],
+            center = [];
+          for (let i = 0; i <= 180; i++) {
+            const z = gx() + ((s.pupil - gx()) * i) / 180,
+              off = chief(z, axis)[0],
+              r = radius(z);
+            upper.push(`${X(z)},${Y(off + r)}`);
+            lower.push(`${X(z)},${Y(off - r)}`);
+            center.push(`${X(z)},${Y(off)}`);
+          }
+          const color = axis === "x" ? "#e8ba65" : "#6ed1ca";
+          b += `<polyline points="${upper.join(" ")}" fill="none" stroke="${color}" opacity=".5"/><polyline points="${lower.join(" ")}" fill="none" stroke="${color}" opacity=".5"/><polyline points="${center.join(" ")}" fill="none" stroke="${color}" stroke-width="2"/>`;
+        }
+        for (const [z, label, f] of [
+            [s.scan, "Scan lens", s.f1],
+            [tube(), "Tube lens", s.f2],
+          ])
+          b +=
+          line(X(z), 55, X(z), 185, "#a8cfdc", 5) +
+          txt(X(z), 25, label, "#d5e7e9", "middle") +
+          txt(X(z), 43, `f = ${f} mm`, "#a8cfdc", "middle");
+        b +=
+          line(X(gx()), 85, X(gx()), 155, "#e8ba65", 3) +
+          line(X(gy()), 85, X(gy()), 155, "#6ed1ca", 3) +
+          txt(X(gx()) - 5, 205, "X", "#e8ba65", "end") +
+          txt(X(gy()) + 5, 220, "Y", "#6ed1ca") +
+          line(X(s.pupil), 50, X(s.pupil), Y(s.aperture / 2), "white", 6) +
+          line(X(s.pupil), Y(-s.aperture / 2), X(s.pupil), 190, "white", 6) +
+          txt(X(s.pupil), 25, "Back aperture", "#d5e7e9", "middle");
+        if (showConjugates && stage === 2) {
+          const arrow = (z, height, label, color) => {
+              const x = X(z),
+                tip = Y(height),
+                head = height >= 0 ? 8 : -8;
+              return (
+                line(x, 120, x, tip, color, 3) +
+                `<path d="M ${x - 6} ${tip + head} L ${x} ${tip} L ${x + 6} ${tip + head}" fill="none" stroke="${color}" stroke-width="3"/>` +
+                txt(x, height >= 0 ? tip - 10 : tip + 18, label, color, "middle")
+              );
+            },
+            pairs = [
+              [gx(), 3.5, "X", "#e8ba65"],
+              [gy(), -3.5, "Y", "#6ed1ca"],
+            ];
+          for (const [origin, objectHeight, axis, color] of pairs) {
+            const image = s.pupil;
+            for (const angle of [-s.amp, 0, s.amp]) {
+              const points = [];
+              for (let i = 0; i <= 100; i++) {
+                const z = origin + ((image - origin) * i) / 100,
+                  m = matrix(origin, z),
+                  y = m[0] * objectHeight + m[1] * angle * RAD;
+                points.push(`${X(z)},${Y(y)}`);
+              }
+              b += `<polyline points="${points.join(" ")}" fill="none" stroke="${color}" stroke-width="1" stroke-dasharray="3 3" opacity=".7"/>`;
+            }
+            const magnification = matrix(origin, image)[0];
+            b +=
+              arrow(origin, objectHeight, `${axis} object`, color) +
+              arrow(image, magnification * objectHeight, `${axis} target`, color);
+          }
+        }
+        $("bench").innerHTML = b;
+        $("geometry").textContent =
+          `X ${gx().toFixed(1)} → Y ${gy().toFixed(1)} → scan ${s.scan.toFixed(1)} → tube ${tube().toFixed(1)} → back aperture ${s.pupil.toFixed(1)} mm. Vertical beam scale exaggerated; amber X / teal Y projections.`;
+        const maxD = Math.max(...ds) * 1.12,
+          minD = 0,
+          px = (d) => 40 + ((d - 50) / 1450) * 380,
+          py = (d) => 128 - (d / maxD) * 105;
+        let profile =
+          line(40, 15, 40, 128, "#9ab0b6", 1) +
+          line(40, 128, 420, 128, "#9ab0b6", 1) +
+          txt(40, 149, "50 mm") +
+          txt(420, 149, "1500 mm", "#607981", "end") +
+          txt(40, 12, `${maxD.toFixed(1)} mm diameter`);
+        profile +=
+          `<polyline points="${ds.map((d, i) => `${px(50 + i * 14.5)},${py(d)}`).join(" ")}" stroke="#087f79" stroke-width="2" fill="none"/>` +
+          line(px(s.card), 20, px(s.card), 128, "#bd842a", 1, "4 3");
+        $("profile").innerHTML = profile;
+        $("cardReadout").textContent =
+          `At ${s.card} mm: ${(2 * radius(tube() + s.card)).toFixed(3)} mm diameter · near ${ds[0].toFixed(3)} / far ${ds[100].toFixed(3)} mm`;
+        const ax = stage === 1 ? 0 : s.ax,
+          ay = stage === 1 ? 0 : s.ay,
+          res = power(ax, ay, true),
+          ctx = $("pupilCanvas").getContext("2d"),
+          scale = 100 / (s.aperture / 2);
+        ctx.clearRect(0, 0, 320, 260);
+        ctx.fillStyle = "#102e3a";
+        ctx.fillRect(0, 0, 320, 260);
+        ctx.strokeStyle = "#4f6d76";
+        ctx.beginPath();
+        ctx.moveTo(30, 130);
+        ctx.lineTo(290, 130);
+        ctx.moveTo(160, 10);
+        ctx.lineTo(160, 250);
+        ctx.stroke();
+        ctx.strokeStyle = "#d5e7e9";
+        ctx.beginPath();
+        ctx.arc(160, 130, 100, 0, 2 * Math.PI);
+        ctx.stroke();
+        for (const [x, y, pass] of res.points) {
+          ctx.fillStyle = pass ? "#69cbbd" : "#e8b762";
+          ctx.fillRect(160 + x * scale, 130 - y * scale, 1.6, 1.6);
+        }
+        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = "#b7dce0";
+        ctx.beginPath();
+        ctx.arc(160 + cx[0] * scale, 130 - cy[0] * scale, radius(s.pupil) * scale, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        $("pupilReadout").textContent =
+          `Unclipped centre X ${cx[0].toFixed(3)}, Y ${cy[0].toFixed(3)} mm · untruncated diameter ${(2 * radius(s.pupil)).toFixed(3)} mm`;
+        const colors = ["#a67b3d", "#edc786", "#087f79"],
+          labels = ["Galvo aperture", "Back-aperture loss", "Through back aperture"];
+        let loss = "";
+        res.fractions.forEach((v, i) => {
+          loss +=
+            txt(0, 22 + i * 34, labels[i]) +
+            `<rect x="115" y="10" width="0" height="0"/>` +
+            `<rect x="118" y="${10 + i * 34}" width="${250 * v}" height="17" fill="${colors[i]}"/>` +
+            txt(435, 23 + i * 34, `${(100 * v).toFixed(2)}%`, "#193540", "end");
+        });
+        $("loss").innerHTML = loss;
+        $("lossReadout").textContent =
+          `X-induced walk on Y: ${(s.sep * ax * RAD).toFixed(3)} mm. The larger Y mirror accommodates X-induced walk within the block’s usable scan range. ${s.sep === 0 ? "Ideal coincident reference." : "Separated mirrors: residual walk is a design limitation, not necessarily an alignment error."}`;
+        const fx = s.objective * cx[1] * 1000,
+          fy = s.objective * cy[1] * 1000,
+          field = Math.max(
+            50,
+            s.objective * Math.max(Math.abs(mx[3]), Math.abs(my[3])) * 3 * RAD * 1000,
+          ),
+          sx = 330 + (fx / field) * 65,
+          sy = 90 - (fy / field) * 65;
+        $("focus").innerHTML =
+          txt(12, 18, "Back-aperture angle (X projection)") +
+          line(65, 35, 65, 145, "#90a9ae", 2) +
+          line(18, 90 - cx[1] * 900, 110, 90 + cx[1] * 900, "#087f79", 3) +
+          txt(15, 168, `${(cx[1] / RAD).toFixed(3)}° X / ${(cy[1] / RAD).toFixed(3)}° Y`) +
+          `<rect x="255" y="15" width="150" height="150" fill="#f1f5f4" stroke="#b3c7cb"/>` +
+          line(255, 90, 405, 90, "#bdcfd2", 1) +
+          line(330, 15, 330, 165, "#bdcfd2", 1) +
+          `<circle cx="${sx}" cy="${sy}" r="5" fill="#087f79"/>` +
+          txt(330, 12, "Specimen plane", "#607981", "middle");
+        $("focusReadout").textContent =
+          `Focal-plane position: X ${fx.toFixed(1)} µm · Y ${fy.toFixed(1)} µm. Objective f = ${s.objective} mm (assumed). Field ±${field.toFixed(0)} µm.`;
+      }
+      // User interactions and preset alignment examples.
+      $("stage1").onclick = () => {
+        stage = 1;
+        running = false;
+        s.ax = s.ay = 0;
+        sync();
+        render();
+      };
+      $("stage2").onclick = () => {
+        stage = 2;
+        sync();
+        render();
+      };
+      $("showConjugates").onchange = (event) => {
+        showConjugates = event.target.checked;
+        render();
+      };
+      $("reset").onclick = () => {
+        s = {
+          ...defaults
+        };
+        stage = 1;
+        running = false;
+        showConjugates = false;
+        $("showConjugates").checked = false;
+        sync();
+        render();
+      };
+      $("setGap").onclick = () => {
+        s.gap = s.f1 + s.f2;
+        bound();
+        sync();
+        render();
+      };
+      document
+        .querySelectorAll("[data-align]")
+        .forEach((b) => (b.onclick = () => align(b.dataset.align)));
+      let suppressPlayClick = false;
+
+      function setRunning(value) {
+        running = value;
+        last = 0;
+        sync();
+        render();
+      }
+      $("play").addEventListener("pointerdown", (e) => {
+        if (running) {
+          suppressPlayClick = true;
+          e.preventDefault();
+          setRunning(false);
+        }
+      });
+      $("play").addEventListener("click", () => {
+        if (suppressPlayClick) {
+          suppressPlayClick = false;
+          return;
+        }
+        setRunning(!running);
+      });
+      $("fill").onclick = () => {
+        s.beam = (s.aperture * s.f1) / s.f2;
+        sync();
+        render();
+      };
+      $("faultWalk").onclick = () => {
+        s = {
+          ...defaults,
+          gap: 240
+        };
+        stage = 2;
+        running = false;
+        sync();
+        render();
+      };
+      $("faultGap").onclick = () => {
+        s = {
+          ...defaults,
+          gap: 255
+        };
+        stage = 2;
+        running = false;
+        align("x");
+      };
+      $("ideal").onclick = () => {
+        s = {
+          ...defaults,
+          gap: 240,
+          sep: 0
+        };
+        stage = 2;
+        running = false;
+        align("mid");
+      };
+      $("real").onclick = () => {
+        s = {
+          ...defaults,
+          gap: 240,
+          beam: 8 / 3
+        };
+        stage = 2;
+        running = false;
+        align("mid");
+      };
+      $("export").onclick = () => {
+        let rows = [
+          "axis,optical_angle_deg,back_aperture_x_mm,back_aperture_y_mm,back_aperture_angle_x_rad,back_aperture_angle_y_rad,equivalent_galvo_aperture_loss_fraction,loss_back_aperture_fraction,transmitted_fraction",
+        ];
+        for (const axis of ["x", "y"])
+          for (let i = 0; i <= 40; i++) {
+            const a = -s.amp + (2 * s.amp * i) / 40,
+              m = matrix(axis === "x" ? gx() : gy(), s.pupil),
+              r = power(axis === "x" ? a : 0, axis === "y" ? a : 0);
+            rows.push(
+              [
+                axis,
+                a,
+                axis === "x" ? m[1] * a * RAD : 0,
+                axis === "y" ? m[1] * a * RAD : 0,
+                axis === "x" ? m[3] * a * RAD : 0,
+                axis === "y" ? m[3] * a * RAD : 0,
+                ...r.fractions,
+              ].join(","),
+            );
+          }
+        rows.push(
+          "",
+          "model,equivalent_block_usable_aperture_not_physical_mirror_edges",
+          "mirror_spacing_basis,D05613F_0.229in_nominal_axis_spacing_reflection_near_axes_assumed",
+          "setting,value",
+        );
+        Object.entries(s).forEach(([k, v]) => rows.push(k + "," + v));
+        const url = URL.createObjectURL(new Blob([rows.join("\n")], {
+            type: "text/csv"
+          })),
+          a = document.createElement("a");
+        a.href = url;
+        a.download = "optics-lab-separated-galvo-scan.csv";
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      };
+      // Animation loop for the selected scan pattern.
+      function tick(time) {
+        if (running && stage === 2 && time - last > 45) {
+          phase += Math.min(0.12, (time - last) / 1000) * 1.8;
+          const a = s.amp * Math.sin(phase),
+            b = s.amp * Math.cos(phase),
+            p = $("pattern").value;
+          s.ax = p === "y" ? 0 : a;
+          s.ay = p === "x" ? 0 : p === "y" ? a : b;
+          sync();
+          render();
+          last = time;
+        } else if (!running) last = time;
+        requestAnimationFrame(tick);
+      }
+      sync();
+      render();
+      requestAnimationFrame(tick);
+    </script>
+  </body>
+</html>

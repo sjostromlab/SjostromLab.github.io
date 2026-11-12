@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<!-- Vibe coding by Jesper Sjöström with help from ChatGPT Codex. Updated 2026-11-10. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Optics Lab · Imaging onto a PMT</title><script defer src="navigation.js?course"></script>
+    <style>
+      :root {
+        --ink: #193540;
+        --muted: #61757d;
+        --line: #d4e0dc;
+        --teal: #087f79;
+        --navy: #102e3a;
+        --gold: #efbf67
+      }
+
+      * {
+        box-sizing: border-box
+      }
+
+      body {
+        margin: 0;
+        background: #f2f5f4;
+        color: var(--ink);
+        font: 15px/1.45 system-ui, -apple-system, sans-serif
+      }
+
+      header {
+        background: var(--navy);
+        color: white;
+        padding: 18px 26px
+      }
+
+      header small {
+        letter-spacing: .15em;
+        color: #a5c7cc;
+        font-size: 11px
+      }
+
+      h1 {
+        font-size: 24px;
+        margin: 3px 0
+      }
+
+      h2 {
+        font-size: 16px;
+        margin: 0 0 10px
+      }
+
+      h3 {
+        font-size: 13px;
+        margin: 0 0 8px
+      }
+
+      p {
+        margin: 6px 0 12px
+      }
+
+      button,
+      input,
+      select {
+        font: inherit
+      }
+
+      button,
+      select {
+        padding: 7px 12px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: white;
+        color: var(--ink)
+      }
+
+      button {
+        cursor: pointer
+      }
+
+      button:hover {
+        border-color: var(--teal)
+      }
+
+      button:focus-visible,
+      input:focus-visible,
+      select:focus-visible,
+      a:focus-visible,
+      summary:focus-visible {
+        outline: 3px solid #cc8d2b;
+        outline-offset: 3px
+      }
+
+      .primary {
+        background: var(--teal);
+        border-color: var(--teal);
+        color: white
+      }
+
+      main {
+        max-width: 1500px;
+        margin: auto;
+        padding: 18px 24px 70px
+      }
+
+      .intro {
+        padding: 12px 16px;
+        background: #e6f3ee;
+        border-left: 4px solid var(--teal);
+        margin-bottom: 14px;
+        border-radius: 0 8px 8px 0
+      }
+
+      .intro p {
+        font-size: 13px;
+        margin: 3px 0
+      }
+
+      .modebar {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 14px
+      }
+
+      .modebar strong {
+        font-size: 13px;
+        margin-right: 4px
+      }
+
+      .modebar button.active {
+        background: var(--teal);
+        border-color: var(--teal);
+        color: white
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 310px minmax(0, 1fr);
+        gap: 16px
+      }
+
+      .panel {
+        background: white;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 9px
+      }
+
+      .group {
+        padding-bottom: 13px;
+        margin-bottom: 13px;
+        border-bottom: 1px solid var(--line)
+      }
+
+      .control {
+        margin: 9px 0
+      }
+
+      .control label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 12px;
+        gap: 6px
+      }
+
+      .value {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--muted)
+      }
+
+      input[type=number] {
+        width: 70px;
+        border: 1px solid #ccd9d5;
+        border-radius: 4px;
+        padding: 4px;
+        text-align: right;
+        color: var(--ink)
+      }
+
+      input[type=range] {
+        width: 100%;
+        accent-color: var(--teal)
+      }
+
+      .note {
+        font-size: 12px;
+        color: var(--muted)
+      }
+
+      .actions,
+      .row {
+        display: flex;
+        gap: 7px;
+        flex-wrap: wrap;
+        align-items: center
+      }
+
+      .row {
+        justify-content: space-between
+      }
+
+      .workspace {
+        display: flex;
+        flex-direction: column;
+        gap: 14px
+      }
+
+      svg {
+        width: 100%;
+        height: auto;
+        display: block
+      }
+
+      .bench {
+        background: var(--navy);
+        border-radius: 7px;
+        overflow: hidden
+      }
+
+      .legend {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 8px;
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap
+      }
+
+      .legend i {
+        display: inline-block;
+        width: 18px;
+        height: 3px;
+        margin-right: 5px;
+        vertical-align: middle
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px
+      }
+
+      .metric {
+        background: #eaf1ee;
+        padding: 11px;
+        border-radius: 7px
+      }
+
+      .metric span {
+        display: block;
+        font-size: 11px;
+        color: var(--muted)
+      }
+
+      .metric strong {
+        font-size: 20px
+      }
+
+      .metric small {
+        display: block;
+        font-size: 11px
+      }
+
+      .views {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px
+      }
+
+      .badge {
+        background: #e4eeeb;
+        font-size: 11px;
+        border-radius: 4px;
+        padding: 3px 6px
+      }
+
+      .ok {
+        color: #08766a
+      }
+
+      .warn {
+        color: #98591e
+      }
+
+      .status {
+        font-size: 12px;
+        margin: 8px 0;
+        min-height: 35px
+      }
+
+      .stage {
+        font-weight: 650;
+        color: var(--teal)
+      }
+
+      .formula {
+        font: 13px/1.8 ui-monospace, monospace;
+        background: #edf3f1;
+        padding: 10px;
+        border-radius: 6px
+      }
+
+      details {
+        border-top: 1px solid var(--line);
+        padding-top: 12px;
+        margin-top: 12px;
+        font-size: 13px
+      }
+
+      summary {
+        cursor: pointer;
+        font-weight: 600
+      }
+
+      .home {
+        position: fixed;
+        bottom: 16px;
+        right: 18px;
+        background: var(--navy);
+        color: white;
+        text-decoration: none;
+        border: 1px solid #51717a;
+        border-radius: 7px;
+        padding: 10px 16px;
+        box-shadow: 0 3px 12px #0002;
+        z-index: 10;
+        font-size: 13px
+      }
+
+      @media(min-width:900px) {
+        body {
+          zoom: .84
+        }
+
+        main {
+          padding-top: 14px
+        }
+
+        header {
+          padding-top: 14px;
+          padding-bottom: 14px
+        }
+      }
+
+      @media(max-width:1050px) {
+        .layout {
+          grid-template-columns: 270px minmax(0, 1fr)
+        }
+
+        .views {
+          grid-template-columns: 1fr
+        }
+      }
+
+      @media(max-width:720px) {
+        main {
+          padding: 12px 12px 80px
+        }
+
+        .layout {
+          grid-template-columns: 1fr
+        }
+
+        h1 {
+          font-size: 20px
+        }
+
+        header {
+          padding: 15px
+        }
+
+        .metrics {
+          grid-template-columns: 1fr 1fr
+        }
+
+        .metric:last-child {
+          grid-column: 1/-1
+        }
+
+        .home {
+          bottom: 10px;
+          right: 10px
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <small>OPTICS LAB / FLUORESCENCE DETECTION</small>
+      <h1>Imaging the objective back aperture onto a PMT</h1>
+    </header>
+    <main>
+      <div class="intro">
+        <b>Make the detector see the back aperture, not a wandering image.</b>
+        <p>Compare the one-lens epi detector with the two-lens substage detector. At correct conjugation, changing the collected ray angle does not move the back-aperture image across the PMT.</p>
+      </div>
+      <div class="modebar" aria-label="Detector configuration">
+        <strong>Configuration</strong><button id="epi" class="active">Epi · one 25 mm lens</button><button id="substage">Substage · 50 + 25.4 mm lenses</button>
+      </div>
+      <div class="layout">
+        <aside class="panel">
+          <h2>Collection-optics controls</h2>
+          <div class="group">
+            <h3>Lens positions and focal lengths</h3>
+            <div id="geometry"></div>
+            <p class="note">All positions are measured from the objective back-aperture plane along an unfolded detection path.</p>
+          </div>
+          <div class="group">
+            <h3>Clear apertures and detector</h3>
+            <div id="apertures"></div>
+            <p class="note">Hamamatsu specifies the R3896 active surface as 8 × 24 mm; this model draws it as a 24 × 8 mm rectangle, with 8 mm as the tighter constraint. <a href="https://www.hamamatsu.com/us/en/product/optical-sensors/pmt/pmt_tube-alone/side-on-type/R3896.html">R3896 specification</a>.</p>
+          </div>
+          <div class="group">
+            <h3>Imaging guide</h3>
+            <label class="note">
+              <input type="checkbox" id="showConjugate">
+              Show object and conjugate-image arrows
+            </label>
+            <p class="note">The second arrow marks the calculated plane where rays from each point on the first arrow meet. It may not coincide with the PMT.</p>
+          </div>
+          <div class="group">
+            <h3>Collected ray bundle</h3>
+            <div id="illumination"></div>
+            <div class="actions">
+              <button id="sweep"
+                      class="primary">Start angle sweep</button><button id="zero">Zero angle</button>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="aligned">Load aligned example</button><button id="hint">Show target detector position</button><button id="export">Download measurements</button><button id="reset">Reset</button>
+          </div>
+          <p id="target" class="note" hidden></p>
+          <p id="error" class="note" role="status"></p>
+        </aside>
+        <section class="workspace">
+          <div class="panel">
+            <div class="row">
+              <h2 id="pathTitle"></h2>
+              <span id="pathBadge" class="badge"></span>
+            </div>
+            <div class="bench">
+              <svg id="bench"
+                   viewBox="0 0 1000 340"
+                   role="img"
+                   aria-label="Ray diagram from objective back aperture through collection lenses onto a rectangular PMT">
+              </svg>
+            </div>
+            <div class="legend"><span><i style="background:#efbf67"></i>Rays reaching PMT</span><span><i style="background:#6fc6cc"></i>Rays missing PMT</span><span><i style="background:#c28b89"></i>Blocked at a lens</span><span>Transverse dimensions exaggerated</span></div>
+          </div>
+          <div class="metrics">
+            <div class="metric"><span>IMAGING CONDITION</span><strong id="imaging"></strong><small id="imagingSub"></small></div>
+            <div class="metric"><span>BACK-APERTURE IMAGE</span><strong id="imageSize"></strong><small id="magnification"></small></div>
+            <div class="metric"><span>GEOMETRIC COLLECTION</span><strong id="collection"></strong><small>Sampled rays reaching the active rectangle</small></div>
+          </div>
+          <div class="views">
+            <div class="panel">
+              <div class="row">
+                <h2>PMT photoactive surface</h2>
+                <span id="detectorBadge" class="badge"></span>
+              </div>
+              <svg id="detector"
+                   viewBox="0 0 460 290"
+                   role="img"
+                   aria-label="End-on ray positions and rectangular PMT photoactive surface">
+              </svg>
+              <p id="detectorStatus" class="status"></p>
+              <p class="note">White rectangle: 24 × 8 mm active surface. Gold dots reach it; blue dots reach the detector plane outside it.</p>
+            </div>
+            <div class="panel">
+              <h2>Where are rays lost?</h2>
+              <svg id="budget"
+                   viewBox="0 0 460 210"
+                   role="img"
+                   aria-label="Ray budget for lens clipping and PMT acceptance">
+              </svg>
+              <p id="budgetStatus" class="status"></p>
+              <p class="note">This is a geometric teaching model, not quantum efficiency. Filters, PMT spectral response, scattering and aberrations are excluded.</p>
+            </div>
+          </div>
+          <div class="panel">
+            <h2>Alignment exercises</h2>
+            <p><span class="stage">1 · Form a sharp back-aperture image.</span> Adjust detector position until matrix coefficient B approaches zero. Rays leaving the same back-aperture point at different angles then meet at one detector point.</p>
+            <p><span class="stage">2 · Test stability.</span> Sweep the mean ray angle. Correct conjugation keeps the image stationary even though individual rays take different paths.</p>
+            <p><span class="stage">3 · Fit the R3896.</span> The image must fit within both 24 mm and 8 mm. The shorter dimension is normally limiting.</p>
+            <p><span class="stage">4 · Diagnose clipping.</span> A correct image can still be dim if either collection lens is too small or badly placed.</p>
+            <details>
+              <summary>One lens versus two lenses</summary>
+              <p>The epi preset reflects the measured assembly: the 1-inch (25.4 mm) diameter, 25 mm focal-length lens is about 150 mm from the objective back aperture, and the PMT is about 20 mm beyond the lens at 170 mm. The substage preset uses the 50 mm LB1471-A field lens followed by a 25.4 mm focal-length focusing lens (LA1951-A green or LA1761-A red). The two-lens model treats either 25.4 mm focusing lens as ideal; their real surface forms and aberrations differ.</p>
+              <p>The 60 mm scan lens and 180 mm Olympus tube lens belong to the excitation scan relay. They image the galvos onto the objective back aperture and expand the excitation beam; they are not substituted into this detector model.</p>
+            </details>
+            <details>
+              <summary>Imaging constraint</summary>
+              <div class="formula">
+                [y<sub>det</sub>, θ<sub>det</sub>]<sup>T</sup> = M [y<sub>BA</sub>, θ<sub>BA</sub>]<sup>T</sup>
+                <br>
+                M = [A B; C D]
+                <br>
+                Image plane: B = 0
+                <br>
+                Magnification: m = A
+              </div>
+              <p>The ray-transfer matrix includes every propagation distance and thin lens. When B = 0, detector position no longer depends on input angle. For a chosen lens arrangement, the target detector distance is solved from B = 0.</p>
+            </details>
+            <details>
+              <summary>Model limitations</summary>
+              <p>Ideal paraxial thin lenses, centred elements and deterministic rays are used. Circular back aperture and lens clear apertures are combined with a rectangular detector. Diffraction, lens thickness, aberrations and detector housing are omitted. All lens positions refer to principal planes.</p>
+            </details>
+          </div>
+        </section>
+      </div>
+    </main>
+    <a class="home" href="index.html">← Back to main menu</a>
+    <script>
+      'use strict';
+      // Measured epi and substage layouts plus editable detector geometry.
+      const $ = id => document.getElementById(id),
+        RAD = Math.PI / 180;
+      const PRESETS = {
+        epi: {
+          mode: 'epi',
+          f1: 25,
+          z1: 150,
+          f2: 25.4,
+          z2: 190,
+          det: 170,
+          back: 8,
+          ap1: 25.4,
+          ap2: 25.4,
+          activeX: 24,
+          activeY: 8,
+          spread: 2,
+          angle: 0
+        },
+        substage: {
+          mode: 'substage',
+          f1: 50,
+          z1: 70,
+          f2: 25.4,
+          z2: 150,
+          det: 170.04,
+          back: 8,
+          ap1: 25.4,
+          ap2: 25.4,
+          activeX: 24,
+          activeY: 8,
+          spread: 2,
+          angle: 0
+        }
+      };
+      let s = {
+          ...PRESETS.epi
+        },
+        running = false,
+        phase = 0,
+        last = 0,
+        showConjugate = false;
+      const specs = [
+        ['f1', 'Lens 1 focal length', 20, 100, .1, 'mm', 'geometry'],
+        ['z1', 'Lens 1 position', 30, 220, .1, 'mm', 'geometry'],
+        ['f2', 'Lens 2 focal length', 15, 80, .1, 'mm', 'geometry'],
+        ['z2', 'Lens 2 position', 60, 300, .1, 'mm', 'geometry'],
+        ['det', 'PMT position', 80, 450, .1, 'mm', 'geometry'],
+        ['back', 'Back-aperture diameter', 4, 16, .1, 'mm', 'apertures'],
+        ['ap1', 'Lens 1 clear diameter', 10, 60, .1, 'mm', 'apertures'],
+        ['ap2', 'Lens 2 clear diameter', 10, 60, .1, 'mm', 'apertures'],
+        ['activeX', 'PMT active width', 4, 30, .1, 'mm', 'apertures'],
+        ['activeY', 'PMT active height', 4, 20, .1, 'mm', 'apertures'],
+        ['spread', 'Angular cone half-angle', 0, 6, .1, '°', 'illumination'],
+        ['angle', 'Mean input angle', -3, 3, .01, '°', 'illumination']
+      ];
+      for (const [k, label, min, max, step, unit, group] of specs) {
+        $(group).insertAdjacentHTML('beforeend', `<div class="control" data-control="${k}"><label for="${k}">${label}<span class="value"><input id="${k}Number" type="number" min="${min}" max="${max}" step="${step}" value="${s[k]}">${unit}</span></label><input id="${k}" type="range" min="${min}" max="${max}" step="${step}" value="${s[k]}"></div>`);
+        $(k).oninput = e => update(k, +e.target.value);
+        $(k + 'Number').oninput = e => {
+          if (e.target.value !== '') update(k, +e.target.value)
+        }
+      }
+      // Paraxial ray-transfer helpers used for the conjugate-plane overlay.
+      const P = d => [1, d, 0, 1],
+        L = f => [1, 0, -1 / f, 1],
+        mul = (m, n) => [m[0] * n[0] + m[1] * n[2], m[0] * n[1] + m[1] * n[3], m[2] * n[0] + m[3] * n[2], m[2] * n[1] + m[3] * n[3]];
+
+      function opticalMatrix(state = s, detector = state.det) {
+        let m = P(state.z1);
+        m = mul(L(state.f1), m);
+        if (state.mode === 'substage') {
+          m = mul(P(state.z2 - state.z1), m);
+          m = mul(L(state.f2), m);
+          m = mul(P(detector - state.z2), m)
+        } else m = mul(P(detector - state.z1), m);
+        return m
+      }
+
+      function matrixAfterLastLens(state = s) {
+        let m = P(state.z1);
+        m = mul(L(state.f1), m);
+        if (state.mode === 'substage') {
+          m = mul(P(state.z2 - state.z1), m);
+          m = mul(L(state.f2), m)
+        }
+        return m
+      }
+
+      function targetDetector(state = s) {
+        const m = matrixAfterLastLens(state),
+          last = state.mode === 'substage' ? state.z2 : state.z1;
+        return Math.abs(m[3]) < 1e-9 ? null : last - m[1] / m[3]
+      }
+
+      function atPlane(y, t, z, state = s) {
+        let yy = y + state.z1 * t,
+          tt = t - yy / state.f1,
+          blocked = Math.abs(yy) > state.ap1 / 2;
+        if (state.mode === 'substage' && z >= state.z2) {
+          yy += (state.z2 - state.z1) * tt;
+          blocked ||= Math.abs(yy) > state.ap2 / 2;
+          tt -= yy / state.f2;
+          yy += (z - state.z2) * tt
+        } else yy += (z - state.z1) * tt;
+        return {
+          y: yy,
+          t: tt,
+          blocked
+        }
+      }
+
+      function radical(n, b) {
+        let f = 1,
+          r = 0;
+        while (n) {
+          f /= b;
+          r += f * (n % b);
+          n = Math.floor(n / b)
+        }
+        return r
+      }
+      // Stable, repeatable ray samples make comparisons independent of random noise.
+      const samples = Array.from({
+        length: 1600
+      }, (_, i) => {
+        const n = i + 1,
+          r = Math.sqrt(radical(n, 2)),
+          a = 2 * Math.PI * radical(n, 3),
+          q = Math.sqrt(radical(n, 5)),
+          b = 2 * Math.PI * radical(n, 7);
+        return [r * Math.cos(a), r * Math.sin(a), q * Math.cos(b), q * Math.sin(b)]
+      });
+
+      function collect(state = s) {
+        const rays = samples.map(([x, y, tx, ty]) => {
+          const rx = atPlane(x * state.back / 2, (state.angle + tx * state.spread) * RAD, state.det, state),
+            ry = atPlane(y * state.back / 2, ty * state.spread * RAD, state.det, state),
+            blocked = rx.blocked || ry.blocked,
+            hit = !blocked && Math.abs(rx.y) <= state.activeX / 2 && Math.abs(ry.y) <= state.activeY / 2;
+          return {
+            x: rx.y,
+            y: ry.y,
+            blocked,
+            hit
+          }
+        });
+        return {
+          rays,
+          pass: rays.filter(r => !r.blocked).length,
+          hit: rays.filter(r => r.hit).length
+        }
+      }
+
+      function update(k, v) {
+        const q = specs.find(x => x[0] === k);
+        if (!q || !Number.isFinite(v)) return;
+        v = Math.max(q[2], Math.min(q[3], v));
+        const n = {
+          ...s,
+          [k]: v
+        };
+        if (n.z1 >= n.det - 5 || (n.mode === 'substage' && (n.z2 <= n.z1 + 5 || n.z2 >= n.det - 5))) {
+          $('error').textContent = 'Keep lenses in order with at least 5 mm between each plane.';
+          sync();
+          return
+        }
+        s = n;
+        $('error').textContent = '';
+        if (k === 'angle') {
+          running = false;
+          $('sweep').textContent = 'Start angle sweep'
+        }
+        sync();
+        render()
+      }
+
+      function sync() {
+        for (const [k] of specs) {
+          $(k).value = s[k];
+          if (document.activeElement !== $(k + 'Number')) $(k + 'Number').value = +s[k].toFixed(3)
+        }
+        document.querySelectorAll('[data-control="f2"],[data-control="z2"],[data-control="ap2"]').forEach(e => e.hidden = s.mode !== 'substage');
+        $('epi').classList.toggle('active', s.mode === 'epi');
+        $('substage').classList.toggle('active', s.mode === 'substage')
+      }
+      const fmt = (n, d = 2) => (Math.abs(n) < 1e-9 ? 0 : n).toFixed(d),
+        line = (x, y, a, b, c, w = 1, d = '') => `<line x1="${x}" y1="${y}" x2="${a}" y2="${b}" stroke="${c}" stroke-width="${w}" ${d?`stroke-dasharray="${d}"`:''}/>`;
+      const txt = (x, y, t, c = '#c4d8dd', z = 12, a = 'middle') => `<text x="${x}" y="${y}" text-anchor="${a}" fill="${c}" font-size="${z}" font-family="system-ui,sans-serif">${t}</text>`;
+
+      function conjugateOverlay(X, imagePlane) {
+        if (!showConjugate) return '';
+        let o = '';
+        const arrow = (z, mag, label, color) => {
+          const x = X(z),
+            base = 170,
+            tip = base - 50 * mag,
+            head = tip < base ? 8 : -8;
+          o += line(x, base, x, tip, color, 3) + '<path d="M ' + (x - 6) + ' ' + (tip + head) + ' L ' + x + ' ' + tip + ' L ' + (x + 6) + ' ' + (tip + head) + '" fill="none" stroke="' + color + '" stroke-width="3"/>' + txt(x, Math.max(78, Math.min(270, tip + (tip < base ? -12 : 18))), label, color, 11)
+        };
+        const Y = y => 170 - y * 5;
+        if (imagePlane > s.det) {
+          for (const y of [-s.back / 2, 0, s.back / 2])
+            for (const da of [-s.spread, 0, s.spread]) {
+              const t = (s.angle + da) * RAD,
+                pd = atPlane(y, t, s.det),
+                pi = atPlane(y, t, imagePlane);
+              o += line(X(s.det), Y(pd.y), X(imagePlane), Y(pi.y), '#d6a6f2', 1, '3 3')
+            }
+        }
+        arrow(0, 1, 'Object at back aperture', '#6fc6cc');
+        if (imagePlane && imagePlane > 0) {
+          const mag = atPlane(1, 0, imagePlane).y;
+          o += line(X(imagePlane), 65, X(imagePlane), 275, '#9f7bc1', 1, '4 4');
+          arrow(imagePlane, mag, 'Conjugate image × ' + fmt(Math.abs(mag), 2), '#d6a6f2');
+          if (Math.abs(imagePlane - s.det) > .5) o += txt(X(imagePlane), 282, 'PMT offset ' + fmt(s.det - imagePlane, 1) + ' mm', '#d6a6f2', 10)
+        }
+        return o
+      }
+
+      // Draw the optical bench, rays, and optional object/image arrows.
+      function drawBench() {
+        const imagePlane = targetDetector(),
+          max = Math.max(260, s.det + 20, showConjugate && imagePlane ? imagePlane + 20 : 0),
+          X = z => 55 + 890 * z / max,
+          Y = y => 170 - y * 5;
+        let o = line(30, 170, 970, 170, '#486873', 1, '5 5');
+        for (const y of [-s.back / 2, 0, s.back / 2])
+          for (const da of [-s.spread, 0, s.spread]) {
+            const t = (s.angle + da) * RAD,
+              p1 = atPlane(y, t, s.z1),
+              p2 = s.mode === 'substage' ? atPlane(y, t, s.z2) : null,
+              pd = atPlane(y, t, s.det),
+              col = pd.blocked ? '#c28b89' : Math.abs(pd.y) <= s.activeY / 2 ? '#efbf67' : '#6fc6cc';
+            o += line(X(0), Y(y), X(s.z1), Y(p1.y), col, 1.2);
+            if (p2) o += line(X(s.z1), Y(p1.y), X(s.z2), Y(p2.y), col, 1.2) + line(X(s.z2), Y(p2.y), X(s.det), Y(pd.y), col, 1.2);
+            else o += line(X(s.z1), Y(p1.y), X(s.det), Y(pd.y), col, 1.2)
+          }
+        o += line(X(0), Y(-s.back / 2), X(0), Y(s.back / 2), '#fff', 4);
+        const lenses = [
+          [s.z1, s.ap1, s.f1, 'Lens 1'], ...(s.mode === 'substage' ? [
+            [s.z2, s.ap2, s.f2, 'Lens 2']
+          ] : [])
+        ];
+        for (const [z, ap, f, n] of lenses) o += `<ellipse cx="${X(z)}" cy="170" rx="8" ry="${Math.min(105,ap*2.4)}" fill="#76c9e322" stroke="#8fcfdf" stroke-width="2"/>` + txt(X(z), 42, n, '#fff', 13) + txt(X(z), 60, `f ${fmt(f,1)} mm`);
+        o += line(X(s.det), 80, X(s.det), 260, '#526d76', 7) + line(X(s.det), Y(-s.activeY / 2), X(s.det), Y(s.activeY / 2), '#fff', 7) + txt(X(0), 42, 'Back aperture', '#fff', 13, 'start') + txt(X(0), 60, `Ø ${fmt(s.back,1)} mm`, '#c4d8dd', 11, 'start') + txt(X(s.det), 42, 'R3896 PMT', '#fff', 13) + txt(X(s.det), 60, `${fmt(s.activeX,0)} × ${fmt(s.activeY,0)} mm`);
+        o += conjugateOverlay(X, imagePlane);
+        $('bench').innerHTML = o
+      }
+
+      function drawDetector(data) {
+        const scale = 220 / Math.max(16, s.activeX + 2, s.activeY + 2),
+          X = x => 230 + x * scale,
+          Y = y => 145 - y * scale;
+        let o = '<rect width="460" height="290" rx="7" fill="#102e3a"/>' + `<rect x="${X(-s.activeX/2)}" y="${Y(s.activeY/2)}" width="${s.activeX*scale}" height="${s.activeY*scale}" fill="#244e56" stroke="#fff" stroke-width="2"/>`;
+        for (const r of data.rays)
+          if (!r.blocked) o += `<circle cx="${X(r.x)}" cy="${Y(r.y)}" r="1.35" fill="${r.hit?'#f4c66f':'#79cbd2'}" opacity=".62"/>`;
+        $('detector').innerHTML = o;
+        $('detectorBadge').textContent = `${fmt(s.activeX,1)} × ${fmt(s.activeY,1)} mm`
+      }
+
+      function drawBudget(data) {
+        const n = samples.length,
+          vals = [
+            ['Blocked at a collection lens', n - data.pass, '#b78581'],
+            ['Reach plane, miss active rectangle', data.pass - data.hit, '#56a9ae'],
+            ['Reach photoactive surface', data.hit, '#b7862b']
+          ];
+        let o = '';
+        vals.forEach(([label, v, c], i) => {
+          const y = 18 + i * 62;
+          o += txt(0, y, label, '#36545e', 12, 'start') + txt(455, y, fmt(v / n * 100, 1) + '%', '#36545e', 12, 'end') + `<rect x="0" y="${y+9}" width="460" height="22" rx="4" fill="#eaf0ed"/><rect x="0" y="${y+9}" width="${460*v/n}" height="22" rx="4" fill="${c}"/>`
+        });
+        $('budget').innerHTML = o;
+        $('budgetStatus').textContent = `${data.hit} of ${n} rays reach the active surface; ${data.pass} pass every collection lens.`
+      }
+
+      // Recalculate collection efficiency and refresh all diagrams and readouts.
+      function render() {
+        const m = opticalMatrix(),
+          target = targetDetector(),
+          data = collect(),
+          walk = 2 * Math.abs(m[1]) * 3 * RAD,
+          good = Math.abs(m[1]) < 1,
+          imageW = Math.abs(m[0]) * s.back;
+        $('imaging').textContent = good ? 'Approximately conjugate' : 'Not conjugate';
+        $('imaging').className = good ? 'ok' : 'warn';
+        $('imagingSub').textContent = `B = ${fmt(m[1])} mm · ±3° travel ${fmt(walk)} mm`;
+        $('imageSize').textContent = `${fmt(imageW)} mm`;
+        $('magnification').textContent = `|m| = ${fmt(Math.abs(m[0]),3)} · must fit 8 mm height`;
+        $('collection').textContent = fmt(100 * data.hit / samples.length, 1) + '%';
+        $('detectorStatus').textContent = `Back-aperture image ${fmt(imageW)} mm across at zero angle. Detector ${fmt(s.activeX,1)} × ${fmt(s.activeY,1)} mm.`;
+        $('target').textContent = target && target > 0 ? `For these lens positions, B = 0 at PMT position ${fmt(target,3)} mm from the back aperture.` : 'No downstream real image plane for this arrangement.';
+        $('pathTitle').textContent = s.mode === 'epi' ? 'Back aperture → 25 mm epi lens → PMT' : 'Back aperture → 50 mm field lens → 25.4 mm focusing lens → PMT';
+        $('pathBadge').textContent = s.mode === 'epi' ? 'ONE-LENS EPI PATH' : 'TWO-LENS SUBSTAGE PATH';
+        drawBench();
+        drawDetector(data);
+        drawBudget(data)
+      }
+
+      function load(mode) {
+        s = {
+          ...PRESETS[mode]
+        };
+        running = false;
+        phase = 0;
+        $('sweep').textContent = 'Start angle sweep';
+        $('error').textContent = '';
+        sync();
+        render()
+      }
+      $('showConjugate').onchange = e => {
+        showConjugate = e.target.checked;
+        render()
+      };
+      $('epi').onclick = () => load('epi');
+      $('substage').onclick = () => load('substage');
+      $('reset').onclick = () => load(s.mode);
+      $('aligned').onclick = () => {
+        const t = targetDetector();
+        if (t) update('det', t)
+      };
+      $('zero').onclick = () => update('angle', 0);
+      $('hint').onclick = () => {
+        $('target').hidden = !$('target').hidden;
+        $('hint').textContent = $('target').hidden ? 'Show target detector position' : 'Hide target detector position'
+      };
+      $('sweep').onclick = () => {
+        running = !running;
+        last = 0;
+        $('sweep').textContent = running ? 'Pause angle sweep' : 'Start angle sweep'
+      };
+      $('export').onclick = () => {
+        const m = opticalMatrix(),
+          d = collect(),
+          rows = ['# Optics Lab PMT collection', '# Ideal paraxial ray model', `# configuration,${s.mode}`, `# matrix_A,${m[0]}`, `# matrix_B_mm,${m[1]}`, 'setting,value'];
+        Object.entries(s).forEach(([k, v]) => rows.push(`${k},${v}`));
+        rows.push(`collection_percent,${100*d.hit/samples.length}`);
+        const a = document.createElement('a'),
+          url = URL.createObjectURL(new Blob([rows.join('\n')], {
+            type: 'text/csv'
+          }));
+        a.href = url;
+        a.download = 'optics-lab-pmt-collection.csv';
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000)
+      };
+
+      function tick(t) {
+        if (running) {
+          if (last) phase += Math.min((t - last) / 1000, .1) * 1.1;
+          last = t;
+          s.angle = 3 * Math.sin(phase);
+          sync();
+          render()
+        } else last = 0;
+        requestAnimationFrame(tick)
+      }
+      sync();
+      render();
+      requestAnimationFrame(tick);
+    </script>
+  </body>
+</html>

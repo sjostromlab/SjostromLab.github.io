@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<!-- Vibe coding by Jesper Sjöström with help from ChatGPT Codex. Updated 2026-11-11. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Optics Lab · Dichroics and emission filters</title><script defer src="navigation.js"></script>
+    <style>
+      * {
+        box-sizing: border-box
+      }
+
+      body {
+        margin: 0;
+        background: #f1f5f4;
+        color: #193540;
+        font: 14px/1.45 system-ui, sans-serif
+      }
+
+      header {
+        background: #102e3a;
+        color: white;
+        padding: 18px 26px
+      }
+
+      header small {
+        color: #a5c7cc;
+        letter-spacing: .12em
+      }
+
+      h1 {
+        font-size: 26px;
+        margin: 4px 0
+      }
+
+      main {
+        max-width: 1280px;
+        margin: auto;
+        padding: 18px 22px 80px
+      }
+
+      .intro {
+        color: #526e76;
+        max-width: 970px
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 315px 1fr;
+        gap: 15px
+      }
+
+      .panel {
+        background: white;
+        border: 1px solid #d5e2df;
+        border-radius: 9px;
+        padding: 15px;
+        margin-bottom: 13px
+      }
+
+      h2 {
+        font-size: 17px;
+        margin: 0 0 9px
+      }
+
+      h3 {
+        font-size: 14px;
+        margin: 14px 0 6px
+      }
+
+      .position {
+        border-top: 1px solid #dbe6e2;
+        padding-top: 9px;
+        margin-top: 9px
+      }
+
+      .position:first-of-type {
+        border-top: 0
+      }
+
+      .position-title {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        font-size: 12px;
+        font-weight: 700
+      }
+
+      .position-title span {
+        color: #607981;
+        font-weight: 500
+      }
+
+      .control {
+        margin: 6px 0
+      }
+
+      .control label {
+        display: block;
+        font-size: 11px;
+        margin-bottom: 3px;
+        color: #526e76
+      }
+
+      select {
+        width: 100%
+      }
+
+      select,
+      button {
+        padding: 7px;
+        border: 1px solid #b8cccb;
+        border-radius: 5px;
+        background: white
+      }
+
+      button {
+        cursor: pointer
+      }
+
+      .buttons {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap
+      }
+
+      .buttons button {
+        flex: 1;
+        min-width: 74px
+      }
+
+      .note {
+        padding: 10px;
+        background: #fff2d9;
+        border-radius: 5px;
+        font-size: 12px
+      }
+
+      .good {
+        background: #e3f2ec
+      }
+
+      .warn {
+        background: #fff0dc
+      }
+
+      .bad {
+        background: #f7dddd
+      }
+
+      .path-wrap {
+        border-radius: 8px;
+        background: #f8fbfa;
+        border: 1px solid #dbe6e2;
+        padding: 4px
+      }
+
+      svg {
+        width: 100%;
+        display: block
+      }
+
+      .position-label {
+        font-size: 14px;
+        font-weight: 700;
+        fill: #193540
+      }
+
+      .component-label {
+        font-size: 11px;
+        fill: #526e76
+      }
+
+      .apparatus-label {
+        font-size: 15px;
+        font-weight: 700;
+        fill: #193540
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 9px
+      }
+
+      .stat {
+        background: #e4efed;
+        border-radius: 7px;
+        padding: 10px;
+        font-size: 11px
+      }
+
+      .stat strong {
+        display: block;
+        color: #087f79;
+        font-size: 19px
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 7px;
+        border-bottom: 1px solid #dbe6e2;
+        vertical-align: top
+      }
+
+      th {
+        color: #607981
+      }
+
+      .ok-text {
+        color: #087f79;
+        font-weight: 700
+      }
+
+      .warn-text {
+        color: #a75f16;
+        font-weight: 700
+      }
+
+      .bad-text {
+        color: #b24f3f;
+        font-weight: 700
+      }
+
+      .home {
+        position: fixed;
+        right: 18px;
+        bottom: 14px;
+        background: #087f79;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 6px;
+        text-decoration: none
+      }
+
+      .legend {
+        font-size: 12px;
+        color: #607981
+      }
+
+      @media(max-width:850px) {
+        .layout {
+          grid-template-columns: 1fr
+        }
+
+        .stats {
+          grid-template-columns: 1fr 1fr
+        }
+      }
+
+      @media(max-width:520px) {
+        .stats {
+          grid-template-columns: 1fr
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <small>OPTICS LAB / FLUORESCENCE DETECTION</small>
+      <h1>Dichroics and emission filters</h1>
+    </header>
+    <main>
+      <p class="intro">Populate five physical filter positions in a two-channel detector. Components may be moved, omitted, or installed incorrectly; trace what reaches each PMT and whether the laser-rejection stack is complete.</p>
+      <div class="layout">
+        <aside>
+          <section class="panel">
+            <h2>Populate the filter positions</h2>
+            <div class="control">
+              <label for="fluor">Emission example</label><select id="fluor">
+                <option value="gfp">Green + Alexa 594-like red</option>
+                <option value="indo">Indo-1-like blue + violet</option>
+                <option value="broad">Broad green + red teaching pair</option>
+              </select>
+            </div>
+            <div class="position">
+              <div class="position-title">Position 1 <span>collection dichroic</span></div>
+              <div class="control">
+                <select id="p1">
+                  <option value="665">FF665-Di01 / Di02</option>
+                  <option value="695">FF695-Di01</option>
+                  <option value="560">FF560-Di01 · misplaced</option>
+                  <option value="empty">Empty</option>
+                </select>
+              </div>
+            </div>
+            <div class="position">
+              <div class="position-title">Position 2 <span>two-filter blocker stack</span></div>
+              <div class="control">
+                <label for="p2a">2p excitation blocker slot</label><select id="p2a">
+                  <option value="680">FF01-680/SP-25</option>
+                  <option value="525">ET525/50m · misplaced</option>
+                  <option value="empty">Empty</option>
+                </select>
+              </div>
+              <div class="control">
+                <label for="p2b">Auxiliary blue-laser blocker slot</label><select id="p2b">
+                  <option value="empty">Empty</option>
+                  <option value="473">BLP01-473R-25</option>
+                  <option value="488">BLP01-488R-25</option>
+                  <option value="630">ET630/75m · misplaced</option>
+                </select>
+              </div>
+            </div>
+            <div class="position">
+              <div class="position-title">Position 3 <span>red/green dichroic</span></div>
+              <div class="control">
+                <select id="p3">
+                  <option value="560">FF560-Di01</option>
+                  <option value="565">Chroma t565lpxr</option>
+                  <option value="484">FF484-FDi01 · Indo-1</option>
+                  <option value="empty">Empty</option>
+                </select>
+              </div>
+            </div>
+            <div class="position">
+              <div class="position-title">Position 4 <span>Red PMT filter</span></div>
+              <div class="control">
+                <select id="p4">
+                  <option value="630,75">ET630/75m</option>
+                  <option value="607,70">FF01-607/70</option>
+                  <option value="525,50">ET525/50m · wrong channel</option>
+                  <option value="empty">Empty</option>
+                </select>
+              </div>
+            </div>
+            <div class="position">
+              <div class="position-title">Position 5 <span>Green PMT filter</span></div>
+              <div class="control">
+                <select id="p5">
+                  <option value="525,50">ET525/50m</option>
+                  <option value="525,45">FF01-525/45</option>
+                  <option value="455,40">455/40 · Indo-1 example</option>
+                  <option value="630,75">ET630/75m · wrong channel</option>
+                  <option value="empty">Empty</option>
+                </select>
+              </div>
+            </div>
+            <h3>Presets</h3>
+            <div class="buttons">
+              <button data-preset="complete">Green/red</button><button data-preset="noblocker">No IR blocker</button><button data-preset="reversed">Reversed P3</button><button data-preset="misplaced">Misplaced</button>
+            </div>
+            <div class="buttons" style="margin-top:8px">
+              <button id="reset">Reset</button>
+            </div>
+          </section>
+          <p class="note"><b>Teaching model:</b> curves are generated from nominal edge and band names, not measured manufacturer data. Use vendor spectra and angle-of-incidence specifications for purchasing or safety decisions.</p>
+        </aside>
+        <div>
+          <section class="panel">
+            <h2>Physical detection path</h2>
+            <div class="path-wrap">
+              <svg id="physical"
+                   viewBox="0 0 900 455"
+                   role="img"
+                   aria-label="Two-photon excitation and two-channel fluorescence detection path with five filter positions">
+              </svg>
+            </div>
+            <p id="route" class="note"></p>
+          </section>
+          <section class="panel">
+            <h2>Idealized spectral routing</h2>
+            <svg id="plot"
+                 viewBox="0 0 820 290"
+                 role="img"
+                 aria-label="Idealized emission spectra and detector filter bands">
+            </svg>
+            <p class="legend">Faint curves are illustrative fluorophore emission. Solid curves show light admitted to each PMT after the selected position-3 split and position-4/5 filters. The dashed line is the position-3 dichroic edge.</p>
+          </section>
+          <div class="stats">
+            <div class="stat">Green-PMT capture<strong id="gstat"></strong>short emission</div>
+            <div class="stat">Red-PMT capture<strong id="rstat"></strong>long emission</div>
+            <div class="stat">Cross-talk indicator<strong id="cross"></strong>relative overlap</div>
+            <div class="stat">Excitation rejection<strong id="safety"></strong>stack assessment</div>
+          </div>
+          <section class="panel">
+            <h2>Position check</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Position</th>
+                  <th>Intended job</th>
+                  <th>Currently installed</th>
+                  <th>Assessment</th>
+                </tr>
+              </thead>
+              <tbody id="positionRows">
+              </tbody>
+            </table>
+          </section>
+          <section class="panel">
+            <details>
+              <summary><b>How to explore</b></summary>
+              <ol>
+                <li>Load the green/red preset and follow excitation downward through position 1 while fluorescence is reflected toward the PMTs.</li>
+                <li>Notice that position 2 may contain both a 2p excitation blocker and a blue-laser blocker. They reject different unwanted wavelengths.</li>
+                <li>Remove the 680/SP filter. Visible routing hardly changes, but the protection stack becomes incomplete.</li>
+                <li>Reverse position 3 or put a green filter at position 4. Compare physical routing with useful signal at each PMT.</li>
+                <li>Try placing components in deliberately inappropriate positions and use the table to diagnose each error.</li>
+              </ol>
+            </details>
+            <details style="margin-top:10px">
+              <summary><b>Model, limitations &amp; references</b></summary>
+              <p>Emission spectra are illustrative Gaussians. Dichroics use smooth nominal edges and emission filters use smooth nominal passbands. Real curves depend on coating, incidence angle, polarization, manufacturing tolerance and blocking range. Optical density, PMT quantum efficiency, autofluorescence and absolute throughput are not calculated.</p>
+              <p>Component names and default combinations follow the supplied Sjöström Lab rig notes. Confirm every installation against current part markings and manufacturer data.</p>
+            </details>
+          </section>
+        </div>
+      </div>
+    </main>
+    <a class="home" href="index.html">← Back to main menu</a>
+    <script>
+      'use strict';
+      // Simplified spectra and transmission curves for the available filters.
+      const $ = id => document.getElementById(id),
+        gauss = (x, c, w) => Math.exp(-.5 * ((x - c) / w) ** 2),
+        edge = (x, c) => 1 / (1 + Math.exp(-(x - c) / 3)),
+        band = (x, c, w) => edge(x, c - w / 2) * (1 - edge(x, c + w / 2));
+      const spectra = {
+        gfp: {
+          short: [525, 27],
+          long: [617, 37]
+        },
+        indo: {
+          short: [405, 24],
+          long: [485, 27]
+        },
+        broad: {
+          short: [535, 40],
+          long: [625, 48]
+        }
+      };
+      const labels = {
+        p1: {
+          665: 'FF665-Di01 / Di02',
+          695: 'FF695-Di01',
+          560: 'FF560-Di01',
+          empty: 'Empty'
+        },
+        p2a: {
+          680: 'FF01-680/SP-25',
+          525: 'ET525/50m',
+          empty: 'Empty'
+        },
+        p2b: {
+          473: 'BLP01-473R-25',
+          488: 'BLP01-488R-25',
+          630: 'ET630/75m',
+          empty: 'Empty'
+        },
+        p3: {
+          560: 'FF560-Di01',
+          565: 'Chroma t565lpxr',
+          484: 'FF484-FDi01',
+          empty: 'Empty'
+        },
+        p4: {
+          '630,75': 'ET630/75m',
+          '607,70': 'FF01-607/70',
+          '525,50': 'ET525/50m',
+          empty: 'Empty'
+        },
+        p5: {
+          '525,50': 'ET525/50m',
+          '525,45': 'FF01-525/45',
+          '455,40': '455/40 teaching band',
+          '630,75': 'ET630/75m',
+          empty: 'Empty'
+        }
+      };
+      let reversedP3 = false;
+      const curvePath = v => v.map((y, i) => `${i?'L':'M'} ${55+i*2.45} ${245-y*185}`).join(' '),
+        label = id => labels[id][$(id).value],
+        filter = id => $(id).value === 'empty' ? null : $(id).value.split(',').map(Number),
+        assessment = (ok, msg = 'Wrong component') => `<span class="${ok?'ok-text':'bad-text'}">${ok?'Suitable':msg}</span>`;
+
+      // Draw the physical two-channel detection path using the selected positions.
+      function drawPhysical(s) {
+        const n = [$('p2a').value, $('p2b').value].filter(v => v !== 'empty').length,
+          lines = n ? Array.from({
+            length: n
+          }, (_, i) => `<line x1="${438+i*13}" y1="197" x2="${438+i*13}" y2="274" stroke="#1d6688" stroke-width="5" stroke-dasharray="9 6"/>`).join('') : '<text x="445" y="252" text-anchor="middle" fill="#b24f3f" font-weight="700">EMPTY</text>';
+        $('physical').innerHTML = `<rect width="900" height="455" fill="#f8fbfa"/>
+<text x="128" y="42" text-anchor="middle" class="apparatus-label">Scanners</text><path d="M111.5 73.5L144.5 106.5M144.5 73.5L111.5 106.5" stroke="#1d6688" stroke-width="4"/>
+<path d="M128 105V330" stroke="#cf3630" stroke-width="8"/><path d="M115 330H141L128 356Z" fill="#cf3630"/>
+<path d="M151 355V235H605" stroke="#233a43" stroke-width="7" fill="none" opacity="${s.collection?1:.18}"/>
+<g opacity="${s.collection&&s.split?Math.max(.18,s.ownL):.12}"><path d="M605 235H778" stroke="#e33b35" stroke-width="8"/><path d="M778 222V248L807 235Z" fill="#e33b35"/></g>
+<g opacity="${s.collection&&s.split?Math.max(.18,s.ownS):.12}"><path d="M605 235V132" stroke="#25823b" stroke-width="8"/><path d="M592 132H618L605 105Z" fill="#25823b"/></g>
+<path d="M108 273L184 197" stroke="#1d6688" stroke-width="5" stroke-dasharray="10 7"/>${lines}<path d="M565 275L645 195" stroke="#1d6688" stroke-width="5" stroke-dasharray="10 7"/><line x1="716" y1="197" x2="716" y2="274" stroke="#1d6688" stroke-width="5" stroke-dasharray="10 7"/><line x1="568" y1="163" x2="642" y2="163" stroke="#1d6688" stroke-width="5" stroke-dasharray="10 7"/>
+<path d="M92 371h72v60l-20 20h-32l-20-20z" fill="#e8eeee" stroke="#193540" stroke-width="3"/><text x="128" y="407" text-anchor="middle" class="apparatus-label">Objective</text><rect x="524" y="20" width="162" height="70" rx="4" fill="#e8eeee" stroke="#193540" stroke-width="3"/><rect x="589" y="86" width="32" height="7"/><text x="605" y="61" text-anchor="middle" class="apparatus-label">Green PMT</text><rect x="824" y="196" width="72" height="78" rx="4" fill="#e8eeee" stroke="#193540" stroke-width="3"/><rect x="819" y="223" width="7" height="31"/><text x="860" y="237" text-anchor="middle" class="apparatus-label"><tspan x="860">Red</tspan><tspan x="860" dy="18">PMT</tspan></text>
+<text x="20" y="210" class="position-label">Position 1</text><text x="20" y="226" class="component-label">${label('p1')}</text><text x="400" y="310" class="position-label">Position 2</text><text x="400" y="326" class="component-label">${label('p2a')}</text><text x="400" y="342" class="component-label">${label('p2b')}</text><text x="545" y="310" class="position-label">Position 3</text><text x="545" y="326" class="component-label">${label('p3')}${s.reversed?' · reversed':''}</text><text x="680" y="310" class="position-label">Position 4</text><text x="680" y="326" class="component-label">${label('p4')}</text><text x="658" y="158" class="position-label">Position 5</text><text x="658" y="174" class="component-label">${label('p5')}</text><text x="147" y="126" class="component-label">2p excitation</text><text x="254" y="225" class="component-label">collected fluorescence</text>`
+      }
+
+      // Update spectra, light paths, channel efficiencies, and teaching feedback.
+      function render() {
+        const spec = spectra[$('fluor').value],
+          p3 = $('p3').value,
+          split = p3 === 'empty' ? 560 : +p3,
+          rev = reversedP3,
+          p4 = filter('p4'),
+          p5 = filter('p5'),
+          xs = Array.from({
+            length: 301
+          }, (_, i) => 400 + i),
+          se = xs.map(x => gauss(x, ...spec.short)),
+          le = xs.map(x => gauss(x, ...spec.long)),
+          tg = xs.map(x => p3 === 'empty' ? 0 : (rev ? edge(x, split) : 1 - edge(x, split))),
+          tr = xs.map(x => p3 === 'empty' ? 0 : (rev ? 1 - edge(x, split) : edge(x, split))),
+          gf = xs.map(x => p5 ? band(x, ...p5) : 0),
+          rf = xs.map(x => p4 ? band(x, ...p4) : 0),
+          gr = xs.map((_, i) => tg[i] * gf[i]),
+          rr = xs.map((_, i) => tr[i] * rf[i]),
+          over = (src, rt) => src.reduce((a, v, i) => a + v * rt[i], 0) / src.reduce((a, v) => a + v, 0),
+          ownS = over(se, gr),
+          ownL = over(le, rr),
+          wrong = Math.max(over(le, gr), over(se, rr)),
+          collection = ['665', '695'].includes($('p1').value),
+          ir = $('p2a').value === '680',
+          blue = ['473', '488'].includes($('p2b').value),
+          channel = +p3 >= 480;
+        let d = '<rect width="820" height="290" fill="#fff"/>';
+        for (const w of [400, 500, 600, 700]) {
+          const x = 55 + (w - 400) * 2.45;
+          d += `<line x1="${x}" y1="50" x2="${x}" y2="245" stroke="#dce5e1"/><text x="${x}" y="272" text-anchor="middle" fill="#607981">${w} nm</text>`
+        }
+        const sx = 55 + (split - 400) * 2.45;
+        d += `<path d="${curvePath(se)}" fill="none" stroke="#65bfa5" stroke-width="5" opacity=".28"/><path d="${curvePath(le)}" fill="none" stroke="#d87b68" stroke-width="5" opacity=".28"/><path d="${curvePath(gr)}" fill="none" stroke="#087f79" stroke-width="3"/><path d="${curvePath(rr)}" fill="none" stroke="#b24f3f" stroke-width="3"/>${p3==='empty'?'':`<line x1="${sx}" y1="40" x2="${sx}" y2="245" stroke="#193540" stroke-dasharray="5 4"/><text x="${sx+7}" y="40" fill="#193540">${split} nm split</text>`}`;
+        $('plot').innerHTML = d;
+        $('gstat').textContent = (ownS * 100).toFixed(0) + '%';
+        $('rstat').textContent = (ownL * 100).toFixed(0) + '%';
+        $('cross').textContent = (wrong * 100).toFixed(0) + '%';
+        $('safety').textContent = ir ? (blue ? 'IR + blue' : 'IR only') : 'Incomplete';
+        const useful = collection && channel && ownS > .32 && ownL > .32 && !rev;
+        $('route').className = `note ${useful&&ir?'good':collection&&channel?'warn':'bad'}`;
+        $('route').textContent = !collection ? 'Position 1 does not contain a suitable collection dichroic.' : !ir ? 'Visible routing may look normal, but position 2 lacks the 2p excitation blocker.' : useful ? (blue ? 'Both PMTs receive their intended bands; 2p excitation and auxiliary blue light are rejected.' : 'Both PMTs receive their intended bands. Add the blue blocker only when auxiliary blue excitation must also be rejected.') : 'One or more positions lose useful fluorescence or send it to the wrong PMT.';
+        drawPhysical({
+          collection,
+          split: channel,
+          ownS,
+          ownL,
+          reversed: rev
+        });
+        const rows = [
+          ['1', 'Separate visible fluorescence from 2p excitation', label('p1'), assessment(collection)],
+          ['2', 'Reject residual lasers; may hold two filters', `${label('p2a')}<br>${label('p2b')}`, ir ? `<span class="ok-text">2p blocker present</span>${blue?'<br><span class="ok-text">Blue blocker present</span>':'<br><span class="warn-text">Blue slot empty (optional)</span>'}` : '<span class="bad-text">2p excitation blocker absent</span>'],
+          ['3', 'Split shorter wavelengths to Green PMT and longer wavelengths to Red PMT', label('p3') + (rev ? ' · reversed' : ''), assessment(channel && !rev, p3 === 'empty' ? 'Empty' : 'Wrong or reversed')],
+          ['4', 'Define Red PMT band', label('p4'), assessment(['630,75', '607,70'].includes($('p4').value))],
+          ['5', 'Define Green PMT band', label('p5'), assessment(['525,50', '525,45'].includes($('p5').value))]
+        ];
+        $('positionRows').innerHTML = rows.map(r => `<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')
+      }
+
+      function preset(name) {
+        const q = {
+          complete: ['gfp', '665', '680', 'empty', '560', false, '630,75', '525,50'],
+          noblocker: ['gfp', '665', 'empty', 'empty', '560', false, '630,75', '525,50'],
+          reversed: ['gfp', '665', '680', 'empty', '560', true, '630,75', '525,50'],
+          misplaced: ['gfp', '560', '525', '630', '565', false, '525,50', '630,75']
+        } [name];
+        ['fluor', 'p1', 'p2a', 'p2b', 'p3'].forEach((id, i) => $(id).value = q[i]);
+        reversedP3 = q[5];
+        $('p4').value = q[6];
+        $('p5').value = q[7];
+        render()
+      }
+      document.querySelectorAll('select').forEach(c => c.addEventListener('change', () => {
+        reversedP3 = false;
+        render()
+      }));
+      document.querySelectorAll('[data-preset]').forEach(b => b.addEventListener('click', () => preset(b.dataset.preset)));
+      $('reset').onclick = () => preset('complete');
+      render();
+    </script>
+  </body>
+</html>
