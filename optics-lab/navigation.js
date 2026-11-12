@@ -59,7 +59,7 @@
     course.innerHTML = `
       <div class="learning-heading">
         <div><span>GUIDED TRAINING · ${pageIndex + 1} OF ${pages.length}</span><strong>${page.short}</strong></div>
-        <a href="index.html">All simulations</a>
+        <a href="index.html">Optics Lab menu</a>
       </div>
       <details class="learning-challenge">
         <summary>Try the guided challenge</summary>
@@ -82,13 +82,13 @@
   }
 
   footer.className = 'site-footer';
-  const overallMenuLink = currentFile === 'index.html' ? '<a href="../index.html">Main menu</a>' : '';
+  const overallMenuLink = currentFile === 'index.html' ? '<a href="../index.html">All simulations</a>' : '';
   footer.innerHTML = `
     <p><strong>Optics Lab</strong></p>
     <nav aria-label="Further information">
       ${overallMenuLink}
       <a href="http://plasticity.muhc.mcgill.ca/index.html" target="_blank" rel="noopener">Sjöström Lab</a>
-      <a href="https://github.com/sjostromlab/optics-lab" target="_blank" rel="noopener">GitHub source</a>
+      <a href="https://github.com/sjostromlab/SjostromLab.github.io/tree/main/optics-lab" target="_blank" rel="noopener">GitHub source</a>
     </nav>
   `;
 

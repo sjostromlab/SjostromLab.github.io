@@ -94,9 +94,15 @@
     }
     footerNav.setAttribute('aria-label', 'Further information');
 
-    const footerMainMenu = Array.from(footerNav.querySelectorAll('a')).find(
-      link => link.textContent.trim() === 'Main menu'
+    const collectionMenuLink = footerNav.querySelector(
+      'a[target="neuroscienceTeachingToolsMenu"][data-window-nav]'
     );
+    if (collectionMenuLink) collectionMenuLink.textContent = 'Neuroscience menu';
+
+    const overallMenuLink = Array.from(footerNav.querySelectorAll('a')).find(
+      link => link.textContent.trim() === 'All simulations'
+    );
+    const menuLink = collectionMenuLink || overallMenuLink;
     const labLink = document.createElement('a');
     labLink.href = 'http://plasticity.muhc.mcgill.ca/index.html';
     labLink.target = '_blank';
@@ -104,12 +110,12 @@
     labLink.textContent = 'Sjöström Lab';
 
     const sourceLink = document.createElement('a');
-    sourceLink.href = 'https://github.com/sjostromlab/neurosci-sims';
+    sourceLink.href = 'https://github.com/sjostromlab/SjostromLab.github.io/tree/main/neurosci-sims';
     sourceLink.target = '_blank';
     sourceLink.rel = 'noopener';
     sourceLink.textContent = 'GitHub source';
 
-    footerNav.replaceChildren(...(footerMainMenu ? [footerMainMenu] : []), labLink, sourceLink);
+    footerNav.replaceChildren(...(menuLink ? [menuLink] : []), labLink, sourceLink);
   }
 
   document.querySelectorAll('a[data-window-nav]').forEach(link => {
